@@ -38,7 +38,7 @@ This is done on a throwaway branch, never on `main`:
 5. Record the pull request link and the failed run in `docs/DECISIONS.md`.
 6. Close the pull request without merging, and delete the branch, locally and on GitHub.
 
-Status: not yet demonstrated. The owner does this once branch protection is on.
+Status: demonstrated on 20 Oct 2026. Pull request #6 (a deliberately failing test) failed `check (Node 22)` and `check (Node 24)` at the Test step, and its merge was blocked by the `protect-main` ruleset. The pull request was closed without merging and the branch deleted.
 
 ## Licence
 
