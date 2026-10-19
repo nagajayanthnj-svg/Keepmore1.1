@@ -1,0 +1,159 @@
+// Source of truth: docs/TDD.md "Data model". Money is Int minor units, time is UTC DateTime.
+// Status-like fields are plain strings, checked by Zod unions in code.
+// LedgerEntry and AuditEvent are append-only: the migration adds triggers that refuse UPDATE and DELETE.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Order {
+  id             String   @id @default(cuid())
+  paypalOrderId  String   @unique
+  captureId      String?  @unique
+  itemsJson      String
+  country        String               // ISO 3166 alpha-2
+  grossMinor     Int
+  currency       String               // ISO 4217
+  buyerHash      String?              // HMAC of payer ID; never displayed
+  createdAt      DateTime @default(now())
+  shipment       Shipment?
+  ledger         LedgerEntry[]
+  disputes       DisputeCase[]
+}
+
+model LedgerEntry {
+  id                String   @id @default(cuid())
+  orderId           String
+  order             Order    @relation(fields: [orderId], references: [id])
+  type              String   // GROSS|PAYPAL_FEE|FX|DUTY|SHIPPING|RETURN_POSTAGE|REFUND|DISPUTE_FEE|RETAINED
+  amountMinor       Int
+  currency          String
+  inrMinor          Int?
+  sourceType        String   // PAYPAL_VERIFIED|REFERENCE_RATE_ESTIMATE|SELLER_ENTERED|DEMO_SEEDED|HYPOTHETICAL_SCENARIO
+  sourceRef         String?  // capture ID, refund ID, case ID
+  rate              Decimal?
+  rateDate          DateTime?
+  calcVersion       String
+  correctsEntryId   String?  // correcting entries instead of edits
+  occurredAt        DateTime
+  createdAt         DateTime @default(now())
+}
+
+model FxRate {
+  id      String   @id @default(cuid())
+  date    DateTime
+  pair    String   // USD/INR
+  rate    Decimal
+  source  String   // FBIL|PAYPAL|DEMO_SEED
+  @@unique([date, pair, source])
+}
+
+model Shipment {
+  id               String    @id @default(cuid())
+  orderId          String    @unique
+  order            Order     @relation(fields: [orderId], references: [id])
+  carrier          String    // canonical code
+  trackingNo       String    // normalised
+  pushStatus       String    // NOT_ATTEMPTED|PUSHED|REJECTED
+  pushedToPaypalAt DateTime?
+  pushError        String?   // status code + redacted raw response
+  eventsJson       String    // normalised events with source state
+}
+
+model DisputeCase {
+  id                 String    @id @default(cuid())
+  paypalDisputeId    String    @unique
+  orderId            String?
+  order              Order?    @relation(fields: [orderId], references: [id])
+  reason             String
+  stage              String
+  status             String
+  amountMinor        Int
+  currency           String
+  sellerDeadline     DateTime?
+  allowedActionsJson String    // derived from links + allowed_response_options
+  requestedEvidence  String    // evidence types requested from seller
+  outcomeCode        String?   // raw PayPal value
+  buyerHash          String?
+  lastSyncedAt       DateTime
+  rawHash            String    // hash of last details payload
+}
+
+model EvidenceRecord {
+  id          String   @id         // stable REC-xxx
+  caseId      String
+  type        String   // ORDER|CAPTURE|SHIPMENT|TRACKING_EVENT|BUYER_MESSAGE|POLICY
+  source      String
+  occurredAt  DateTime
+  fieldsJson  String   // normalised fields used by the claim validator
+  contentHash String
+  trustState  String
+}
+
+model AgentRun {
+  id          String   @id @default(cuid())
+  caseId      String
+  mode        String   // RULES|AI
+  provider    String?
+  model       String?
+  inputHash   String
+  outputJson  String
+  validation  String   // PASS|REPAIRED|FELL_BACK + details
+  latencyMs   Int
+  createdAt   DateTime @default(now())
+}
+
+model CaseAction {
+  id            String    @id @default(cuid())
+  caseId        String
+  action        String
+  payloadJson   String
+  payloadHash   String
+  approvedBy    String
+  approvedAt    DateTime
+  stateHashAtApproval String
+  submittedAt   DateTime?
+  httpStatus    Int?
+  responseJson  String?
+  idempotencyKey String   @unique
+}
+
+model WebhookEvent {
+  eventId     String   @id
+  type        String
+  verified    Boolean
+  receivedAt  DateTime @default(now())
+  processedAt DateTime?
+  result      String?
+}
+
+model SellerPolicy {
+  id                    String @id @default("default")
+  refundThresholdMinor  Int
+  highValueBandMinor    Int
+  minCarrierSample      Int    @default(20)
+  returnlessCapPerYear  Int    @default(1)
+  returnPolicyText      String
+  currency              String @default("USD")
+}
+
+model ReturnlessGrant {
+  id        String   @id @default(cuid())
+  buyerHash String
+  caseId    String
+  grantedAt DateTime @default(now())
+}
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  entity     String
+  entityId   String
+  kind       String
+  detailJson String   // redacted
+  createdAt  DateTime @default(now())
+}

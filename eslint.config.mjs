@@ -15,5 +15,6 @@ export default defineConfig([
     'tests/fixtures/**',
     'playwright-report/**',
     'test-results/**',
+    'src/generated/**',
   ]),
 ]);
