@@ -1,0 +1,92 @@
+{
+  "received_at": "2026-10-19T15:37:05.123Z",
+  "headers": {
+    "paypal-transmission-id": "ef83831a-cbd2-11f1-9883-b7a2979917dd",
+    "paypal-transmission-time": "2026-10-19T15:37:04Z",
+    "paypal-transmission-sig": "XxzZYmwTNV0ao+GYOhn7XY4Yvkmg+zK1aE94pozL5nS0L+i45HSmMNSK+xCoiJPOmnHid6ufESginnlYDJWGziMXTiyLLCrRbeqK0UAHdv5qmMR83355BdKvDYeJkjwaPXoYl0cG+/SU/jJSOSbeXrykz06eSJfJYHF7qAJ3geh6XZHfhuIAGhrPybcigfUnEvJ3gkDrMjUUSt1oHo5+YBs5k7VJf4zL7E6rufTQH32FjqEVGzu4CyfUB/9ugdid426Da3ETcrl8jOEBY1N8GEGXdH1+n2Tx4lBozno1JxopTfo+7DwOJT9gbpbLDl+CIGkErp1/uo+fUUDYKgfWAQ==",
+    "paypal-cert-url": "https://api.sandbox.paypal.com/v1/notifications/certs/CERT-360caa42-fca2a594-bf9ab596",
+    "paypal-auth-algo": "SHA256withRSA"
+  },
+  "body": {
+    "id": "WH-7B597241T1637435T-6EA85595X9192414U",
+    "event_version": "1.0",
+    "create_time": "2026-10-19T15:37:03.818Z",
+    "resource_type": "dispute",
+    "event_type": "CUSTOMER.DISPUTE.CREATED",
+    "summary": "A new dispute opened with case # PP-R-IUT-10193562",
+    "resource": {
+      "dispute_id": "PP-R-IUT-10193562",
+      "create_time": "2026-10-19T15:33:52.521Z",
+      "update_time": "2026-10-19T15:36:36.749Z",
+      "disputed_transactions": [
+        {
+          "buyer_transaction_id": "4EU206565W065925H",
+          "seller_transaction_id": "0HE26749YS519313U",
+          "transaction_status": "COMPLETED",
+          "seller": {
+            "merchant_id": "REDACTED_MERCHANT_ID",
+            "name": "Test Store"
+          },
+          "items": [
+            {
+              "item_name": "1",
+              "item_description": "1",
+              "item_quantity": "1",
+              "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+              "item_type": "SERVICE"
+            }
+          ],
+          "seller_protection_eligible": true,
+          "seller_protection_type": "EXPANDED_SELLER_PROTECTION"
+        }
+      ],
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "status": "UNDER_REVIEW",
+      "dispute_amount": {
+        "currency_code": "USD",
+        "value": "120.00"
+      },
+      "dispute_life_cycle_stage": "CHARGEBACK",
+      "dispute_channel": "INTERNAL",
+      "offer": {
+        "buyer_requested_amount": {
+          "currency_code": "USD",
+          "value": "120.00"
+        }
+      },
+      "refund_details": {
+        "allowed_refund_amount": {
+          "currency_code": "USD",
+          "value": "120.00"
+        }
+      },
+      "links": [
+        {
+          "href": "https://api.sandbox.paypal.com/v1/customer/disputes/PP-R-IUT-10193562",
+          "rel": "self",
+          "method": "GET"
+        }
+      ]
+    },
+    "links": [
+      {
+        "href": "https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-7B597241T1637435T-6EA85595X9192414U",
+        "rel": "self",
+        "method": "GET"
+      },
+      {
+        "href": "https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-7B597241T1637435T-6EA85595X9192414U/resend",
+        "rel": "resend",
+        "method": "POST"
+      }
+    ]
+  },
+  "verification": {
+    "status": 200,
+    "ok": true,
+    "debug_id": "f2682337b33e3",
+    "body": {
+      "verification_status": "SUCCESS"
+    }
+  }
+}

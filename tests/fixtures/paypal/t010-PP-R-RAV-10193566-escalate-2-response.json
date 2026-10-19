@@ -1,0 +1,23 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/v1/customer/disputes/PP-R-RAV-10193566/escalate",
+    "content_type": "application/json",
+    "body": {
+      "note": "Item shipped with India Post, tracking number EE123456789IN; escalating for PayPal review."
+    }
+  },
+  "response": {
+    "status": 200,
+    "debug_id": "f472475cd5166",
+    "body": {
+      "links": [
+        {
+          "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes/PP-R-RAV-10193566",
+          "rel": "detail",
+          "method": "GET"
+        }
+      ]
+    }
+  }
+}

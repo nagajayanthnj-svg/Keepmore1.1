@@ -1,0 +1,143 @@
+{
+  "received_at": "2026-10-19T18:47:24.181Z",
+  "headers": {
+    "paypal-transmission-id": "86105147-cbed-11f1-9883-c743da698d78",
+    "paypal-transmission-time": "2026-10-19T18:47:24Z",
+    "paypal-transmission-sig": "DRYhCkaAauUIVMfHeeKY3Wut7NhS9wiEu5vy+7E8FBAhgGhq6Jgd2Kbv6GW/1mHDP32Dl6GY5fGtfPDw6XLozcgOLmG0rGYA1gTdHlIGat90JzPHWT8UgLxOYZqWfp6UjWYkNB2km6D+UCQDli4Q+ONYFnOQ2LRbshIpa+xMi3ZRTqTlg8YY4z6fIpLW6YhmDzmOVYRjGNvdL/GtBHdyx2L2z3unSUvpeubJVO5/EFXBreZEKdGMmnN157D2/Xt3NMiTwsx72DFv0o9QkdxS694nnBNndnJM7FMQvgCHR48WgpC31Tz1y6nIS+Ekpa1IUQei/Gs4GArUvhbSFlymlw==",
+    "paypal-cert-url": "https://api.sandbox.paypal.com/v1/notifications/certs/CERT-360caa42-fca2a594-bf9ab596",
+    "paypal-auth-algo": "SHA256withRSA"
+  },
+  "body": {
+    "id": "WH-41W01260M46157813-17948266PJ8416714",
+    "event_version": "1.0",
+    "create_time": "2026-10-19T18:47:23.327Z",
+    "resource_type": "dispute",
+    "event_type": "CUSTOMER.DISPUTE.RESOLVED",
+    "summary": "A dispute was resolved with case # PP-R-RAV-10193566",
+    "resource": {
+      "dispute_id": "PP-R-RAV-10193566",
+      "create_time": "2026-10-19T16:07:41.708Z",
+      "update_time": "2026-10-19T18:47:13.622Z",
+      "disputed_transactions": [
+        {
+          "buyer_transaction_id": "2WW677483X2673146",
+          "seller_transaction_id": "3FG688039F4865201",
+          "transaction_status": "COMPLETED",
+          "seller": {
+            "merchant_id": "REDACTED_MERCHANT_ID",
+            "name": "Test Store"
+          },
+          "items": [
+            {
+              "item_name": "SDA",
+              "item_description": "SDA",
+              "item_quantity": "1",
+              "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+              "item_type": "SERVICE"
+            }
+          ],
+          "seller_protection_eligible": true,
+          "seller_protection_type": "EXPANDED_SELLER_PROTECTION"
+        }
+      ],
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "status": "RESOLVED",
+      "dispute_amount": {
+        "currency_code": "USD",
+        "value": "50.00"
+      },
+      "dispute_outcome": {
+        "outcome_code": "RESOLVED_SELLER_FAVOUR",
+        "outcome_reason": "INELIGIBLE_BUYER_PROTECTION_POLICY"
+      },
+      "adjudications": [
+        {
+          "type": "DENY_BUYER",
+          "adjudication_time": "2026-10-19T18:45:05.255Z",
+          "reason": "INELIGIBLE_BUYER_PROTECTION_POLICY",
+          "dispute_life_cycle_stage": "CHARGEBACK"
+        }
+      ],
+      "fund_movements": [
+        {
+          "party": "RECEIVER",
+          "amount": {
+            "currency_code": "USD",
+            "value": "47.34"
+          },
+          "initiated_time": "2026-10-19T16:11:04.000Z",
+          "type": "DEBIT",
+          "reason": "HOLD_PLACED"
+        },
+        {
+          "party": "RECEIVER",
+          "amount": {
+            "currency_code": "USD",
+            "value": "47.34"
+          },
+          "initiated_time": "2026-10-19T18:46:04.000Z",
+          "type": "CREDIT",
+          "reason": "HOLD_RELEASED"
+        }
+      ],
+      "dispute_life_cycle_stage": "CHARGEBACK",
+      "dispute_channel": "INTERNAL",
+      "messages": [
+        {
+          "posted_by": "BUYER",
+          "time_posted": "2026-10-19T16:07:41.708Z",
+          "content": "SEHTH"
+        },
+        {
+          "posted_by": "SELLER",
+          "time_posted": "2026-10-19T17:39:50.270Z",
+          "content": "wsfarwefg"
+        },
+        {
+          "posted_by": "SELLER",
+          "time_posted": "2026-10-19T17:56:39.957Z",
+          "content": "Your order shipped with India Post, tracking number EE123456789IN."
+        }
+      ],
+      "offer": {
+        "buyer_requested_amount": {
+          "currency_code": "USD",
+          "value": "50.00"
+        }
+      },
+      "refund_details": {
+        "allowed_refund_amount": {
+          "currency_code": "USD",
+          "value": "50.00"
+        }
+      },
+      "links": [
+        {
+          "href": "https://api.sandbox.paypal.com/v1/customer/disputes/PP-R-RAV-10193566",
+          "rel": "self",
+          "method": "GET"
+        }
+      ]
+    },
+    "links": [
+      {
+        "href": "https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-41W01260M46157813-17948266PJ8416714",
+        "rel": "self",
+        "method": "GET"
+      },
+      {
+        "href": "https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-41W01260M46157813-17948266PJ8416714/resend",
+        "rel": "resend",
+        "method": "POST"
+      }
+    ]
+  },
+  "verification": {
+    "status": 200,
+    "ok": true,
+    "debug_id": "ca4d1f37cef90",
+    "body": {
+      "verification_status": "SUCCESS"
+    }
+  }
+}

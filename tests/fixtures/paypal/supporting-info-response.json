@@ -1,0 +1,27 @@
+{
+  "method": "POST",
+  "path": "/v1/customer/disputes/PP-R-IUT-10193562/provide-supporting-info",
+  "attempts": [
+    {
+      "attempt": 1,
+      "content_type": "application/json",
+      "request": {
+        "notes": "Shipped with carrier INDIA_POST, tracking number EE123456789IN."
+      },
+      "response": {
+        "status": 200,
+        "ok": true,
+        "debug_id": "f999727ea9322",
+        "body": {
+          "links": [
+            {
+              "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes/PP-R-IUT-10193562",
+              "rel": "detail",
+              "method": "GET"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

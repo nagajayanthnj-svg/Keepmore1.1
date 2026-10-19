@@ -1,0 +1,171 @@
+{
+  "received_at": "2026-10-19T18:55:04.273Z",
+  "headers": {
+    "paypal-transmission-id": "984cf076-cbee-11f1-ab13-ff3d679f57aa",
+    "paypal-transmission-time": "2026-10-19T18:55:04Z",
+    "paypal-transmission-sig": "AXNdf8cemFKbD73f4xzuWZK3j2SjfJW38OQ1bqUI5T9NEKFUS1lSYznwtez7z7qz/v0fkfm+wkoRwJ/qxOfAPf/pEaPa4JLT0e61zQhcy2CwdZL/RwqQPNvXJLs0N9OKLDt4CUnVmfAb0j/Rgwy/9ar6pfaz2O2PtFrJe1Bsj6I+3Yv8H/HEgUDIuj3Lg8VRgu4dW+7FaE/rRu1LpvWxbA/Gf6+obirj7aR5sJTsqVsRosznqKpWjyn4l2A4sdzzaaNfH4cY5HZMLCbJZ5cLo+KILVkjhpC2dcsB2m4LgRAO+4w2Ku3nXSzbrTH9vtb/eHyRbStDZHH89JlrQXyGSQ==",
+    "paypal-cert-url": "https://api.sandbox.paypal.com/v1/notifications/certs/CERT-360caa42-fca2a594-bf9ab596",
+    "paypal-auth-algo": "SHA256withRSA"
+  },
+  "body": {
+    "id": "WH-3VK67262L15961619-2DR374158J411482K",
+    "event_version": "1.0",
+    "create_time": "2026-10-19T18:55:03.385Z",
+    "resource_type": "dispute",
+    "event_type": "CUSTOMER.DISPUTE.UPDATED",
+    "summary": "A dispute was updated with case # PP-R-IUT-10193562",
+    "resource": {
+      "dispute_id": "PP-R-IUT-10193562",
+      "create_time": "2026-10-19T15:33:52.521Z",
+      "update_time": "2026-10-19T18:54:49.305Z",
+      "disputed_transactions": [
+        {
+          "buyer_transaction_id": "4EU206565W065925H",
+          "seller_transaction_id": "0HE26749YS519313U",
+          "transaction_status": "REFUNDED",
+          "seller": {
+            "merchant_id": "REDACTED_MERCHANT_ID",
+            "name": "Test Store"
+          },
+          "items": [
+            {
+              "item_name": "1",
+              "item_description": "1",
+              "item_quantity": "1",
+              "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+              "item_type": "SERVICE"
+            }
+          ],
+          "seller_protection_eligible": true,
+          "seller_protection_type": "EXPANDED_SELLER_PROTECTION"
+        }
+      ],
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "status": "UNDER_REVIEW",
+      "dispute_amount": {
+        "currency_code": "USD",
+        "value": "120.00"
+      },
+      "money_movements": [
+        {
+          "affected_party": "SELLER",
+          "amount": {
+            "currency_code": "USD",
+            "value": "120.00"
+          },
+          "initiated_time": "2026-10-19T18:54:49.200Z",
+          "type": "DEBIT",
+          "reason": "DISPUTE_SETTLEMENT"
+        },
+        {
+          "affected_party": "SELLER",
+          "amount": {
+            "currency_code": "USD",
+            "value": "5.88"
+          },
+          "initiated_time": "2026-10-19T18:54:49.200Z",
+          "type": "DEBIT",
+          "reason": "DISPUTE_SETTLEMENT_FEE"
+        },
+        {
+          "affected_party": "BUYER",
+          "amount": {
+            "currency_code": "USD",
+            "value": "120.00"
+          },
+          "initiated_time": "2026-10-19T18:54:49.200Z",
+          "type": "CREDIT",
+          "reason": "DISPUTE_SETTLEMENT"
+        }
+      ],
+      "fund_movements": [
+        {
+          "party": "RECEIVER",
+          "amount": {
+            "currency_code": "USD",
+            "value": "114.12"
+          },
+          "initiated_time": "2026-10-19T15:37:04.000Z",
+          "type": "DEBIT",
+          "reason": "HOLD_PLACED"
+        },
+        {
+          "party": "SELLER",
+          "amount": {
+            "currency_code": "USD",
+            "value": "120.00"
+          },
+          "initiated_time": "2026-10-19T18:54:49.200Z",
+          "type": "DEBIT",
+          "reason": "DISPUTE_SETTLEMENT"
+        },
+        {
+          "party": "BUYER",
+          "amount": {
+            "currency_code": "USD",
+            "value": "120.00"
+          },
+          "initiated_time": "2026-10-19T18:54:49.200Z",
+          "type": "CREDIT",
+          "reason": "DISPUTE_SETTLEMENT"
+        }
+      ],
+      "dispute_life_cycle_stage": "CHARGEBACK",
+      "dispute_channel": "INTERNAL",
+      "offer": {
+        "buyer_requested_amount": {
+          "currency_code": "USD",
+          "value": "120.00"
+        }
+      },
+      "refund_details": {
+        "allowed_refund_amount": {
+          "currency_code": "USD",
+          "value": "120.00"
+        },
+        "transactions": [
+          {
+            "id": "4UF157104X6224148",
+            "gross_amount": {
+              "currency_code": "USD",
+              "value": "120.00"
+            },
+            "create_time": "2026-10-19T18:54:49.000Z"
+          }
+        ]
+      },
+      "links": [
+        {
+          "href": "https://api.sandbox.paypal.com/v1/customer/disputes/PP-R-IUT-10193562",
+          "rel": "self",
+          "method": "GET"
+        },
+        {
+          "href": "https://api.sandbox.paypal.com/v1/customer/disputes/PP-R-IUT-10193562/provide-supporting-info",
+          "rel": "provide_supporting_info",
+          "method": "POST"
+        }
+      ]
+    },
+    "links": [
+      {
+        "href": "https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-3VK67262L15961619-2DR374158J411482K",
+        "rel": "self",
+        "method": "GET"
+      },
+      {
+        "href": "https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-3VK67262L15961619-2DR374158J411482K/resend",
+        "rel": "resend",
+        "method": "POST"
+      }
+    ]
+  },
+  "verification": {
+    "status": 200,
+    "ok": true,
+    "debug_id": "ca4d1feb8eb43",
+    "body": {
+      "verification_status": "SUCCESS"
+    }
+  }
+}

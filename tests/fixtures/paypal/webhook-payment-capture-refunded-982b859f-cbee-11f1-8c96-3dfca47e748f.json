@@ -1,0 +1,84 @@
+{
+  "received_at": "2026-10-19T18:55:06.096Z",
+  "headers": {
+    "paypal-transmission-id": "982b859f-cbee-11f1-8c96-3dfca47e748f",
+    "paypal-transmission-time": "2026-10-19T18:55:04Z",
+    "paypal-transmission-sig": "HHo0EIYhLopWwFlFCOylb7gUMOpdxRkDy+p4L5iKJN1AZ7M44JbUqBWpY9sfrpUtmwgs9msycw9ZGMsGUMuNgLKGwmUkx8jGSD6mHxMhQ+RIqYj14h+YKCrn8VAohjoIVhFBtXIAU5oM08+3uWaV6zz9C/FFgNBSSgfnSA0tLZL3VowXLoPSZTftrXZBZUS3gsU7VOhmvdyKqBMIJlN33Z6o8oqG5gVr2d4qua1C4FHuwvrTuD3UIokDo0MDIfS1DheY0dY2sGYhVwEsaeV6dQ5CVn2Ig0/d9K6J6/Rx0hvmR8QPeM1THcFKxylpY0Xqzhri8d/6V7eag8MNj1fwTg==",
+    "paypal-cert-url": "https://api.sandbox.paypal.com/v1/notifications/certs/CERT-360caa42-fca2a594-bf9ab596",
+    "paypal-auth-algo": "SHA256withRSA"
+  },
+  "body": {
+    "id": "WH-1GG34206YG679234G-9CP934405C786760E",
+    "event_version": "1.0",
+    "create_time": "2026-10-19T18:54:54.712Z",
+    "resource_type": "refund",
+    "resource_version": "2.0",
+    "event_type": "PAYMENT.CAPTURE.REFUNDED",
+    "summary": "A $ 120.0 USD capture payment was refunded",
+    "resource": {
+      "id": "4UF157104X6224148",
+      "amount": {
+        "currency_code": "USD",
+        "value": "120.00"
+      },
+      "note_to_payer": "120.0 USD; 2026-10-19 Credit has been processed and claim is now closed. Please refer Dispute ID PP-R-IUT-10193562. Thank you.",
+      "seller_payable_breakdown": {
+        "gross_amount": {
+          "currency_code": "USD",
+          "value": "120.00"
+        },
+        "paypal_fee": {
+          "currency_code": "USD",
+          "value": "0.00"
+        },
+        "net_amount": {
+          "currency_code": "USD",
+          "value": "120.00"
+        },
+        "total_refunded_amount": {
+          "currency_code": "USD",
+          "value": "120.00"
+        }
+      },
+      "status": "COMPLETED",
+      "create_time": "2026-10-19T11:54:48-07:00",
+      "update_time": "2026-10-19T11:54:48-07:00",
+      "payer": {
+        "email_address": "REDACTED_EMAIL_ADDRESS",
+        "merchant_id": "REDACTED_MERCHANT_ID"
+      },
+      "links": [
+        {
+          "href": "https://api.sandbox.paypal.com/v2/payments/refunds/4UF157104X6224148",
+          "rel": "self",
+          "method": "GET"
+        },
+        {
+          "href": "https://api.sandbox.paypal.com/v2/payments/captures/0HE26749YS519313U",
+          "rel": "up",
+          "method": "GET"
+        }
+      ]
+    },
+    "links": [
+      {
+        "href": "https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-1GG34206YG679234G-9CP934405C786760E",
+        "rel": "self",
+        "method": "GET"
+      },
+      {
+        "href": "https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-1GG34206YG679234G-9CP934405C786760E/resend",
+        "rel": "resend",
+        "method": "POST"
+      }
+    ]
+  },
+  "verification": {
+    "status": 200,
+    "ok": true,
+    "debug_id": "ca4d1fec3a87d",
+    "body": {
+      "verification_status": "SUCCESS"
+    }
+  }
+}

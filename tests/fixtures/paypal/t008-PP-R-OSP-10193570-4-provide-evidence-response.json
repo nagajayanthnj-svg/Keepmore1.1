@@ -1,0 +1,43 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/v1/customer/disputes/PP-R-OSP-10193570/provide-evidence",
+    "content_type": "application/json",
+    "body": {
+      "evidences": [
+        {
+          "evidence_type": "PROOF_OF_FULFILLMENT",
+          "item_id": "SKU-1042",
+          "evidence_info": {
+            "tracking_info": [
+              {
+                "carrier_name": "INDIA_POST",
+                "tracking_number": "EE123456789IN"
+              }
+            ]
+          },
+          "notes": "Shipped with India Post, tracking number EE123456789IN."
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 400,
+    "debug_id": "ca4d1634dd9cf",
+    "body": {
+      "name": "INVALID_REQUEST",
+      "message": "Request is not well-formed, syntactically incorrect, or violates schema.",
+      "debug_id": "ca4d1634dd9cf",
+      "details": [
+        {
+          "field": "/evidences/0/item_id",
+          "value": "SKU-1042",
+          "location": "body",
+          "issue": "INVALID_PARAMETER_SYNTAX",
+          "description": "The value of a field does not conform to the expected format."
+        }
+      ],
+      "links": []
+    }
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "received_at": "2026-10-19T15:37:34.859Z",
+  "headers": {
+    "paypal-transmission-id": "01316c56-cbd3-11f1-9e4a-a12b06d4272a",
+    "paypal-transmission-time": "2026-10-19T15:37:34Z",
+    "paypal-transmission-sig": "dCG/jE2IDGqgkwS4gDqnotSgIXjqY31XSGnDSILtvGvNl8rDGBB/SURgMW3y+UTYd6FhlUw6d0eY6+SL4A4VL2COgUtVp4CxlEb748hJcdBVAFuYubpF2gH80cSymu14BjISyqORPwVM3yyjRufHg3BSnbfLElVXFBbN+PB49GWnMyCVso177JuPcwVaV9PKFpvn+qtNkYlyiELileFhu+/B4yJOh3T9JYP0C58Uh8r+TYHM32ZxFZ8hrpmRLOFs63RVGCwPjTC3tbJArewjNN9FkxaFlZScJlhYMjwagGNH2uovFa9QSpnIN0AYlJ9bvx6tTn0PpiVYcAYFJFGSJg==",
+    "paypal-cert-url": "https://api.sandbox.paypal.com/v1/notifications/certs/CERT-360caa42-fca2a594-bf9ab596",
+    "paypal-auth-algo": "SHA256withRSA"
+  },
+  "body": {
+    "id": "WH-3JM34959RC553180R-0WE49516HL785403T",
+    "event_version": "1.0",
+    "create_time": "2026-10-19T15:37:33.448Z",
+    "resource_type": "dispute",
+    "event_type": "CUSTOMER.DISPUTE.UPDATED",
+    "summary": "A dispute was updated with case # PP-R-IUT-10193562",
+    "resource": {
+      "dispute_id": "PP-R-IUT-10193562",
+      "create_time": "2026-10-19T15:33:52.521Z",
+      "update_time": "2026-10-19T15:37:13.663Z",
+      "disputed_transactions": [
+        {
+          "buyer_transaction_id": "4EU206565W065925H",
+          "seller_transaction_id": "0HE26749YS519313U",
+          "transaction_status": "HELD",
+          "seller": {
+            "merchant_id": "REDACTED_MERCHANT_ID",
+            "name": "Test Store"
+          },
+          "items": [
+            {
+              "item_name": "1",
+              "item_description": "1",
+              "item_quantity": "1",
+              "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+              "item_type": "SERVICE"
+            }
+          ],
+          "seller_protection_eligible": true,
+          "seller_protection_type": "EXPANDED_SELLER_PROTECTION"
+        }
+      ],
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "status": "UNDER_REVIEW",
+      "dispute_amount": {
+        "currency_code": "USD",
+        "value": "120.00"
+      },
+      "fund_movements": [
+        {
+          "party": "RECEIVER",
+          "amount": {
+            "currency_code": "USD",
+            "value": "114.12"
+          },
+          "initiated_time": "2026-10-19T15:37:04.000Z",
+          "type": "DEBIT",
+          "reason": "HOLD_PLACED"
+        }
+      ],
+      "dispute_life_cycle_stage": "CHARGEBACK",
+      "dispute_channel": "INTERNAL",
+      "offer": {
+        "buyer_requested_amount": {
+          "currency_code": "USD",
+          "value": "120.00"
+        }
+      },
+      "refund_details": {
+        "allowed_refund_amount": {
+          "currency_code": "USD",
+          "value": "120.00"
+        }
+      },
+      "links": [
+        {
+          "href": "https://api.sandbox.paypal.com/v1/customer/disputes/PP-R-IUT-10193562",
+          "rel": "self",
+          "method": "GET"
+        },
+        {
+          "href": "https://api.sandbox.paypal.com/v1/customer/disputes/PP-R-IUT-10193562/provide-supporting-info",
+          "rel": "provide_supporting_info",
+          "method": "POST"
+        }
+      ]
+    },
+    "links": [
+      {
+        "href": "https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-3JM34959RC553180R-0WE49516HL785403T",
+        "rel": "self",
+        "method": "GET"
+      },
+      {
+        "href": "https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-3JM34959RC553180R-0WE49516HL785403T/resend",
+        "rel": "resend",
+        "method": "POST"
+      }
+    ]
+  },
+  "verification": {
+    "status": 200,
+    "ok": true,
+    "debug_id": "f1433330d916f",
+    "body": {
+      "verification_status": "SUCCESS"
+    }
+  }
+}

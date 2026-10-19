@@ -1,0 +1,23 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/v1/customer/disputes/PP-R-IUT-10193562/accept-claim",
+    "content_type": "application/json",
+    "body": {
+      "note": "Accepting the claim and refunding the buyer in full."
+    }
+  },
+  "response": {
+    "status": 200,
+    "debug_id": "ca4d1fe472d02",
+    "body": {
+      "links": [
+        {
+          "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes/PP-R-IUT-10193562",
+          "rel": "detail",
+          "method": "GET"
+        }
+      ]
+    }
+  }
+}

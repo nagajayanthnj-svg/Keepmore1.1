@@ -1,0 +1,143 @@
+{
+  "dispute_id": "PP-R-RAV-10193566",
+  "create_time": "2026-10-19T16:07:41.708Z",
+  "update_time": "2026-10-19T18:16:31.959Z",
+  "disputed_transactions": [
+    {
+      "buyer_transaction_id": "2WW677483X2673146",
+      "seller_transaction_id": "3FG688039F4865201",
+      "create_time": "2026-10-19T14:51:53.000Z",
+      "transaction_status": "HELD",
+      "gross_amount": {
+        "currency_code": "USD",
+        "value": "50.00"
+      },
+      "buyer": {
+        "email": "REDACTED_EMAIL",
+        "payer_id": "REDACTED_PAYER_ID",
+        "name": "REDACTED_NAME"
+      },
+      "seller": {
+        "email": "REDACTED_EMAIL",
+        "merchant_id": "REDACTED_MERCHANT_ID",
+        "name": "REDACTED_NAME"
+      },
+      "items": [
+        {
+          "item_name": "SDA",
+          "item_description": "SDA",
+          "item_quantity": "1",
+          "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+          "item_type": "SERVICE"
+        }
+      ],
+      "seller_protection_eligible": true,
+      "seller_protection_type": "EXPANDED_SELLER_PROTECTION"
+    }
+  ],
+  "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+  "status": "UNDER_REVIEW",
+  "dispute_amount": {
+    "currency_code": "USD",
+    "value": "50.00"
+  },
+  "dispute_state": "UNDER_PAYPAL_REVIEW",
+  "fund_movements": [
+    {
+      "party": "RECEIVER",
+      "amount": {
+        "currency_code": "USD",
+        "value": "47.34"
+      },
+      "initiated_time": "2026-10-19T16:11:04.000Z",
+      "type": "DEBIT",
+      "reason": "HOLD_PLACED"
+    }
+  ],
+  "dispute_life_cycle_stage": "CHARGEBACK",
+  "dispute_channel": "INTERNAL",
+  "messages": [
+    {
+      "posted_by": "BUYER",
+      "time_posted": "2026-10-19T16:07:41.708Z",
+      "content": "SEHTH"
+    },
+    {
+      "posted_by": "SELLER",
+      "time_posted": "2026-10-19T17:39:50.270Z",
+      "content": "wsfarwefg"
+    },
+    {
+      "posted_by": "SELLER",
+      "time_posted": "2026-10-19T17:56:39.957Z",
+      "content": "Your order shipped with India Post, tracking number EE123456789IN."
+    }
+  ],
+  "extensions": {
+    "merchant_contacted": false,
+    "buyer_contacted_time": "2026-10-19T16:07:41.005Z"
+  },
+  "evidences": [
+    {
+      "evidence_type": "CREATE",
+      "notes": "SEHTH",
+      "source": "SUBMITTED_BY_BUYER",
+      "date": "2026-10-19T16:07:41.708Z",
+      "dispute_life_cycle_stage": "INQUIRY"
+    },
+    {
+      "evidence_type": "PROOF_OF_FULFILLMENT",
+      "notes": "Shipped with India Post, tracking number EE123456789IN.",
+      "source": "SUBMITTED_BY_SELLER",
+      "date": "2026-10-19T17:59:49.078Z",
+      "action_info": {
+        "action": "PROVIDE_EVIDENCE"
+      },
+      "dispute_life_cycle_stage": "INQUIRY"
+    },
+    {
+      "evidence_type": "OTHER",
+      "notes": "Item shipped with India Post, tracking number EE123456789IN; escalating for PayPal review.",
+      "source": "SUBMITTED_BY_SELLER",
+      "date": "2026-10-19T18:05:35.237Z",
+      "action_info": {
+        "action": "ESCALATE"
+      },
+      "dispute_life_cycle_stage": "INQUIRY"
+    },
+    {
+      "evidence_type": "PROOF_OF_FULFILLMENT",
+      "notes": "Shipped with India Post, tracking number EE123456789IN.",
+      "source": "SUBMITTED_BY_SELLER",
+      "date": "2026-10-19T18:16:22.801Z",
+      "action_info": {
+        "action": "PROVIDE_EVIDENCE"
+      },
+      "dispute_life_cycle_stage": "CHARGEBACK"
+    }
+  ],
+  "offer": {
+    "buyer_requested_amount": {
+      "currency_code": "USD",
+      "value": "50.00"
+    }
+  },
+  "refund_details": {
+    "allowed_refund_amount": {
+      "currency_code": "USD",
+      "value": "50.00"
+    }
+  },
+  "links": [
+    {
+      "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes/PP-R-RAV-10193566",
+      "rel": "self",
+      "method": "GET"
+    },
+    {
+      "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes/PP-R-RAV-10193566/provide-supporting-info",
+      "rel": "provide_supporting_info",
+      "method": "POST"
+    }
+  ]
+}

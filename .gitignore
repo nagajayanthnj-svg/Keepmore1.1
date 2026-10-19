@@ -1,0 +1,8 @@
+# Secrets: PayPal client ID and secret live here.
+.env
+.env.*
+
+node_modules/
+
+# Backup of DECISIONS.md before it was rebuilt from fixtures; still holds an unredacted merchant ID.
+docs/DECISIONS.previous.md

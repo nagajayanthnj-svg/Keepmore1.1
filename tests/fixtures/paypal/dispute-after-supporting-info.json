@@ -1,0 +1,130 @@
+{
+  "dispute_id": "PP-R-IUT-10193562",
+  "create_time": "2026-10-19T15:33:52.521Z",
+  "update_time": "2026-10-19T16:10:37.262Z",
+  "disputed_transactions": [
+    {
+      "buyer_transaction_id": "4EU206565W065925H",
+      "seller_transaction_id": "0HE26749YS519313U",
+      "create_time": "2026-10-19T14:49:25.000Z",
+      "transaction_status": "HELD",
+      "gross_amount": {
+        "currency_code": "USD",
+        "value": "120.00"
+      },
+      "buyer": {
+        "email": "REDACTED_EMAIL",
+        "payer_id": "REDACTED_PAYER_ID",
+        "name": "REDACTED_NAME"
+      },
+      "seller": {
+        "email": "REDACTED_EMAIL",
+        "merchant_id": "REDACTED_MERCHANT_ID",
+        "name": "REDACTED_NAME"
+      },
+      "items": [
+        {
+          "item_name": "1",
+          "item_description": "1",
+          "item_quantity": "1",
+          "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+          "item_type": "SERVICE"
+        }
+      ],
+      "seller_protection_eligible": true,
+      "seller_protection_type": "EXPANDED_SELLER_PROTECTION"
+    }
+  ],
+  "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+  "status": "UNDER_REVIEW",
+  "dispute_amount": {
+    "currency_code": "USD",
+    "value": "120.00"
+  },
+  "dispute_state": "UNDER_PAYPAL_REVIEW",
+  "fund_movements": [
+    {
+      "party": "RECEIVER",
+      "amount": {
+        "currency_code": "USD",
+        "value": "114.12"
+      },
+      "initiated_time": "2026-10-19T15:37:04.000Z",
+      "type": "DEBIT",
+      "reason": "HOLD_PLACED"
+    }
+  ],
+  "dispute_life_cycle_stage": "CHARGEBACK",
+  "dispute_channel": "INTERNAL",
+  "extensions": {
+    "merchant_contacted": false,
+    "buyer_contacted_time": "2026-10-19T15:33:51.759Z"
+  },
+  "evidences": [
+    {
+      "evidence_type": "CREATE",
+      "notes": "dasasd",
+      "source": "SUBMITTED_BY_BUYER",
+      "date": "2026-10-19T15:33:52.521Z",
+      "dispute_life_cycle_stage": "INQUIRY"
+    }
+  ],
+  "offer": {
+    "buyer_requested_amount": {
+      "currency_code": "USD",
+      "value": "120.00"
+    }
+  },
+  "refund_details": {
+    "allowed_refund_amount": {
+      "currency_code": "USD",
+      "value": "120.00"
+    }
+  },
+  "supporting_info": [
+    {
+      "notes": "Shipped with carrier INDIA_POST, tracking number EE123456789IN.",
+      "source": "SUBMITTED_BY_SELLER",
+      "provided_time": "2026-10-19T16:06:31.718Z"
+    },
+    {
+      "notes": "Shipped with carrier INDIA_POST, tracking number EE123456789IN.",
+      "source": "SUBMITTED_BY_SELLER",
+      "provided_time": "2026-10-19T16:10:37.262Z"
+    }
+  ],
+  "allowed_response_options": {
+    "accept_claim": {
+      "accept_claim_types": [
+        "REFUND"
+      ]
+    }
+  },
+  "links": [
+    {
+      "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes/PP-R-IUT-10193562",
+      "rel": "self",
+      "method": "GET"
+    },
+    {
+      "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes/PP-R-IUT-10193562/accept-claim",
+      "rel": "accept_claim",
+      "method": "POST"
+    },
+    {
+      "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes/PP-R-IUT-10193562/provide-supporting-info",
+      "rel": "provide_supporting_info",
+      "method": "POST"
+    },
+    {
+      "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes/PP-R-IUT-10193562/require-evidence",
+      "rel": "require_evidence",
+      "method": "POST"
+    },
+    {
+      "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes/PP-R-IUT-10193562/adjudicate",
+      "rel": "adjudicate",
+      "method": "POST"
+    }
+  ]
+}

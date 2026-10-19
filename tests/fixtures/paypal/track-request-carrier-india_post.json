@@ -1,0 +1,10 @@
+{
+  "method": "POST",
+  "path": "/v2/checkout/orders/0MP44471063301822/track",
+  "body": {
+    "capture_id": "0HE26749YS519313U",
+    "tracking_number": "EE123456789IN",
+    "notify_payer": false,
+    "carrier": "INDIA_POST"
+  }
+}

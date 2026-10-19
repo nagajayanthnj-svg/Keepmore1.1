@@ -1,0 +1,25 @@
+{
+  "experiment": "empty JSON body; accept-claim body is undocumented",
+  "request": {
+    "method": "POST",
+    "path": "/v1/customer/disputes/PP-R-IUT-10193562/accept-claim",
+    "content_type": "application/json",
+    "body": {}
+  },
+  "response": {
+    "status": 400,
+    "debug_id": "ca4d1f8839e33",
+    "body": {
+      "name": "INVALID_REQUEST",
+      "message": "Request is not well-formed, syntactically incorrect, or violates schema.",
+      "debug_id": "ca4d1f8839e33",
+      "information_link": "https://developer.paypal.com/docs/api/customer-disputes/v1/#errors",
+      "details": [
+        {
+          "issue": "EITHER_OF_NOTES_OR_DOCUMENT_IS_MANDATORY"
+        }
+      ],
+      "links": []
+    }
+  }
+}

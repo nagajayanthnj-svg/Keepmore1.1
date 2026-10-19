@@ -1,0 +1,10 @@
+{
+  "method": "POST",
+  "path": "/v2/checkout/orders/87V16475BG7563510/track",
+  "body": {
+    "capture_id": "1YP10400KC305794V",
+    "tracking_number": "EE123456789IN",
+    "notify_payer": false,
+    "carrier": "INDIA_POST"
+  }
+}

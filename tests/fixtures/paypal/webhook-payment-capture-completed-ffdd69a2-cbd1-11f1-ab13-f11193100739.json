@@ -1,0 +1,97 @@
+{
+  "received_at": "2026-10-19T15:30:25.600Z",
+  "headers": {
+    "paypal-transmission-id": "ffdd69a2-cbd1-11f1-ab13-f11193100739",
+    "paypal-transmission-time": "2026-10-19T15:30:22Z",
+    "paypal-transmission-sig": "LcmcQVZvho1dcVZvzUd21yxew5MrsQFn+dOPjCarMzT5W/X9B5iisqY5dtLwC2iE38OH36+2W7i+jqW9qO7NBJ4Ec10wfxqxKoi1ULYfLgFFyPbFopha05gft1PcxIDHoWStxxMwgM7fi2fQVd0I5/tnDkBBsTYtVPmEzXB6RaFIQepkr7AxRSAItzPI21BuD7T/Xf1Kk+aizDYdAHsDKwTtN5pK84olG1vyhv1NRsvL4a706RHCiJySsgbWuUNGCTmHxTex9wcz5fxN0WDhNSMwLc3kr7Igq7QcJlDqnMjFoo9KmE3tZ9OmbjePMcWiQT+atWYZzj7o1eUduaXofQ==",
+    "paypal-cert-url": "https://api.sandbox.paypal.com/v1/notifications/certs/CERT-360caa42-fca2a594-bf9ab596",
+    "paypal-auth-algo": "SHA256withRSA"
+  },
+  "body": {
+    "id": "WH-5BB36985X8409763E-4GM80755F7204952D",
+    "event_version": "1.0",
+    "create_time": "2026-10-19T15:30:18.715Z",
+    "resource_type": "capture",
+    "resource_version": "2.0",
+    "event_type": "PAYMENT.CAPTURE.COMPLETED",
+    "summary": "Payment completed for $ 25.0 USD",
+    "resource": {
+      "id": "9UF03893Y1045740S",
+      "amount": {
+        "currency_code": "USD",
+        "value": "25.00"
+      },
+      "final_capture": true,
+      "seller_protection": {
+        "status": "ELIGIBLE",
+        "dispute_categories": [
+          "ITEM_NOT_RECEIVED",
+          "UNAUTHORIZED_TRANSACTION"
+        ]
+      },
+      "seller_receivable_breakdown": {
+        "gross_amount": {
+          "currency_code": "USD",
+          "value": "25.00"
+        },
+        "paypal_fee": {
+          "currency_code": "USD",
+          "value": "1.51"
+        },
+        "net_amount": {
+          "currency_code": "USD",
+          "value": "23.49"
+        }
+      },
+      "status": "COMPLETED",
+      "supplementary_data": {
+        "related_ids": {
+          "order_id": "1HJ121366U201782J"
+        }
+      },
+      "payee": {
+        "email_address": "REDACTED_EMAIL_ADDRESS",
+        "merchant_id": "REDACTED_MERCHANT_ID"
+      },
+      "create_time": "2026-10-19T15:30:14Z",
+      "update_time": "2026-10-19T15:30:14Z",
+      "links": [
+        {
+          "href": "https://api.sandbox.paypal.com/v2/payments/captures/9UF03893Y1045740S",
+          "rel": "self",
+          "method": "GET"
+        },
+        {
+          "href": "https://api.sandbox.paypal.com/v2/payments/captures/9UF03893Y1045740S/refund",
+          "rel": "refund",
+          "method": "POST"
+        },
+        {
+          "href": "https://api.sandbox.paypal.com/v2/checkout/orders/1HJ121366U201782J",
+          "rel": "up",
+          "method": "GET"
+        }
+      ]
+    },
+    "links": [
+      {
+        "href": "https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-5BB36985X8409763E-4GM80755F7204952D",
+        "rel": "self",
+        "method": "GET"
+      },
+      {
+        "href": "https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-5BB36985X8409763E-4GM80755F7204952D/resend",
+        "rel": "resend",
+        "method": "POST"
+      }
+    ]
+  },
+  "verification": {
+    "status": 200,
+    "ok": true,
+    "debug_id": "ca4d0d2ef89f7",
+    "body": {
+      "verification_status": "SUCCESS"
+    }
+  }
+}

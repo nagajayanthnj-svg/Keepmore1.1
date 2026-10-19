@@ -1,0 +1,126 @@
+{
+  "received_at": "2026-10-19T18:16:34.361Z",
+  "headers": {
+    "paypal-transmission-id": "37639ec7-cbe9-11f1-9e4a-7b5d33bca9c8",
+    "paypal-transmission-time": "2026-10-19T18:16:34Z",
+    "paypal-transmission-sig": "GNNxWSCn1QN4fmxgzAcvbCDkhMjYG81ulfOUK6V4IQThY9pUJOk2dcdaIYX9yAIp1kyHn1ex6fzrEh84arl2CQ53oU3euBwa52P+JzSOcZ8nx1tGKaL17AzYb1bJZ1CbHAXGGw783OXXttZSUz5201eKcT13juRj4hrQKjhbrIrej/R8Ad6+g+Psyq4gJ8mQvrqP81ZP3io8RkH72QnzOc3B3Swc+CTnY5UoFC5TqX+GLwfnc2RX+w4xS0/4iO1/Z2AuCOVznwVtJzZbDlcj9b3T2sjHR1u3cEEPce29lVSm1MInEMJd3NFewhVRX8jPE6jD91DAjLsnQuUhammbXA==",
+    "paypal-cert-url": "https://api.sandbox.paypal.com/v1/notifications/certs/CERT-360caa42-fca2a594-bf9ab596",
+    "paypal-auth-algo": "SHA256withRSA"
+  },
+  "body": {
+    "id": "WH-4RB3145251035311L-0FK18674VD351992A",
+    "event_version": "1.0",
+    "create_time": "2026-10-19T18:16:33.384Z",
+    "resource_type": "dispute",
+    "event_type": "CUSTOMER.DISPUTE.UPDATED",
+    "summary": "A dispute was updated with case # PP-R-RAV-10193566",
+    "resource": {
+      "dispute_id": "PP-R-RAV-10193566",
+      "create_time": "2026-10-19T16:07:41.708Z",
+      "update_time": "2026-10-19T18:16:31.959Z",
+      "disputed_transactions": [
+        {
+          "buyer_transaction_id": "2WW677483X2673146",
+          "seller_transaction_id": "3FG688039F4865201",
+          "transaction_status": "HELD",
+          "seller": {
+            "merchant_id": "REDACTED_MERCHANT_ID",
+            "name": "Test Store"
+          },
+          "items": [
+            {
+              "item_name": "SDA",
+              "item_description": "SDA",
+              "item_quantity": "1",
+              "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+              "item_type": "SERVICE"
+            }
+          ],
+          "seller_protection_eligible": true,
+          "seller_protection_type": "EXPANDED_SELLER_PROTECTION"
+        }
+      ],
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "status": "UNDER_REVIEW",
+      "dispute_amount": {
+        "currency_code": "USD",
+        "value": "50.00"
+      },
+      "fund_movements": [
+        {
+          "party": "RECEIVER",
+          "amount": {
+            "currency_code": "USD",
+            "value": "47.34"
+          },
+          "initiated_time": "2026-10-19T16:11:04.000Z",
+          "type": "DEBIT",
+          "reason": "HOLD_PLACED"
+        }
+      ],
+      "dispute_life_cycle_stage": "CHARGEBACK",
+      "dispute_channel": "INTERNAL",
+      "messages": [
+        {
+          "posted_by": "BUYER",
+          "time_posted": "2026-10-19T16:07:41.708Z",
+          "content": "SEHTH"
+        },
+        {
+          "posted_by": "SELLER",
+          "time_posted": "2026-10-19T17:39:50.270Z",
+          "content": "wsfarwefg"
+        },
+        {
+          "posted_by": "SELLER",
+          "time_posted": "2026-10-19T17:56:39.957Z",
+          "content": "Your order shipped with India Post, tracking number EE123456789IN."
+        }
+      ],
+      "offer": {
+        "buyer_requested_amount": {
+          "currency_code": "USD",
+          "value": "50.00"
+        }
+      },
+      "refund_details": {
+        "allowed_refund_amount": {
+          "currency_code": "USD",
+          "value": "50.00"
+        }
+      },
+      "links": [
+        {
+          "href": "https://api.sandbox.paypal.com/v1/customer/disputes/PP-R-RAV-10193566",
+          "rel": "self",
+          "method": "GET"
+        },
+        {
+          "href": "https://api.sandbox.paypal.com/v1/customer/disputes/PP-R-RAV-10193566/provide-supporting-info",
+          "rel": "provide_supporting_info",
+          "method": "POST"
+        }
+      ]
+    },
+    "links": [
+      {
+        "href": "https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-4RB3145251035311L-0FK18674VD351992A",
+        "rel": "self",
+        "method": "GET"
+      },
+      {
+        "href": "https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-4RB3145251035311L-0FK18674VD351992A/resend",
+        "rel": "resend",
+        "method": "POST"
+      }
+    ]
+  },
+  "verification": {
+    "status": 200,
+    "ok": true,
+    "debug_id": "f5069477c757d",
+    "body": {
+      "verification_status": "SUCCESS"
+    }
+  }
+}

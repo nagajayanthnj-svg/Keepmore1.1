@@ -1,0 +1,41 @@
+{
+  "id": "1HJ121366U201782J",
+  "intent": "CAPTURE",
+  "status": "CREATED",
+  "purchase_units": [
+    {
+      "reference_id": "order_1042",
+      "amount": {
+        "currency_code": "USD",
+        "value": "25.00"
+      },
+      "payee": {
+        "email_address": "REDACTED_EMAIL_ADDRESS",
+        "merchant_id": "REDACTED_MERCHANT_ID"
+      }
+    }
+  ],
+  "create_time": "2026-10-19T15:28:40Z",
+  "links": [
+    {
+      "href": "https://api.sandbox.paypal.com/v2/checkout/orders/1HJ121366U201782J",
+      "rel": "self",
+      "method": "GET"
+    },
+    {
+      "href": "https://www.sandbox.paypal.com/checkoutnow?token=1HJ121366U201782J",
+      "rel": "approve",
+      "method": "GET"
+    },
+    {
+      "href": "https://api.sandbox.paypal.com/v2/checkout/orders/1HJ121366U201782J",
+      "rel": "update",
+      "method": "PATCH"
+    },
+    {
+      "href": "https://api.sandbox.paypal.com/v2/checkout/orders/1HJ121366U201782J/capture",
+      "rel": "capture",
+      "method": "POST"
+    }
+  ]
+}

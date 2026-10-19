@@ -1,0 +1,117 @@
+{
+  "id": "7D524451HS595715P",
+  "intent": "CAPTURE",
+  "status": "COMPLETED",
+  "payment_source": {
+    "paypal": {
+      "email_address": "REDACTED_EMAIL_ADDRESS",
+      "account_id": "REDACTED_ACCOUNT_ID",
+      "account_status": "VERIFIED",
+      "name": {
+        "given_name": "REDACTED_GIVEN_NAME",
+        "surname": "REDACTED_SURNAME"
+      },
+      "address": {
+        "country_code": "US"
+      }
+    }
+  },
+  "purchase_units": [
+    {
+      "reference_id": "order_1042",
+      "amount": {
+        "currency_code": "USD",
+        "value": "50.00"
+      },
+      "payee": {
+        "email_address": "REDACTED_EMAIL_ADDRESS",
+        "merchant_id": "REDACTED_MERCHANT_ID"
+      },
+      "shipping": {
+        "name": {
+          "full_name": "REDACTED_FULL_NAME"
+        },
+        "address": {
+          "address_line_1": "REDACTED_ADDRESS_LINE_1",
+          "admin_area_2": "REDACTED_ADMIN_AREA_2",
+          "admin_area_1": "REDACTED_ADMIN_AREA_1",
+          "postal_code": "REDACTED_POSTAL_CODE",
+          "country_code": "US"
+        }
+      },
+      "payments": {
+        "captures": [
+          {
+            "id": "3FG688039F4865201",
+            "status": "COMPLETED",
+            "amount": {
+              "currency_code": "USD",
+              "value": "50.00"
+            },
+            "final_capture": true,
+            "seller_protection": {
+              "status": "ELIGIBLE",
+              "dispute_categories": [
+                "ITEM_NOT_RECEIVED",
+                "UNAUTHORIZED_TRANSACTION"
+              ]
+            },
+            "seller_receivable_breakdown": {
+              "gross_amount": {
+                "currency_code": "USD",
+                "value": "50.00"
+              },
+              "paypal_fee": {
+                "currency_code": "USD",
+                "value": "2.66"
+              },
+              "net_amount": {
+                "currency_code": "USD",
+                "value": "47.34"
+              }
+            },
+            "links": [
+              {
+                "href": "https://api.sandbox.paypal.com/v2/payments/captures/3FG688039F4865201",
+                "rel": "self",
+                "method": "GET"
+              },
+              {
+                "href": "https://api.sandbox.paypal.com/v2/payments/captures/3FG688039F4865201/refund",
+                "rel": "refund",
+                "method": "POST"
+              },
+              {
+                "href": "https://api.sandbox.paypal.com/v2/checkout/orders/7D524451HS595715P",
+                "rel": "up",
+                "method": "GET"
+              }
+            ],
+            "create_time": "2026-10-19T14:51:53Z",
+            "update_time": "2026-10-19T14:51:53Z"
+          }
+        ]
+      }
+    }
+  ],
+  "payer": {
+    "name": {
+      "given_name": "REDACTED_GIVEN_NAME",
+      "surname": "REDACTED_SURNAME"
+    },
+    "email_address": "REDACTED_EMAIL_ADDRESS",
+    "payer_id": "REDACTED_PAYER_ID",
+    "address": {
+      "country_code": "US"
+    }
+  },
+  "create_time": "2026-10-19T14:50:53Z",
+  "update_time": "2026-10-19T14:51:53Z",
+  "links": [
+    {
+      "href": "https://api.sandbox.paypal.com/v2/checkout/orders/7D524451HS595715P",
+      "rel": "self",
+      "method": "GET"
+    }
+  ]
+}

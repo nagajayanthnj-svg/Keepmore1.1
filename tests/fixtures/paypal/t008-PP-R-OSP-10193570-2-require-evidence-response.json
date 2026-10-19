@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/v1/customer/disputes/PP-R-OSP-10193570/require-evidence",
+    "body": {
+      "action": "SELLER_EVIDENCE"
+    }
+  },
+  "response": {
+    "status": 200,
+    "debug_id": "ca4d1626fadd1",
+    "body": {
+      "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes/PP-R-OSP-10193570",
+      "rel": "self",
+      "method": "GET"
+    }
+  }
+}

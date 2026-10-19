@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/v1/customer/disputes/PP-R-RAV-10193566/adjudicate",
+    "content_type": "application/json",
+    "body": {
+      "adjudication_outcome": "SELLER_FAVOR"
+    }
+  },
+  "response": {
+    "status": 200,
+    "debug_id": "f3078326acdda",
+    "body": {
+      "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes/PP-R-RAV-10193566",
+      "rel": "self",
+      "method": "GET"
+    }
+  }
+}

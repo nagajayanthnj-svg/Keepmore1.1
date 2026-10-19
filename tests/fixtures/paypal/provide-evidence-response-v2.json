@@ -1,0 +1,34 @@
+{
+  "variant": 2,
+  "label": "json, fulfilment notes only",
+  "request": {
+    "method": "POST",
+    "path": "/v1/customer/disputes/PP-R-IUT-10193562/provide-evidence",
+    "content_type": "application/json",
+    "body": {
+      "evidences": [
+        {
+          "evidence_type": "PROOF_OF_FULFILLMENT",
+          "notes": "Shipped with India Post, tracking number EE123456789IN."
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 400,
+    "ok": false,
+    "debug_id": "ca4d12f28497e",
+    "body": {
+      "name": "INVALID_REQUEST",
+      "message": "Request is not well-formed, syntactically incorrect, or violates schema.",
+      "debug_id": "ca4d12f28497e",
+      "information_link": "https://developer.paypal.com/docs/api/customer-disputes/v1/#errors",
+      "details": [
+        {
+          "issue": "EVIDENCE_TYPE_IS_NOT_ALLOWED"
+        }
+      ],
+      "links": []
+    }
+  }
+}
