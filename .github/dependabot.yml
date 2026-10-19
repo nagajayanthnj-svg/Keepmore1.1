@@ -9,6 +9,10 @@ updates:
     # Same rule as T-101: no release younger than two weeks.
     cooldown:
       default-days: 14
+    # TypeScript 7 is not supported by typescript-eslint (via eslint-config-next) and has no compiler API for Next's type check. See F-44.
+    ignore:
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
     groups:
       npm-minor-and-patch:
         update-types: [minor, patch]
