@@ -1,0 +1,24 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # Dependencies are pinned exactly; "increase" keeps them pinned and moves the exact version.
+    versioning-strategy: increase
+    # Same rule as T-101: no release younger than two weeks.
+    cooldown:
+      default-days: 14
+    groups:
+      npm-minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+    groups:
+      actions-minor-and-patch:
+        update-types: [minor, patch]
