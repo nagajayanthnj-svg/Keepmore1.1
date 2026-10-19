@@ -96,7 +96,7 @@ Times are UTC. Money is USD.
 
 ## 5. Design deltas for the Technical Design and PRD
 
-Task IDs are from `KeepMore Technical Design and Build Plan.md`. The PRD column is left for the product owner.
+Task IDs are from `docs/TDD.md`. The PRD column is left for the product owner.
 
 | # | Change | Why (evidence) | Tasks affected | PRD |
 |---|---|---|---|---|

@@ -1,6 +1,6 @@
 # KeepMore: rules for every session
 
-Plan: `KeepMore Technical Design and Build Plan.md` (task IDs T-xxx). Decisions: `docs/DECISIONS.md`.
+Plan: `docs/TDD.md` (task IDs T-xxx). It is an export of the owner's master copy; do not edit it, report plan changes instead. Decisions: `docs/DECISIONS.md`.
 Friction log: `docs/FRICTION_LOG.md` (add an F-xx row for anything that cost time or put evidence at risk).
 Phase 0 findings: `docs/PHASE0_FINDINGS.md`.
 
