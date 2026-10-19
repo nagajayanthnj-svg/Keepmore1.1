@@ -9,6 +9,7 @@ Phase 0 findings: `docs/PHASE0_FINDINGS.md`.
 - Sandbox credentials only. No live PayPal account or real customer data, ever.
 
 ## How work is done
+- Node 22.12 or later (`engines` in `package.json`). CI tests Node 22 and Node 24. Node 20 is end-of-life and not supported.
 - Test first. Write the failing test, see it fail, then make it pass.
 - Run `npm run check` (lint, typecheck, test, build) before every commit. Run `npm run e2e` when UI or routes change.
 - Dependencies are pinned to exact versions (no `^` or `~`). Say why before adding one that is not in the plan.

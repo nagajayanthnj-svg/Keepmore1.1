@@ -479,7 +479,7 @@ An optional tone score from Claude is reported only and is never a gate.
 - **Generator:** `provider = "prisma-client"`. `output` is required, because the client is no longer generated into `node_modules`. The generated folder should be git-ignored, or committed by decision.
 - **Database URL:** it goes in `prisma.config.ts` under `datasource.url`, not in the schema's `datasource` block.
   - The Prisma CLI does **not** load `.env` in Prisma 7, so `prisma.config.ts` must load it.
-  - On Node ≥ 20.12, `process.loadEnvFile()` does that without a new dependency.
+  - `process.loadEnvFile()`, built into every supported Node (22.12 or later), does that without a new dependency.
 - **Runtime:** `new PrismaClient({ adapter: new PrismaLibSql({ url }) })`. The adapter takes its URL directly, so pass `DATABASE_URL`.
 - **Export name:** the package exports `PrismaLibSql`. The SQLite docs page shows `PrismaLibSQL`, which is wrong for 7.10.1.
 - **Install scripts:** `prisma` and `@prisma/engines` still have blocked install scripts. Both CLI commands worked without them, so none are approved.

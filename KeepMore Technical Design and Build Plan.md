@@ -50,7 +50,7 @@ Webhooks only trigger a sync; the sync re-reads PayPal before any state changes,
 
 ## Stack, layout and environment
 
-Node 20 LTS, Next.js App Router with TypeScript in strict mode, Tailwind, SQLite through Prisma, Zod, Vitest, Playwright, and MSW for mocking PayPal and the AI in tests. Pin exact versions in `package.json` when T-101 runs.
+Node 22.12 or later (CI tests Node 22 and 24; Node 20 is end-of-life and dropped), Next.js App Router with TypeScript in strict mode, Tailwind, SQLite through Prisma, Zod, Vitest, Playwright, and MSW for mocking PayPal and the AI in tests. Pin exact versions in `package.json` when T-101 runs.
 
 **Repository layout**
 

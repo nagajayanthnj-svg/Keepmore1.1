@@ -4,7 +4,7 @@ KeepMore helps small cross-border sellers who take PayPal keep more of what they
 
 ## Run locally
 
-Requires Node 20 or later.
+Requires Node 22.12 or later.
 
 ```sh
 npm ci
@@ -23,8 +23,8 @@ This repository uses **PayPal sandbox credentials only**. No live PayPal account
 ## Contributing
 
 - Run `npm run check` before every commit.
-- CI (`.github/workflows/ci.yml`) runs on every pull request and every push to `main`, on Node 20 and Node 24. It runs lint, typecheck, unit tests, the Playwright e2e test (Chromium) and the production build.
-- `main` is protected: the checks `check (Node 20)` and `check (Node 24)` must pass before a pull request can merge.
+- CI (`.github/workflows/ci.yml`) runs on every pull request and every push to `main`, on Node 22 and Node 24. It runs lint, typecheck, unit tests, the Playwright e2e test (Chromium) and the production build.
+- `main` is protected: the checks `check (Node 22)` and `check (Node 24)` must pass before a pull request can merge.
 - Dependabot opens weekly grouped minor and patch updates for npm and GitHub Actions. It skips releases younger than 14 days.
 
 ### Showing that a red CI blocks a merge (T-102)
