@@ -405,6 +405,14 @@ Capture 0HE26749YS519313U, gross 120.00, fee 5.88, net 114.12 (`capture-usd-prim
 
 Evidence submission works on the INQUIRY → escalate path (dispute 3: two 200s, VERIFIED). For disputes opened directly as chargebacks, it stays **"Simulated demo"** (disputes 1 and 2: EVIDENCE_TYPE_IS_NOT_ALLOWED, VERIFIED); the cause is UNKNOWN (see the evidence rule above).
 
+## T-102 (build plan): CI and branch protection, proven 20 Oct 2026
+
+**Status: Done.**
+- `main` is protected by the `protect-main` ruleset: required checks `check (Node 22)` and `check (Node 24)`, branch must be up to date, no force pushes, no deletion. Changes reach `main` only through a pull request.
+- Red CI blocks merge, VERIFIED: pull request #6 added `tests/unit/ci-red.test.ts` (`expect(1).toBe(2)`). Both jobs failed at the Test step ([run 39333085118](https://github.com/nagajayanthnj-svg/Keepmore1.1/actions/runs/39333085118)) and the pull request's merge state was `blocked`. It was closed without merging and the branch deleted.
+- SonarCloud also runs on pull requests and passed on #6. It is not a required check.
+- CI is green on `main` for both Node versions after the lockfile fix (F-43). Dependabot holds `typescript`, `msw` and `eslint` at their current majors (F-44, F-45).
+
 ## T-009 (build plan): runtime AI provider and evaluation vendor, decided 20 Oct 2026
 
 **Status: Done.**
@@ -413,7 +421,7 @@ Evidence submission works on the INQUIRY → escalate path (dispute 3: two 200s,
 
 **Runtime AI**
 - Gemini 3.5 Flash-Lite through the Gemini API.
-- The key is in `.env` as `GEMINI_API_KEY`. `.env` is git-ignored and never committed.
+- The key is in `.env` as `AI_API_KEY` (renamed from `GEMINI_API_KEY` to match `.env.example` and the build plan). `.env` is git-ignored and never committed.
 - Billing goes through a billed project on Google Developer Program credits. Paid terms apply: no training on our data.
 - Fallback: Gemini 3.8 Flash, **only** if Flash-Lite fails the eval gates below.
 
