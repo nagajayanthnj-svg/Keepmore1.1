@@ -13,6 +13,12 @@ updates:
     ignore:
       - dependency-name: typescript
         update-types: ["version-update:semver-major"]
+      # msw 3: vitest 5 declares an optional peer msw ^2.4.9, and npm 10 (Node 22) cannot install msw 3 beside it. See F-43, F-45.
+      - dependency-name: msw
+        update-types: ["version-update:semver-major"]
+      # ESLint 10: eslint-plugin-react, -import and -jsx-a11y (via eslint-config-next) only declare support up to ESLint 9. See F-43, F-45.
+      - dependency-name: eslint
+        update-types: ["version-update:semver-major"]
     groups:
       npm-minor-and-patch:
         update-types: [minor, patch]
