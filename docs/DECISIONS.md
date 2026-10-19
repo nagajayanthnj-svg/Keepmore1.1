@@ -460,6 +460,30 @@ An optional tone score from Claude is reported only and is never a gate.
 - Whether Gemini's structured JSON schema output works as needed. Check in T-305.
 - Free-tier limits. Read them in the AI Studio console.
 
+## Prisma 7 SQLite driver adapter, decided 20 Oct 2026 (before T-103)
+
+**Decision:** `@prisma/adapter-libsql` 7.10.1, with `prisma` and `@prisma/client` moved from 7.10.0 to 7.10.1 at the same time. All three are pinned exactly.
+
+- **Why an adapter at all.** Prisma 7 requires one. The upgrade guide says Prisma 7 "require[s] a driver adapter for all databases", SQLite included. The build plan doesn't mention this.
+- **Why libsql and not better-sqlite3.** `better-sqlite3` builds its native module in an install script (`prebuild-install || node-gyp rebuild --release`), and npm 12 blocks install scripts by default. `libsql` ships a prebuilt binary per platform as an optional dependency (`@libsql/win32-x64-msvc` here) and has no install script. It opens local `file:` databases.
+- **Checked locally, then deleted:**
+  - With install scripts still blocked, `prisma generate`, `prisma db push` and a create-and-count through `PrismaLibSql` on a `file:` SQLite database all worked.
+  - The throwaway schema, client and database were deleted afterwards. No schema is committed; that is T-103.
+- **Audit.** The 4 Prisma findings (mysql2, deepmerge-ts) are cleared by 7.10.1.
+  - 5 findings remain, all from one chain: `eslint-config-next` → `@next/eslint-plugin-next` → `fast-glob@3.3.1` → `micromatch` → `braces@3.0.3`.
+  - No patched `braces` exists yet, and eslint-config-next 16.4.2 still pins `fast-glob@3.3.1`.
+  - It's lint-time only and accepted for now.
+- **7.10.1 was published on 15 Oct,** inside the two-week waiting rule used for T-101. It was taken on purpose, for the audit fix.
+
+**Notes for T-103**, from the Prisma 7 docs and the local check:
+- **Generator:** `provider = "prisma-client"`. `output` is required, because the client is no longer generated into `node_modules`. The generated folder should be git-ignored, or committed by decision.
+- **Database URL:** it goes in `prisma.config.ts` under `datasource.url`, not in the schema's `datasource` block.
+  - The Prisma CLI does **not** load `.env` in Prisma 7, so `prisma.config.ts` must load it.
+  - On Node ≥ 20.12, `process.loadEnvFile()` does that without a new dependency.
+- **Runtime:** `new PrismaClient({ adapter: new PrismaLibSql({ url }) })`. The adapter takes its URL directly, so pass `DATABASE_URL`.
+- **Export name:** the package exports `PrismaLibSql`. The SQLite docs page shows `PrismaLibSQL`, which is wrong for 7.10.1.
+- **Install scripts:** `prisma` and `@prisma/engines` still have blocked install scripts. Both CLI commands worked without them, so none are approved.
+
 ## Open items
 
 - **INR primary rejected by sandbox.** The FBIL fallback is assumed, not verified. This is not in any fixture: it is a sandbox observation you reported. Every capture fixture shows `exchange_rate` absent and currency USD.
