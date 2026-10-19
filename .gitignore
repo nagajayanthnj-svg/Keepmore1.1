@@ -6,3 +6,23 @@ node_modules/
 
 # Backup of DECISIONS.md before it was rebuilt from fixtures; still holds an unredacted merchant ID.
 docs/DECISIONS.previous.md
+
+# .env.example holds placeholders only and is committed.
+!.env.example
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# SQLite (Prisma)
+*.db
+*.db-journal
+
+# Test output
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+coverage/

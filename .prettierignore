@@ -1,0 +1,10 @@
+.next
+node_modules
+package-lock.json
+playwright-report
+test-results
+# Phase 0 spike output and records, kept byte-for-byte as captured or written.
+scripts
+tests/fixtures
+docs
+*.md
