@@ -33,6 +33,8 @@ jobs:
           cache: npm
 
       - run: npm ci
+      # Also runs on install; explicit here so CI does not depend on install scripts being allowed.
+      - run: npm run db:generate
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test

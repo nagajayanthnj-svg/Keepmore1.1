@@ -8,3 +8,5 @@ scripts
 tests/fixtures
 docs
 *.md
+src/generated
+prisma/migrations

@@ -405,6 +405,20 @@ Capture 0HE26749YS519313U, gross 120.00, fee 5.88, net 114.12 (`capture-usd-prim
 
 Evidence submission works on the INQUIRY → escalate path (dispute 3: two 200s, VERIFIED). For disputes opened directly as chargebacks, it stays **"Simulated demo"** (disputes 1 and 2: EVIDENCE_TYPE_IS_NOT_ALLOWED, VERIFIED); the cause is UNKNOWN (see the evidence rule above).
 
+## T-103 to T-106 (build plan): foundation code, 20 Oct 2026
+
+**Status: written and tested; two checks left for the owner's PC (below).**
+- **T-104** `src/normalise/money.ts`: `toMinor(value: string, currency)` and `fromMinor(minor, currency)`. Decimal strings only; a JS number is a type error and a runtime error; extra decimals throw instead of rounding; the exponent comes from ICU (USD 2, JPY 0, KWD 3).
+- **T-105** `src/normalise/time.ts`: `carrierLocalDate(utc, tz)`; `src/lib/clock.ts`: `Clock`, `systemClock`, `fixedClock`. New code takes a `Clock` and never calls `new Date()` itself.
+- **T-106** `src/normalise/tracking.ts` and `carrier-status.ts`: `normaliseTracking`, `normaliseCarrier`, `normaliseStatus`. Carriers are INDIA_POST, DHL, FEDEX, DEMO and OTHER (no table, always UNKNOWN). **ASSUMED:** the status phrases and carrier spellings were written from the carriers' public wording and are not checked against a captured feed or PayPal's carrier enum. Add real strings as they appear; unlisted text stays UNKNOWN.
+- **T-103** `prisma/schema.prisma` (the twelve tables from the plan, verbatim), `prisma.config.ts`, two migrations, `src/lib/db.ts` (`createDb`, libsql adapter), `src/ledger/store.ts` (`appendLedgerEntry`, `listLedgerEntries` only) and `tests/helpers/test-db.ts` (fresh SQLite file per test file, migrations applied, deleted on close).
+- **Append-only** is enforced twice: no update or delete function exists in the ledger store, and the second migration adds SQLite triggers that refuse UPDATE and DELETE on `LedgerEntry` and `AuditEvent`. `WebhookEvent` is not covered, because `processedAt` and `result` are filled in after the event is stored.
+- **The generated Prisma client is not committed.** It is written to `src/generated/` (git-ignored) by `npm run db:generate`, which also runs on install and as a CI step.
+
+**Unverified, for the owner's PC**
+1. The first migration was written by a script from the schema, because Prisma's engine download is blocked in the cloud sandbox where it was written. Check it for drift: `npx prisma migrate diff --from-migrations prisma/migrations --to-schema prisma/schema.prisma --exit-code`. Exit code 0 means they match. The triggers are not modelled by Prisma, so they should not show up as a difference.
+2. `npm run e2e` could not run in that sandbox (the preinstalled Chromium does not match this Playwright version; it fails the same way on a clean `main`). CI and the owner's PC run it.
+
 ## T-102 (build plan): CI and branch protection, proven 20 Oct 2026
 
 **Status: Done.**
