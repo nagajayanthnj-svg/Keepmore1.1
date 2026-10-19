@@ -56,7 +56,7 @@ Node 22.12 or later (CI tests Node 22 and 24; Node 20 is end-of-life and dropped
 
 ```text
 keepmore/
-  app/                    pages and route handlers
+  src/app/                pages and route handlers (under src/, as built in T-101)
     (screens)/overview, orders/[id], disputes/[id], outcome/[id]
     store/                demo storefront (Neel Pottery)
     api/                  route handlers, see the API section
@@ -71,7 +71,7 @@ keepmore/
     lib/                  hmac.ts, ids.ts, errors.ts
   prisma/                 schema.prisma, seed.ts, migrations/
   tests/
-    unit/  integration/  e2e/  fixtures/paypal/  fixtures/ai/
+    unit/  integration/  fixtures/paypal   (Playwright specs are in e2e/ at the repo root)/  fixtures/ai/
   eval/                   cases/*.json, labels/*.json, run-eval.ts, report.md
   docs/                   PRD.md, DESIGN.md, DECISIONS.md, DEMO_SCRIPT.md, SECURITY.md
   .env.example  LICENSE  README.md  NEXT_STEP.md
@@ -105,8 +105,6 @@ model Order {
   grossMinor     Int
   currency       String               // ISO 4217
   buyerHash      String?              // HMAC of payer ID; never displayed
-  sellerProtectionStatus     String?  // raw capture seller_protection.status, e.g. ELIGIBLE (T-002)
-  sellerProtectionCategories String?  // JSON array of seller_protection.dispute_categories
   createdAt      DateTime @default(now())
   shipment       Shipment?
   ledger         LedgerEntry[]
@@ -363,8 +361,50 @@ All manual; the output is real PayPal responses saved as test fixtures and a go 
 | T-006 | Record allowed actions, requested evidence and the `CUSTOMER.DISPUTE.CREATED` webhook | Links and options listed | Notes in `DECISIONS.md`; webhook fixture saved | Not started |
 | T-007 | Submit one write action: send-message, then provide-evidence with a small PDF | HTTP 200 and changed details | Request and response fixtures saved | Not started |
 | T-008 | Call sandbox require-evidence, then adjudicate; re-fetch | `dispute_outcome` present | Exact request body values and `outcome_code` recorded | Not started |
-| T-009 | Choose the runtime AI provider and a different vendor for evaluation cases; check free-tier terms | Terms page read | Choice and dates in `DECISIONS.md` | Done |
+| T-009 | Choose the runtime AI provider and a different vendor for evaluation cases; check free-tier terms | Terms page read | Choice and dates in `DECISIONS.md` | Not started |
 | T-010 | Record go or no-go; book 3–5 seller interviews | Decision written | Go recorded, or fallback scope chosen | Not started |
+
+## Phase 0 results and design deltas
+
+Phase 0 is done and the disputes feature is a **GO**: T-001 to T-008 ran against the sandbox on 19 Oct, and a dispute went from opening to a won outcome and to a lost outcome through the API. T-009 (AI provider) and the seller interviews in T-010 are still open. Every fact below comes from a saved PayPal response; the detail is in `docs/PHASE0_FINDINGS.md` and the surprises are F-29 to F-41 in `docs/FRICTION_LOG.md`.
+
+**Dispute states seen** (dispute 3, a $50 order, via inquiry, escalation, evidence and adjudication):
+
+| Stage / status | Seller actions offered (links) | What moved it |
+| --- | --- | --- |
+| INQUIRY / WAITING\_FOR\_BUYER\_RESPONSE | accept\_claim (REFUND), provide\_evidence, send\_message, escalate | Seller message in the PayPal website (likely; the earlier status was not saved) |
+| INQUIRY / UNDER\_REVIEW | none | We called escalate |
+| CHARGEBACK / WAITING\_FOR\_SELLER\_RESPONSE | accept\_claim (REFUND, PARTIAL\_REFUND), provide\_evidence | PayPal, 2 min 47 s after escalate; it requested 3 evidence types |
+| CHARGEBACK / UNDER\_REVIEW | provide\_supporting\_info; about 28 min later also require\_evidence, accept\_claim, adjudicate | We submitted evidence; PayPal added the later links |
+| CHARGEBACK / RESOLVED | none | Sandbox adjudicate, or accept\_claim |
+
+**Money rules for the ledger**
+
+- The hold equals the capture's net amount (47.34 on a 50.00 order, 114.12 on 120.00), not the gross.
+- Won (adjudicate with `{"adjudication_outcome":"SELLER_FAVOR"}`): `HOLD_RELEASED` for the full hold, then RESOLVED with `RESOLVED_SELLER_FAVOUR`.
+- Lost (accept\_claim with a note): a `DISPUTE_SETTLEMENT` debit of the gross (120.00), the hold is not released, no fee-return line appears, and the case ends `RESOLVED_BUYER_FAVOUR` with reason `SELLER_ISSUED_REFUND`. The seller's net loss is the fee on top of the sale (calculated 5.88 on 120.00; not confirmed by a balance record).
+- Money lines appear before the status changes (about 70 s on the won case), so the ledger reads `fund_movements` on its own.
+
+**Design deltas** (each cites the friction entry or fixture behind it)
+
+| # | Change | Tasks | Evidence |
+| --- | --- | --- | --- |
+| 1 | Make the fee table configurable and label fees Estimated | T-108, T-109, T-406 | Sandbox fee is about 4.6% + $0.36; differs from the published India rate (F-05) |
+| 2 | Take `seller_protection` from the capture response | T-108, T-111, T-301 | Present on all 4 capture fixtures |
+| 3 | Seller actions come only from the links on a fresh GET, matched by `rel` | T-204, T-210, T-306, T-401 | Links appear and disappear and their order is shuffled (F-32, F-37, F-39) |
+| 4 | Poll the dispute after every PayPal write until the change shows | T-205, T-210, T-211 | Write responses carry only a link, in two shapes; changes can lag (F-36) |
+| 5 | accept\_claim needs a seller note and an approval screen showing note and amount | T-209, T-211, T-401 | Empty body fails with EITHER\_OF\_NOTES\_OR\_DOCUMENT\_IS\_MANDATORY (F-33) |
+| 6 | Evidence view shows requested against supportable and never invents missing types | T-207, T-301, T-304, T-401 | PayPal asked for 3 types, 1 was supportable and accepted; the submit is one-shot (F-32) |
+| 7 | Deduplicate webhooks on event ID (already in T-202) | T-202 | A redelivery was seen in the listener console only (F-38), so treat as likely |
+| 8 | INQUIRY and CHARGEBACK are different workbench modes | T-203, T-204, T-401, T-506 | Different actions, evidence requests, due dates and refund types (F-29, F-31) |
+| 9 | The demo uses a pre-seeded resolved case or a clearly labelled simulated resolve | T-402, T-506 | The adjudicate link took 27.9 to 28.5 min to appear (F-39) |
+| 10 | `OrderItem.sku` is letters and digits only | T-103, T-110, T-111 | "SKU-1042" is rejected as an evidence item\_id (F-27) |
+| 11 | Treat the INR rate (FBIL) as an assumption, labelled Estimated | T-109 | The sandbox rejects INR as the primary currency (F-04) |
+| 12 | The ledger reads `fund_movements` independently of status | T-108, T-403, T-406 | Money moves before status; a loss has no hold release (F-34, F-35) |
+| 13 | Keep webhooks and polling together; polling is required, not a fallback | T-202, T-205 | No webhook arrived for the link change or the hold release |
+| 14 | T-211 sends JSON bodies for send-message, provide-evidence and accept-claim; multipart only for a file upload | T-211 | JSON worked for all three; a PDF upload was not tested |
+
+**Still unverified:** whether the fee is returned on a lost dispute and what happens to the unreleased hold; why evidence was rejected on the two disputes that opened directly as chargebacks; PDF evidence upload; whether production timings match the sandbox. See section 6 of `docs/PHASE0_FINDINGS.md` for the cheapest check for each.
 
 ## Phase 1: foundation (21–24 Oct)
 
@@ -487,7 +527,7 @@ Submit on 11 Nov IST, a day before the deadline of 12 Nov at 12:00 PM PT (13 Nov
 | Decision | Owner | Due |
 | --- | --- | --- |
 | Go or no-go on disputes, from the spike | You | 20 Oct |
-| Runtime AI provider and evaluation vendor | You | 20 Oct |
+| Runtime AI provider and evaluation vendor: DECIDED 20 Oct. Runtime Gemini 3.5 Flash-Lite on a billed project (Developer Program credits); move to 3.8 Flash only if it fails the eval. Claude generates the 36 eval cases; owner writes the labels and commits them before the first run. Gates: 0 hallucinated citations, 0 forbidden claims, 100% schema-valid after one repair, at least 90% decision accuracy; 12 held-out cases run once. | You | 20 Oct |
 | AG Grid option (a) or (b) | You | 24 Oct |
 | Sandbox settle body values and outcome codes | Spike result | 20 Oct |
 | Solo build or with co-founders; who writes which phase | You | 20 Oct |
