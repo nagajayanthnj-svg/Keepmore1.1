@@ -114,6 +114,29 @@ describe('pollOnce: finds what the webhook missed', () => {
   });
 });
 
+describe('pollOnce leaves demo cases alone', () => {
+  it('never asks PayPal about a PP-DEMO case', async () => {
+    await db.disputeCase.create({
+      data: {
+        paypalDisputeId: 'PP-DEMO-0001',
+        reason: 'x',
+        stage: 'CHARGEBACK',
+        status: 'WAITING_FOR_SELLER_RESPONSE',
+        amountMinor: 1,
+        currency: 'USD',
+        allowedActionsJson: '{}',
+        requestedEvidence: '[]',
+        lastSyncedAt: new Date(0),
+        rawHash: 'x',
+      },
+    });
+    list([]);
+    const r = await pollOnce(deps);
+    expect(r).toMatchObject({ synced: 0, errors: [] });
+    expect(detailGets).toEqual([]);
+  });
+});
+
 describe('pollOnce: one failure does not stop the rest', () => {
   it('reports a dispute that fails and carries on with the others', async () => {
     list([{ dispute_id: 'PP-R-GONE-1' }, { dispute_id: IUT }]);

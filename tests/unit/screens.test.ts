@@ -47,11 +47,11 @@ describe('screenLinks', () => {
     ]);
   });
   it('has no link for a screen whose id is not known yet', () => {
-    expect(screenLinks({}).map((l) => l.href)).toEqual(['/overview', null, null, null]);
+    expect(screenLinks({}).map((l) => l.href)).toEqual(['/overview', null, '/disputes', null]);
     expect(screenLinks({ orderId: 'ORD1' }).map((l) => l.href)).toEqual([
       '/overview?order=ORD1',
       '/orders/ORD1',
-      null,
+      '/disputes',
       null,
     ]);
     expect(screenLinks({ caseId: 'CASE1' }).map((l) => l.href)).toEqual([

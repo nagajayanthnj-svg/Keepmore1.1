@@ -146,6 +146,10 @@ export async function seedDemo(db: Db): Promise<{ orders: number }> {
 export async function resetDemo(db: Db, opts: { demoMode: boolean }): Promise<void> {
   if (!opts.demoMode) throw new Error('Demo reset needs DEMO_MODE=true');
   await db.$transaction(async (tx) => {
+    const demoCases = { paypalDisputeId: { startsWith: 'PP-DEMO-' } };
+    const caseIds = (await tx.disputeCase.findMany({ where: demoCases, select: { id: true } })).map((c) => c.id);
+    await tx.evidenceRecord.deleteMany({ where: { caseId: { in: caseIds } } });
+    await tx.disputeCase.deleteMany({ where: demoCases });
     const demo = { paypalOrderId: { startsWith: 'DEMO-' } };
     const ids = (await tx.order.findMany({ where: demo, select: { id: true } })).map((o) => o.id);
     for (let i = 0; i < ids.length; i += 200) {

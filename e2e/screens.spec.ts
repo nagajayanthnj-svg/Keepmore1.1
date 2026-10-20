@@ -4,7 +4,7 @@ const nav = (page: import('@playwright/test').Page) => page.getByRole('navigatio
 
 test('visits all four screens, each with its heading and the current screen marked', async ({ page }) => {
   const visits: [string, string, string, number][] = [
-    ['/overview', 'Overview', 'Overview', 1], // the other three need ids, so they are not links yet
+    ['/overview', 'Overview', 'Overview', 2], // Order and Outcome need ids, so they are not links yet; Dispute opens the inbox
     ['/orders/ORD1?case=CASE1', 'Order', 'Order ORD1', 4],
     ['/disputes/CASE1?order=ORD1', 'Dispute', 'Dispute CASE1', 4],
     ['/outcome/CASE1?order=ORD1', 'Outcome', 'Outcome for CASE1', 4],
@@ -32,7 +32,7 @@ test('navigation keeps the order and case context across screens, in order', asy
 
 test('screens that need an id are not links until it is known', async ({ page }) => {
   await page.goto('/overview');
-  for (const name of ['Order', 'Dispute', 'Outcome']) {
+  for (const name of ['Order', 'Outcome']) {
     await expect(nav(page).getByText(name, { exact: true })).toHaveAttribute('aria-disabled', 'true');
   }
 });

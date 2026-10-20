@@ -43,7 +43,8 @@ export function screenLinks(
       ['case', caseId],
     ])}`,
     order: orderId ? `/orders/${encodeURIComponent(orderId)}${qs([['case', caseId]])}` : null,
-    dispute: caseId ? `/disputes/${encodeURIComponent(caseId)}${qs([['order', orderId]])}` : null,
+    // With no case chosen yet, the Dispute tab opens the inbox.
+    dispute: caseId ? `/disputes/${encodeURIComponent(caseId)}${qs([['order', orderId]])}` : '/disputes',
     outcome: caseId ? `/outcome/${encodeURIComponent(caseId)}${qs([['order', orderId]])}` : null,
   };
   return SCREENS.map((s) => ({ ...s, href: href[s.key] }));
