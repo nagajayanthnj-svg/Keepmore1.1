@@ -298,3 +298,26 @@ describe('RawJson', () => {
     expect(apiCalls[0]!.headers.get('content-type')).toContain('application/json');
   });
 });
+
+describe('multipart bodies (T-211)', () => {
+  it('sends FormData with a multipart content type and boundary, not application/json', async () => {
+    let seen: Request | undefined;
+    server.use(
+      tokenHandler(),
+      http.post(`${BASE}/v1/customer/disputes/PP-X/provide-evidence`, async ({ request }) => {
+        seen = request.clone();
+        return HttpResponse.json({ links: [] });
+      }),
+    );
+    const client = createPayPalClient({ clientId: 'id', clientSecret: 's', baseUrl: BASE, clock });
+    const form = new FormData();
+    form.set('input', new Blob([JSON.stringify({ a: 1 })], { type: 'application/json' }), 'input.json');
+    form.set('evidence_file', new Blob([new Uint8Array([1, 2, 3])], { type: 'application/pdf' }), 'f.pdf');
+    await client.post('/v1/customer/disputes/PP-X/provide-evidence', form, { requestId: 'key-1' });
+    expect(seen!.headers.get('content-type')).toMatch(/^multipart\/form-data; boundary=/);
+    expect(seen!.headers.get('paypal-request-id')).toBe('key-1');
+    const got = await seen!.formData();
+    expect(JSON.parse(await (got.get('input') as File).text())).toEqual({ a: 1 });
+    expect((got.get('evidence_file') as File).name).toBe('f.pdf');
+  });
+});

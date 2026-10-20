@@ -118,9 +118,19 @@ export function createPayPalClient(opts: PayPalClientOptions) {
   ) => {
     const headers: Record<string, string> = { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' };
     // PayPal answers 415 UNSUPPORTED_MEDIA_TYPE to a write without this header, even when there is no body (capture).
-    if (body !== undefined || WRITE_METHODS.has(method)) headers['Content-Type'] = 'application/json';
+    // A multipart body gets its content type, with the boundary, from fetch itself.
+    if (!(body instanceof FormData) && (body !== undefined || WRITE_METHODS.has(method))) {
+      headers['Content-Type'] = 'application/json';
+    }
     if (requestId) headers['PayPal-Request-Id'] = requestId;
-    const payload = body === undefined ? undefined : body instanceof RawJson ? body.text : JSON.stringify(body);
+    const payload =
+      body === undefined
+        ? undefined
+        : body instanceof RawJson
+          ? body.text
+          : body instanceof FormData
+            ? body
+            : JSON.stringify(body);
     return doFetch(`${base}${path}`, { method, headers, body: payload });
   };
 
