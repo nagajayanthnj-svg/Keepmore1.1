@@ -1,5 +1,6 @@
 import { createDb, type Db } from './db';
 import type { CheckoutDeps } from '../orders/handlers';
+import type { SyncDeps } from '../disputes/sync';
 import { createPayPalClient } from '../paypal/client';
 
 export const SANDBOX_API = 'https://api-m.sandbox.paypal.com';
@@ -32,6 +33,12 @@ export function getCheckoutDeps(): CheckoutDeps | null {
     }),
     hmacSecret: process.env.HMAC_SECRET,
   };
+}
+
+/** Dependencies for reading disputes. Null when PayPal credentials are missing. */
+export function getSyncDeps(): SyncDeps | null {
+  const deps = getCheckoutDeps();
+  return deps ? { db: deps.db, paypal: deps.paypal } : null;
 }
 
 export const misconfigured = () => Response.json({ error: 'SERVER_MISCONFIGURED' }, { status: 500 });
