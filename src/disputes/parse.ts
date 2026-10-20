@@ -38,6 +38,10 @@ export interface ParsedDispute {
   requestedEvidence: string[];
   /** PayPal's own outcome code, unchanged. */
   outcomeCode: string | null;
+  /** The capture id the dispute is about (disputed_transactions[0].seller_transaction_id), or null. */
+  sellerTransactionId: string | null;
+  /** The buyer's PayPal payer id. Used only to compute the buyer hash; never stored or shown. */
+  buyerPayerId: string | null;
   rawHash: string;
 }
 
@@ -82,7 +86,25 @@ export function parseDispute(details: unknown): ParsedDispute {
     sellerDeadline,
     requestedEvidence: [...requested],
     outcomeCode: d.dispute_outcome?.outcome_code ?? null,
+    ...linkKeys(details),
     rawHash: disputeRawHash(details),
+  };
+}
+
+const TXN_ID = /^[A-Za-z0-9-]{5,40}$/;
+const PAYER_ID = /^[A-Za-z0-9_-]{1,64}$/;
+
+/** What links a dispute to an order. Missing or malformed values give null: the dispute still parses. */
+function linkKeys(details: unknown): Pick<ParsedDispute, 'sellerTransactionId' | 'buyerPayerId'> {
+  const list = (details as { disputed_transactions?: unknown } | null)?.disputed_transactions;
+  const t = Array.isArray(list)
+    ? (list[0] as { seller_transaction_id?: unknown; buyer?: { payer_id?: unknown } } | null)
+    : null;
+  const txn = t?.seller_transaction_id;
+  const payer = t?.buyer?.payer_id;
+  return {
+    sellerTransactionId: typeof txn === 'string' && TXN_ID.test(txn) ? txn : null,
+    buyerPayerId: typeof payer === 'string' && PAYER_ID.test(payer) ? payer : null,
   };
 }
 

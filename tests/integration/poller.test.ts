@@ -82,7 +82,17 @@ describe('pollOnce: finds what the webhook missed', () => {
     bodies[IUT] = fx('dispute-details-first');
   });
 
-  it('stops polling a case once it is resolved', async () => {
+  it('stops polling a case once it is resolved and linked to its order', async () => {
+    await db.order.create({
+      data: {
+        paypalOrderId: 'ORD1',
+        captureId: '0HE26749YS519313U',
+        itemsJson: '[]',
+        country: 'US',
+        grossMinor: 12000,
+        currency: 'USD',
+      },
+    });
     list([{ dispute_id: IUT }]);
     bodies[IUT] = resolved;
     await pollOnce(deps);

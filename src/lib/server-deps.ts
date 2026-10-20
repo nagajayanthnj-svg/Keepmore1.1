@@ -38,7 +38,7 @@ export function getCheckoutDeps(): CheckoutDeps | null {
 /** Dependencies for reading disputes. Null when PayPal credentials are missing. */
 export function getSyncDeps(): SyncDeps | null {
   const deps = getCheckoutDeps();
-  return deps ? { db: deps.db, paypal: deps.paypal } : null;
+  return deps ? { db: deps.db, paypal: deps.paypal, hmacSecret: deps.hmacSecret } : null;
 }
 
 export const misconfigured = () => Response.json({ error: 'SERVER_MISCONFIGURED' }, { status: 500 });

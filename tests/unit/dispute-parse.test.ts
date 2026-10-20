@@ -122,3 +122,28 @@ describe('parseDispute: refuses what it cannot trust', () => {
     expect(() => parseDispute(details)).toThrow(DisputeParseError);
   });
 });
+
+describe('parseDispute: the transaction and payer used to link a dispute (T-206)', () => {
+  const real = JSON.parse(readFileSync('tests/fixtures/paypal/dispute-details-first.json', 'utf8'));
+  const withTxn = (t: unknown) => ({ ...structuredClone(real), disputed_transactions: t });
+
+  it('reads the seller transaction id (the capture id) and the payer id from the first transaction', () => {
+    const d = parseDispute(real);
+    expect(d.sellerTransactionId).toBe('0HE26749YS519313U');
+    expect(d.buyerPayerId).toBe('REDACTED_PAYER_ID');
+  });
+
+  it.each([
+    [undefined],
+    [[]],
+    ['x'],
+    [[null]],
+    [[{}]],
+    [[{ seller_transaction_id: 5, buyer: { payer_id: {} } }]],
+    [[{ seller_transaction_id: '../x', buyer: { payer_id: 'a b@c' } }]],
+  ])('gives null, and does not fail the parse, for disputed_transactions = %j', (t) => {
+    const d = parseDispute(withTxn(t));
+    expect(d.sellerTransactionId).toBeNull();
+    expect(d.buyerPayerId).toBeNull();
+  });
+});
