@@ -29,8 +29,12 @@ const INDIA_POST: Table = [
 ];
 
 const DHL: Table = [
-  // The signer text is free-form, so refuse it when it says the parcel was not handed over.
-  [/^delivered - signed for by(?!.*\b(not|never|refused|returned|attempted|undelivered|failed)\b).*$/, 'DELIVERED'],
+  // The signer text is free-form. It must look like a name (letters, spaces, . ' - only, 1 to 40
+  // characters) and carry no word saying the parcel was not handed over; anything else is UNKNOWN.
+  [
+    /^delivered - signed for by(?: ?: ?| )(?!.*\b(?:not|never|refused|returned|attempted|undelivered|failed)\b)(?=[^\p{L}]*\p{L})[\p{L} .'-]{1,40}$/u,
+    'DELIVERED',
+  ],
   [/^delivered$/, 'DELIVERED'],
   [/^with delivery courier$/, 'OUT_FOR_DELIVERY'],
   [/^shipment on hold at customs$/, 'HELD_AT_CUSTOMS'],

@@ -112,3 +112,33 @@ describe('review: normaliseStatus never reads non-delivery text as delivered', (
     }
   });
 });
+
+describe('review: DHL "Delivered - Signed for by" needs a name-like signer', () => {
+  it.each([
+    'Delivered - Signed for by: A KUMAR',
+    'Delivered - Signed for by : A KUMAR',
+    "Delivered - Signed for by: S. O'Brien",
+    'Delivered - Signed for by Mary-Ann',
+  ])('%j -> DELIVERED', (text) => {
+    expect(normaliseStatus('DHL', text)).toBe('DELIVERED');
+  });
+
+  it.each([
+    'Delivered - Signed for by: NOT DELIVERED',
+    'Delivered - Signed for by: refused',
+    'Delivered - Signed for by: consignee 2 not available',
+    'Delivered - Signed for by: front desk, reception',
+    'Delivered - Signed for by: Reception: J Smith',
+    'Delivered - Signed for by: J Smith (neighbour)',
+    'Delivered - Signed for by: 12345',
+    'Delivered - Signed for by:',
+    'Delivered - Signed for by',
+    `Delivered - Signed for by: ${'A'.repeat(41)}`,
+  ])('%j -> UNKNOWN', (text) => {
+    expect(normaliseStatus('DHL', text)).toBe('UNKNOWN');
+  });
+
+  it('accepts a signer of exactly 40 characters', () => {
+    expect(normaliseStatus('DHL', `Delivered - Signed for by: ${'A'.repeat(40)}`)).toBe('DELIVERED');
+  });
+});
