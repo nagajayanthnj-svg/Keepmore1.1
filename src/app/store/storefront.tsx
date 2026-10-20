@@ -61,14 +61,22 @@ export function Storefront({ clientId }: { clientId: string }) {
           },
           async onApprove(data) {
             const res = await fetch(`/api/orders/${encodeURIComponent(data.orderID)}/capture`, { method: 'POST' });
-            const body = (await res.json()) as { captureId?: string; grossMinor?: number; currency?: string };
+            const body = (await res.json()) as {
+              captureId?: string;
+              grossMinor?: number;
+              error?: string;
+              debugId?: string;
+            };
             setResult(
               res.ok && body.captureId
                 ? {
                     kind: 'ok',
                     text: `Paid ${usd(body.grossMinor!)}. Capture ${body.captureId}.`,
                   }
-                : { kind: 'error', text: 'The payment could not be completed.' },
+                : {
+                    kind: 'error',
+                    text: `The payment could not be completed (${body.error ?? `HTTP ${res.status}`}${body.debugId ? `, PayPal debug id ${body.debugId}` : ''}).`,
+                  },
             );
           },
           onError() {

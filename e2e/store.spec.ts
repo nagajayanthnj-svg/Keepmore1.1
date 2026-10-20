@@ -62,3 +62,24 @@ test('an empty cart does not create an order', async ({ page }) => {
   await page.waitForTimeout(300);
   expect(calls).toBe(0);
 });
+
+test('a failed capture shows the error code and PayPal debug id, never "Paid"', async ({ page }) => {
+  await page.route('**/api/orders', (route) =>
+    route.fulfill({ status: 201, contentType: 'application/json', body: JSON.stringify({ id: 'PPORDER2' }) }),
+  );
+  await page.route('**/api/orders/PPORDER2/capture', (route) =>
+    route.fulfill({
+      status: 502,
+      contentType: 'application/json',
+      body: JSON.stringify({ error: 'PAYPAL_ERROR', debugId: 'dbg123' }),
+    }),
+  );
+  await page.goto('/store');
+  await page.getByLabel('Quantity of Blue pottery vase, large').fill('1');
+  await page.getByRole('button', { name: 'Stub PayPal' }).click();
+  const status = page.getByRole('status');
+  await expect(status).toContainText('could not be completed');
+  await expect(status).toContainText('PAYPAL_ERROR');
+  await expect(status).toContainText('dbg123');
+  await expect(status).not.toContainText('Paid');
+});

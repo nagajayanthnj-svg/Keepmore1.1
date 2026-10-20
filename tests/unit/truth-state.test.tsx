@@ -48,7 +48,9 @@ describe('TruthStateBadge', () => {
   });
   it('gives each state its own look so colour is never the only signal', () => {
     const classes = new Set(
-      TRUTH_STATES.map((s) => /class="([^"]*)"/.exec(renderToStaticMarkup(createElement(TruthStateBadge, { state: s })))![1]),
+      TRUTH_STATES.map(
+        (s) => /class="([^"]*)"/.exec(renderToStaticMarkup(createElement(TruthStateBadge, { state: s })))![1],
+      ),
     );
     expect(classes.size).toBe(TRUTH_STATES.length);
   });
