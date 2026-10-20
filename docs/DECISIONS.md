@@ -826,3 +826,8 @@ Three calls to `POST /api/orders/3K7336723L338842X/ship`, carrier "India Post":
 - `scripts/live-t210.ts` makes the first real write to a sandbox dispute, only through `submitApprovedAction`. A: one send-message, expect APPLIED and exactly one new message. B: the write reaches PayPal but the answer is dropped; expect PAYPAL_UNAVAILABLE, then see what a second submit of the same approval does. C: resubmitting a used approval must be ALREADY_SUBMITTED.
 - **Expected finding in B:** after a lost answer the dispute has changed, so `verifyApproval` should answer STATE_CHANGED and block the retry. That is safe (no double send) but means the seller must look at the case and approve again. This test records it; it does not prove that PayPal deduplicates a repeated `PayPal-Request-Id` (the service cannot reach that call).
 - The script saves only under `live-check-out/` (gitignored) (F-57).
+
+## T-210/T-211 live result (first run, PP-R-CYV-10193736, an INQUIRY)
+- **VERIFIED live: A.** send-message through `submitApprovedAction`: PayPal answered 200, the service said APPLIED and synced, and the dispute's message count went from 1 to 2. First real write through the action service; the `{message}` body is accepted.
+- **VERIFIED live:** right after that write, PayPal offered no `send_message` link (the dispute then showed the seller had already answered). The service refused a second approval with ACTION_NOT_ALLOWED, as designed. So B (lost answer) could not run on this dispute; the script now reports this and skips B.
+- B (lost answer, retry) and C (reuse of a used approval) are still open: they need another inquiry that offers SEND_MESSAGE.

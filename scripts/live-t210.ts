@@ -79,6 +79,13 @@ async function main() {
   out.A = { result: rA, before, afterA, httpStatus: rowA.httpStatus, response: rowA.responseJson };
 
   step('B', 'Write reaches PayPal, answer lost');
+  const now = await getAllowedActions({ paypal: base.paypal }, chosen.paypalDisputeId);
+  console.log(`actions offered now: ${now.allowed.actions.map((a) => a.action).join(',') || '(none)'}`);
+  out.actionsAfterA = now.allowed.actions.map((a) => a.action);
+  if (!now.allowed.actions.some((a) => a.action === 'SEND_MESSAGE')) {
+    console.log('B SKIPPED: PayPal no longer offers SEND_MESSAGE after our message (the service correctly refuses).');
+    console.log('Open a new inquiry, or wait for the buyer to reply, and run again to test B.');
+  } else {
   const apprB = await approve('B');
   let lost = true;
   const lossy: ActionDeps = {
@@ -102,12 +109,13 @@ async function main() {
   const afterB = await messageCount(deps, chosen.paypalDisputeId);
   console.log(`messages after: ${afterB}  (expected ${afterA === null ? '?' : afterA + 1}: one write, never two)`);
   out.B = { first: rB1, second: rB2, afterB };
+  }
 
   step('C', 'Submit approval A again');
   const rC = await submitApprovedAction(deps, apprA.id);
   console.log('result:', JSON.stringify(rC), '(expected ALREADY_SUBMITTED)');
   const afterC = await messageCount(deps, chosen.paypalDisputeId);
-  console.log(`messages: ${afterC} (unchanged from B: ${afterC === afterB})`);
+  console.log(`messages: ${afterC} (unchanged since A or B: ${afterC === ((out.B as { afterB?: number } | undefined)?.afterB ?? afterA)})`);
   out.C = { result: rC, afterC };
 
   fs.mkdirSync('live-check-out', { recursive: true });
