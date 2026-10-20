@@ -63,7 +63,12 @@ export async function pollOnce(deps: SyncDeps): Promise<PollResult> {
   }
 
   const open = await deps.db.disputeCase.findMany({
-    where: { OR: [{ NOT: { status: 'RESOLVED' } }, { orderId: null }] },
+    where: {
+      AND: [
+        { OR: [{ NOT: { status: 'RESOLVED' } }, { orderId: null }] },
+        { NOT: { paypalDisputeId: { startsWith: 'PP-DEMO-' } } },
+      ],
+    },
     select: { paypalDisputeId: true },
   });
   const discovered = [...listed].filter((id) => !known.has(id));

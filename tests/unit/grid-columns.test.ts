@@ -71,3 +71,24 @@ describe('toColDefs', () => {
     ).toThrow(/duplicate/i);
   });
 });
+
+describe('toColDefs: link and freshness columns (T-208)', () => {
+  it('draws a link from the row href field, and only for a path on this site', () => {
+    const def = toColDefs([{ kind: 'link', field: 'dispute', hrefField: 'href', header: 'Dispute' }])[0]!;
+    expect(def.cellRenderer).toBeTypeOf('function');
+    expect(def.filter).toBe('agTextColumnFilter');
+  });
+  it('draws freshness with the stale badge and keeps the word as the sort and filter value', () => {
+    const def = toColDefs([{ kind: 'freshness', field: 'freshness', header: 'Sync' }])[0]!;
+    expect(def.cellRenderer).toBeTypeOf('function');
+    expect(def.sortable).toBe(true);
+  });
+  it('still refuses duplicates', () => {
+    expect(() =>
+      toColDefs([
+        { kind: 'link', field: 'a', hrefField: 'h', header: 'A' },
+        { kind: 'freshness', field: 'a', header: 'B' },
+      ]),
+    ).toThrow(/duplicate/i);
+  });
+});

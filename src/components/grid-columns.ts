@@ -4,6 +4,7 @@ import type { ColDef, ICellRendererParams, ValueFormatterParams } from 'ag-grid-
 import { createElement } from 'react';
 import { fromMinor } from '../normalise/money';
 import { asTruthState } from '../lib/truth-state';
+import { StaleBadge } from './stale-badge';
 import { TruthStateBadge } from './truth-state-badge';
 
 export type GridColumn =
@@ -12,7 +13,11 @@ export type GridColumn =
   /** `field` holds integer minor units; `currencyField` names the row's currency column. */
   | { kind: 'money'; field: string; currencyField: string; header: string }
   /** `field` holds a truth-state label; it is drawn as the badge. */
-  | { kind: 'truth'; field: string; header: string };
+  | { kind: 'truth'; field: string; header: string }
+  /** `field` holds the text; `hrefField` names the row column with a path on this site (starting with one "/"). */
+  | { kind: 'link'; field: string; hrefField: string; header: string }
+  /** `field` holds "Fresh" or "Stale"; it is drawn as the badge. */
+  | { kind: 'freshness'; field: string; header: string };
 
 const SYMBOL: Record<string, string> = { USD: '$', INR: '₹' };
 
@@ -24,6 +29,19 @@ export function formatMinor(minor: unknown, currency: unknown): string {
 
 const badge = (p: ICellRendererParams) =>
   typeof p.value === 'string' ? createElement(TruthStateBadge, { state: asTruthState(p.value) }) : null;
+
+function linkRenderer(hrefField: string) {
+  function LinkCell(p: ICellRendererParams) {
+    const href: unknown = p.data?.[hrefField];
+    // A path on this site only: one leading "/" and no "//" or scheme.
+    return typeof p.value === 'string' && typeof href === 'string' && /^\/(?!\/)[^\s]*$/.test(href)
+      ? createElement('a', { href, className: 'font-medium text-sky-800 underline' }, p.value)
+      : (p.value ?? null);
+  }
+  return LinkCell;
+}
+const freshness = (p: ICellRendererParams) =>
+  typeof p.value === 'string' ? createElement(StaleBadge, { state: p.value }) : null;
 
 /**
  * Turns specs into AG Grid column definitions. A grid that shows money must also have a truth-state
@@ -45,6 +63,10 @@ export function toColDefs(columns: GridColumn[]): ColDef[] {
         return { ...base, filter: 'agNumberColumnFilter', type: 'rightAligned' };
       case 'truth':
         return { ...base, filter: 'agTextColumnFilter', cellRenderer: badge };
+      case 'link':
+        return { ...base, filter: 'agTextColumnFilter', cellRenderer: linkRenderer(c.hrefField) };
+      case 'freshness':
+        return { ...base, filter: 'agTextColumnFilter', cellRenderer: freshness };
       case 'money':
         return {
           ...base,

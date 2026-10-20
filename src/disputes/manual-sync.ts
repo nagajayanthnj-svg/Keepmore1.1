@@ -5,6 +5,7 @@ import { syncDispute, type SyncDeps } from './sync';
 
 export async function handleManualSync(deps: SyncDeps | null, disputeId: string): Promise<Response> {
   if (!DISPUTE_ID.test(disputeId)) return Response.json({ error: 'BAD_DISPUTE_ID' }, { status: 400 });
+  if (disputeId.startsWith('PP-DEMO-')) return Response.json({ error: 'DEMO_CASE' }, { status: 409 });
   if (!deps) return Response.json({ error: 'SERVER_MISCONFIGURED' }, { status: 500 });
   try {
     const r = await syncDispute(deps, disputeId);
