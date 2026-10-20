@@ -1,7 +1,8 @@
+import { DataGrid } from '../../../components/data-grid';
+import type { GridColumn } from '../../../components/grid-columns';
 import { TruthStateBadge } from '../../../components/truth-state-badge';
-import { loadOverview, type TotalRow } from '../../../ledger/views';
+import { loadOverview } from '../../../ledger/views';
 import { getDb } from '../../../lib/server-deps';
-import { fromMinor } from '../../../normalise/money';
 import { TRUTH_STATES, TRUTH_STATE_MEANING, truthStateForSource } from '../../../lib/truth-state';
 
 export const metadata = { title: 'Overview · KeepMore' };
@@ -18,8 +19,12 @@ const TYPE_NAME: Record<string, string> = {
   DISPUTE_FEE: 'Dispute fees',
   RETAINED: 'Retained',
 };
-const SYMBOL: Record<string, string> = { USD: '$', INR: '₹' };
-const money = (r: TotalRow) => `${SYMBOL[r.currency] ?? `${r.currency} `}${fromMinor(r.totalMinor, r.currency)}`;
+const TOTAL_COLUMNS: GridColumn[] = [
+  { kind: 'text', field: 'type', header: 'Kind' },
+  { kind: 'truth', field: 'truthState', header: 'Source' },
+  { kind: 'money', field: 'totalMinor', currencyField: 'currency', header: 'Total' },
+  { kind: 'integer', field: 'entries', header: 'Entries' },
+];
 
 export default async function OverviewPage() {
   const view = await loadOverview(getDb());
@@ -62,43 +67,21 @@ export default async function OverviewPage() {
                 No ledger entries yet. Seed the demo shop or make a sandbox purchase.
               </p>
             ) : (
-              <table className="mt-3 w-full text-left text-sm" data-testid="totals">
-                <caption className="sr-only">Ledger totals by kind, source and currency</caption>
-                <thead>
-                  <tr className="border-b border-neutral-300">
-                    <th scope="col" className="py-2 pr-4">
-                      Kind
-                    </th>
-                    <th scope="col" className="py-2 pr-4">
-                      Source
-                    </th>
-                    <th scope="col" className="py-2 pr-4 text-right">
-                      Total
-                    </th>
-                    <th scope="col" className="py-2 text-right">
-                      Entries
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {view.rows.map((r) => (
-                    <tr
-                      key={`${r.type}|${r.sourceType}|${r.currency}`}
-                      className="border-b border-neutral-200"
-                      data-type={r.type}
-                    >
-                      <th scope="row" className="py-2 pr-4 font-medium">
-                        {TYPE_NAME[r.type] ?? r.type}
-                      </th>
-                      <td className="py-2 pr-4">
-                        <TruthStateBadge state={truthStateForSource(r.sourceType)} />
-                      </td>
-                      <td className="py-2 pr-4 text-right tabular-nums">{money(r)}</td>
-                      <td className="py-2 text-right tabular-nums">{r.entries}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="mt-3">
+                <DataGrid
+                  testId="totals"
+                  label="Ledger totals by kind, source and currency"
+                  columns={TOTAL_COLUMNS}
+                  rows={view.rows.map((r) => ({
+                    id: `${r.type}|${r.sourceType}|${r.currency}`,
+                    type: TYPE_NAME[r.type] ?? r.type,
+                    truthState: truthStateForSource(r.sourceType),
+                    totalMinor: r.totalMinor,
+                    currency: r.currency,
+                    entries: r.entries,
+                  }))}
+                />
+              </div>
             )}
           </>
         )}

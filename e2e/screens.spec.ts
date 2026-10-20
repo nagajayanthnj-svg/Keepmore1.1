@@ -61,20 +61,32 @@ test('a hostile id in the URL is not used in a link', async ({ page }) => {
 });
 
 // Needs the demo data: CI runs `npm run db:migrate` and `npm run db:seed` before e2e.
-test('overview shows the seeded ledger totals, each row with one label, sources kept apart', async ({ page }) => {
+test('overview shows the seeded ledger totals in a grid, each row with one label, sources kept apart', async ({
+  page,
+}) => {
   await page.goto('/overview');
   await expect(page.getByTestId('orders-demo')).toHaveText('400');
-  const table = page.getByTestId('totals');
-  for (const [type, name] of [
-    ['GROSS', 'Sales (gross)'],
-    ['PAYPAL_FEE', 'PayPal fees'],
-    ['FX', 'Exchange-rate cost'],
+  const grid = page.getByTestId('totals');
+  for (const [type, currency, name, symbol] of [
+    ['GROSS', 'USD', 'Sales (gross)', '$'],
+    ['PAYPAL_FEE', 'USD', 'PayPal fees', '$'],
+    ['FX', 'INR', 'Exchange-rate cost', '₹'],
   ] as const) {
-    const row = table.locator(`tr[data-type="${type}"]`, { has: page.locator('[data-truth-state="Simulated demo"]') });
+    const row = grid.locator(`[role="row"][row-id="${type}|DEMO_SEEDED|${currency}"]`);
     await expect(row).toHaveCount(1);
-    await expect(row.getByRole('rowheader')).toHaveText(name);
-    await expect(row.locator('[data-truth-state]')).toHaveCount(1); // exactly one label per row
+    await expect(row.locator('[col-id="type"]')).toHaveText(name);
+    await expect(row.locator('[data-truth-state="Simulated demo"]')).toHaveCount(1); // exactly one label per row
+    await expect(row.locator('[data-truth-state]')).toHaveCount(1);
+    await expect(row.locator('[col-id="totalMinor"]')).toContainText(symbol);
   }
-  await expect(table.locator('tr[data-type="FX"]').first().getByRole('cell').nth(1)).toContainText('₹');
-  await expect(table.locator('tr[data-type="GROSS"]').first().getByRole('cell').nth(1)).toContainText('$');
+});
+
+test('overview grid logs no AG Grid errors, so every feature it uses has its module', async ({ page }) => {
+  const problems: string[] = [];
+  page.on('console', (m) => {
+    if (['error', 'warning'].includes(m.type()) && m.text().includes('AG Grid')) problems.push(m.text().slice(0, 200));
+  });
+  await page.goto('/overview');
+  await expect(page.getByTestId('totals').locator('[role="row"][row-id]')).not.toHaveCount(0);
+  expect(problems).toEqual([]);
 });
