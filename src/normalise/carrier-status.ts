@@ -29,10 +29,12 @@ const INDIA_POST: Table = [
 ];
 
 const DHL: Table = [
-  // The signer text is free-form. It must look like a name (letters, spaces, . ' - only, 1 to 40
-  // characters) and carry no word saying the parcel was not handed over; anything else is UNKNOWN.
+  // The signer text is free-form, and a name-shaped phrase can still say "not delivered" ("no one",
+  // "unable to deliver"). So DELIVERED needs all of: letters, spaces and . ' - only (1 to 40
+  // characters); at least one word of two or more letters (so "N A" fails); and none of the words
+  // below. A real surname that equals a listed word becomes UNKNOWN, the safe direction.
   [
-    /^delivered - signed for by(?: ?: ?| )(?!.*\b(?:not|never|refused|returned|attempted|undelivered|failed)\b)(?=[^\p{L}]*\p{L})[\p{L} .'-]{1,40}$/u,
+    /^delivered - signed for by(?: ?: ?| )(?!.*\b(?:not|no|nobody|none|never|unable|unknown|refused|refuse|returned|return|attempted|attempt|undelivered|undeliverable|failed|cancelled|canceled|damaged|missing|lost|pending|unclaimed|awaiting|held|hold|rto|redirected|customs|deliver|delivered|delivery)\b)(?=.*\p{L}{2})[\p{L} .'-]{1,40}$/u,
     'DELIVERED',
   ],
   [/^delivered$/, 'DELIVERED'],
