@@ -45,6 +45,14 @@ export class PayPalChangeNotSeenError extends Error {
   }
 }
 
+/**
+ * A body that is already JSON text and must reach PayPal byte for byte. Webhook verification needs this:
+ * the signature covers the exact bytes PayPal sent, so the event must not be parsed and written out again.
+ */
+export class RawJson {
+  constructor(readonly text: string) {}
+}
+
 export interface PayPalResponse<T = unknown> {
   status: number;
   body: T;
@@ -112,7 +120,8 @@ export function createPayPalClient(opts: PayPalClientOptions) {
     // PayPal answers 415 UNSUPPORTED_MEDIA_TYPE to a write without this header, even when there is no body (capture).
     if (body !== undefined || WRITE_METHODS.has(method)) headers['Content-Type'] = 'application/json';
     if (requestId) headers['PayPal-Request-Id'] = requestId;
-    return doFetch(`${base}${path}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
+    const payload = body === undefined ? undefined : body instanceof RawJson ? body.text : JSON.stringify(body);
+    return doFetch(`${base}${path}`, { method, headers, body: payload });
   };
 
   const request = async <T = unknown>(

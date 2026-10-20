@@ -5,6 +5,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import {
   PayPalChangeNotSeenError,
   PayPalError,
+  RawJson,
   createPayPalClient,
   findLink,
   rereadUntil,
@@ -284,5 +285,16 @@ describe('rereadUntil', () => {
         { attempts: 3, delayMs: 1, sleep: noSleep },
       ),
     ).rejects.toThrow('boom');
+  });
+});
+
+describe('RawJson', () => {
+  it('sends the text as it is, byte for byte, instead of serialising it again', async () => {
+    server.use(tokenHandler(), echo);
+    const c = make();
+    const raw = '{ "a" :  1,\n "b": "caf\u00e9", "n": 1.10 }'; // spacing, an escape and 1.10 would all change if re-serialised
+    await c.post('/v1/ping', new RawJson(raw));
+    expect(await apiCalls[0]!.text()).toBe(raw);
+    expect(apiCalls[0]!.headers.get('content-type')).toContain('application/json');
   });
 });
