@@ -433,12 +433,12 @@ Exit check: a real sandbox dispute arrives by webhook, is approved and submitted
 
 | ID | Task | Test first | Done when | Status |
 | --- | --- | --- | --- | --- |
-| T-201 | Ship route: save shipment locally, attempt the PayPal push | Push success sets `pushedToPaypalAt`; a mocked 403 stores `pushError` and still returns success with LOCAL\_ONLY | "Local tracking only" badge shows when rejected | Not started |
-| T-202 | Webhook receiver: verify and deduplicate | Invalid signature is stored as unverified and triggers nothing; the same event ID twice triggers one sync | Endpoint answers 200 within 2 s | Not started |
-| T-203 | `syncDispute` from the details fixture | Upserts the case, parses deadline, requested evidence and `rawHash` | Called by webhook, poller and sync button | Not started |
-| T-204 | `allowedActions` from links and options | Inquiry-stage fixture, claim-stage fixture and resolved fixture each give the expected set | Gate used by UI and server alike | Not started |
-| T-205 | Poller, manual sync and stale detection | Fake timers: stale after 5 minutes; poller finds a dispute the webhook missed | Interval from `SYNC_INTERVAL_SECONDS` | Not started |
-| T-206 | Link disputes to orders; buyer hash | Dispute matched by transaction ID; email fallback hashed; database dump contains no "@" | Unmatched disputes still show, flagged | Not started |
+| T-201 | Ship route: save shipment locally, attempt the PayPal push | Push success sets `pushedToPaypalAt`; a mocked 403 stores `pushError` and still returns success with LOCAL\_ONLY | "Local tracking only" badge shows when rejected | Done |
+| T-202 | Webhook receiver: verify and deduplicate | Invalid signature is stored as unverified and triggers nothing; the same event ID twice triggers one sync | Endpoint answers 200 within 2 s | Done |
+| T-203 | `syncDispute` from the details fixture | Upserts the case, parses deadline, requested evidence and `rawHash` | Called by webhook, poller and sync button | Done |
+| T-204 | `allowedActions` from links and options | Inquiry-stage fixture, claim-stage fixture and resolved fixture each give the expected set | Gate used by UI and server alike | Done |
+| T-205 | Poller, manual sync and stale detection | Fake timers: stale after 5 minutes; poller finds a dispute the webhook missed | Interval from `SYNC_INTERVAL_SECONDS` | Done |
+| T-206 | Link disputes to orders; buyer hash | Dispute matched by transaction ID; email fallback hashed; database dump contains no "@" | Unmatched disputes still show, flagged | Done |
 | T-207 | Evidence records with stable IDs | Re-syncing the same content keeps the same REC IDs | Records hold normalised fields | Not started |
 | T-208 | Inbox screen | Playwright: sorted by deadline; stale badge visible | Shows reason, stage, amount, sync age | Not started |
 | T-209 | Approval service | Editing the payload after approval makes submit fail on hash mismatch | Approval stores payload and state hashes | Not started |
