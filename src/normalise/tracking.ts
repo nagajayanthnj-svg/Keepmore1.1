@@ -1,9 +1,9 @@
 export const CARRIERS = ['INDIA_POST', 'DHL', 'FEDEX', 'DEMO', 'OTHER'] as const;
 export type Carrier = (typeof CARRIERS)[number];
 
-/** Uppercase, strip whitespace and hyphens. Anything else is kept: it does not guess. */
+/** Uppercase, strip whitespace and hyphens (any dash, e.g. en dash or minus sign from pasted text). Anything else is kept: it does not guess. */
 export function normaliseTracking(raw: string): string {
-  return raw.toUpperCase().replace(/[\s-]+/g, '');
+  return raw.toUpperCase().replace(/[\s\-‐-―−]+/g, '');
 }
 
 // ASSUMED spellings: not checked against PayPal's carrier enum yet. Extend from real data.

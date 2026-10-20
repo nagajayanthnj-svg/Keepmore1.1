@@ -40,7 +40,14 @@ export async function createTestDb(): Promise<{ db: Db; close: () => Promise<voi
     db,
     close: async () => {
       await db.$disconnect();
-      rmSync(dir, { recursive: true, force: true });
+      try {
+        rmSync(dir, { recursive: true, force: true });
+      } catch (e) {
+        // libsql frees its native handle on garbage collection, not on close, and Windows will not
+        // delete an open file. Leave the temp folder there rather than fail the suite.
+        const code = (e as NodeJS.ErrnoException).code;
+        if (process.platform !== 'win32' || (code !== 'EPERM' && code !== 'EBUSY')) throw e;
+      }
     },
   };
 }

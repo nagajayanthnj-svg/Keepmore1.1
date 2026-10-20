@@ -29,7 +29,8 @@ const INDIA_POST: Table = [
 ];
 
 const DHL: Table = [
-  [/^delivered - signed for by.*$/, 'DELIVERED'],
+  // The signer text is free-form, so refuse it when it says the parcel was not handed over.
+  [/^delivered - signed for by(?!.*\b(not|never|refused|returned|attempted|undelivered|failed)\b).*$/, 'DELIVERED'],
   [/^delivered$/, 'DELIVERED'],
   [/^with delivery courier$/, 'OUT_FOR_DELIVERY'],
   [/^shipment on hold at customs$/, 'HELD_AT_CUSTOMS'],

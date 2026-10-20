@@ -17,7 +17,7 @@ export function toMinor(value: string, currency: string): number {
   if (/[^0]/.test(extra)) throw new RangeError(`${value} has more than ${exp} decimals for ${currency}`);
   const minor = Number(whole + frac.slice(0, exp).padEnd(exp, '0'));
   if (!Number.isSafeInteger(minor)) throw new RangeError(`${value} is too large`);
-  return sign ? -minor : minor;
+  return sign && minor !== 0 ? -minor : minor; // "-0.00" is 0, never -0
 }
 
 /** 11442, "USD" -> "114.42". */
