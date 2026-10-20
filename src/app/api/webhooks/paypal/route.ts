@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       verify: (headers, raw) => verifyWebhookSignature(paypal, webhookId, headers, raw),
       defer: (work) => after(work),
       syncDispute: async (disputeId) => {
-        await syncDispute({ db: getDb(), paypal }, disputeId);
+        await syncDispute({ db: getDb(), paypal, hmacSecret: process.env.HMAC_SECRET }, disputeId);
       },
     });
   });

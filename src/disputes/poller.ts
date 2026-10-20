@@ -39,7 +39,7 @@ const errorCode = (e: unknown): string =>
 
 /**
  * Lists PayPal's disputes and syncs the ones we do not hold, then refreshes every stored case that is
- * not resolved. One failure is recorded and the rest carry on. Only the first page of the list is read,
+ * not resolved or has no order yet (so it links once the order exists). One failure is recorded and the rest carry on. Only the first page of the list is read,
  * so more than LIST_PAGE_SIZE new disputes in one interval would be picked up over several runs.
  * UNVERIFIED: the list response shape (only items[].dispute_id is read); no real list is on file.
  */
@@ -63,7 +63,7 @@ export async function pollOnce(deps: SyncDeps): Promise<PollResult> {
   }
 
   const open = await deps.db.disputeCase.findMany({
-    where: { NOT: { status: 'RESOLVED' } },
+    where: { OR: [{ NOT: { status: 'RESOLVED' } }, { orderId: null }] },
     select: { paypalDisputeId: true },
   });
   const discovered = [...listed].filter((id) => !known.has(id));
