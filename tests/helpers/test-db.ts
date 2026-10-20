@@ -1,6 +1,7 @@
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { type Clock, systemClock } from '../../src/lib/clock';
 import { createDb, type Db } from '../../src/lib/db';
 
 const MIGRATIONS = join(import.meta.dirname, '../../prisma/migrations');
@@ -23,8 +24,33 @@ function statements(sql: string): string[] {
   return out;
 }
 
+const STALE_MS = 60 * 60 * 1000;
+
+/** Delete keepmore-test-* folders older than 1 hour. On Windows close() can leave them behind. */
+export function sweepStaleTestDbs(clock: Clock = systemClock, root = tmpdir()): void {
+  try {
+    for (const entry of readdirSync(root, { withFileTypes: true })) {
+      if (!entry.isDirectory() || !entry.name.startsWith('keepmore-test-')) continue;
+      const dir = join(root, entry.name);
+      try {
+        if (clock().getTime() - statSync(dir).mtimeMs > STALE_MS) rmSync(dir, { recursive: true, force: true });
+      } catch {
+        // still locked or already gone: leave it for a later run
+      }
+    }
+  } catch {
+    // unreadable root: nothing to sweep
+  }
+}
+
+let swept = false;
+
 /** A fresh SQLite file with every migration applied. One per test file; close() deletes it. */
 export async function createTestDb(): Promise<{ db: Db; close: () => Promise<void> }> {
+  if (!swept) {
+    swept = true;
+    sweepStaleTestDbs();
+  }
   const dir = mkdtempSync(join(tmpdir(), 'keepmore-test-'));
   const db = createDb(`file:${join(dir, 'test.db')}`);
   const folders = readdirSync(MIGRATIONS, { withFileTypes: true })
@@ -40,7 +66,14 @@ export async function createTestDb(): Promise<{ db: Db; close: () => Promise<voi
     db,
     close: async () => {
       await db.$disconnect();
-      rmSync(dir, { recursive: true, force: true });
+      try {
+        rmSync(dir, { recursive: true, force: true });
+      } catch (e) {
+        // libsql frees its native handle on garbage collection, not on close, and Windows will not
+        // delete an open file. Leave the temp folder there rather than fail the suite.
+        const code = (e as NodeJS.ErrnoException).code;
+        if (process.platform !== 'win32' || (code !== 'EPERM' && code !== 'EBUSY')) throw e;
+      }
     },
   };
 }

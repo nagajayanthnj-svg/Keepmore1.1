@@ -22,6 +22,9 @@ Phase 0 findings: `docs/PHASE0_FINDINGS.md`.
 - Read amounts from PayPal (`seller_receivable_breakdown`, `fund_movements`). Never recalculate a fee that PayPal returned.
 - `fund_movements` is its own source. Money moves before the dispute status changes.
 
+## Carrier data
+- A status that can support a dispute claim (DELIVERED, DELIVERED_TO_NEIGHBOUR) must match a strict pattern. When in doubt, UNKNOWN.
+
 ## Truth-state labels
 Every number or fact shown to the seller carries exactly one of these:
 **Verified by PayPal**, **Calculated**, **Seller entered**, **Estimated**, **Illustrative**, **Unknown**, **Simulated demo**.
