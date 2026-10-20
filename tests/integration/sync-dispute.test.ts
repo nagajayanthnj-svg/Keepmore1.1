@@ -65,8 +65,12 @@ describe('syncDispute: first sync', () => {
       outcomeCode: null,
       orderId: null,
       buyerHash: null,
-      allowedActionsJson: '[]', // derived by T-204 from a fresh GET, never from this stored copy
     });
+    // A display copy of the allowed actions (T-204); the gate itself is a fresh GET and never reads this.
+    expect(JSON.parse(c!.allowedActionsJson).actions.map((a: { action: string }) => a.action)).toEqual([
+      'ACCEPT_CLAIM',
+      'PROVIDE_EVIDENCE',
+    ]);
     expect(c!.sellerDeadline).toEqual(new Date('2026-10-22T18:29:59.000Z'));
     expect(JSON.parse(c!.requestedEvidence)).toEqual([
       'PROOF_OF_FULFILLMENT',
