@@ -105,6 +105,7 @@ model Order {
   grossMinor     Int
   currency       String               // ISO 4217
   buyerHash      String?              // HMAC of payer ID; never displayed
+  sellerProtection String?            // seller_protection.status from the capture
   createdAt      DateTime @default(now())
   shipment       Shipment?
   ledger         LedgerEntry[]
@@ -412,18 +413,18 @@ Exit check: a sandbox checkout writes correct ledger entries from the real fixtu
 
 | ID | Task | Test first | Done when | Status |
 | --- | --- | --- | --- | --- |
-| T-101 | Scaffold: Next.js, TypeScript strict, Tailwind, ESLint, Vitest, Playwright, MIT licence | A trivial unit test and an empty Playwright page test | `npm test`, `npm run build` pass locally | Not started |
-| T-102 | CI workflow: lint, typecheck, test, e2e, build | A deliberately failing test turns CI red | CI green on main; red blocks merge | Not started |
-| T-103 | Prisma schema, first migration, test-database helper | Integration test writes and reads an Order; no exported update or delete for LedgerEntry | Migration applied; helper resets DB per test file | Not started |
-| T-104 | Money utils `toMinor`, `fromMinor` | "114.42" USD → 11442; JPY has 0 decimals; a JS number input is rejected by type | All money code uses them | Not started |
-| T-105 | Time util `carrierLocalDate` | 2026-10-21T20:30Z in Asia/Kolkata → 2026-10-22 | Injected `now` used everywhere | Not started |
-| T-106 | Status and tracking normaliser with lookup tables | "Item delivered to neighbour" → DELIVERED\_TO\_NEIGHBOUR; unmapped → UNKNOWN; "ee 123-456 789 in" → "EE123456789IN" | Tables cover India Post, DHL, FedEx and the demo carrier | Not started |
-| T-107 | PayPal client: token cache, typed errors, `PayPal-Request-Id` | MSW: token reused until 60 s before expiry; one refresh on 401; header sent on writes | All PayPal calls go through it | Not started |
-| T-108 | Ledger entries from capture | T-002 fixture → GROSS 12000 USD and PAYPAL\_FEE from the breakdown, source PAYPAL\_VERIFIED | Fee is never recalculated when returned | Not started |
-| T-109 | FX estimate, `FxRate` table, FBIL CSV loader | Net 11442 USD cents × ₹84 × 3% → 28834 paise; a PayPal `exchange_rate` overrides the estimate | Estimate labelled REFERENCE\_RATE\_ESTIMATE | Not started |
-| T-110 | Seed and reset: Neel Pottery, about 400 orders over 6 months | Seeding twice yields the same content hash | Every seeded row is DEMO\_SEEDED | Not started |
-| T-111 | Storefront checkout: create and capture routes plus buttons | Integration: a tampered browser amount is ignored; capture writes ledger and buyer hash; no raw payer ID stored | Real sandbox checkout works from the store page | Not started |
-| T-112 | Four-screen shell and truth-state badge component | Playwright visits all four screens; badge renders each of the seven state labels | Navigation keeps order and case context | Not started |
+| T-101 | Scaffold: Next.js, TypeScript strict, Tailwind, ESLint, Vitest, Playwright, MIT licence | A trivial unit test and an empty Playwright page test | `npm test`, `npm run build` pass locally | Done |
+| T-102 | CI workflow: lint, typecheck, test, e2e, build | A deliberately failing test turns CI red | CI green on main; red blocks merge | Done |
+| T-103 | Prisma schema, first migration, test-database helper | Integration test writes and reads an Order; no exported update or delete for LedgerEntry | Migration applied; helper resets DB per test file | Done |
+| T-104 | Money utils `toMinor`, `fromMinor` | "114.42" USD → 11442; JPY has 0 decimals; a JS number input is rejected by type | All money code uses them | Done |
+| T-105 | Time util `carrierLocalDate` | 2026-10-21T20:30Z in Asia/Kolkata → 2026-10-22 | Injected `now` used everywhere | Done |
+| T-106 | Status and tracking normaliser with lookup tables | "Item delivered to neighbour" → DELIVERED\_TO\_NEIGHBOUR; unmapped → UNKNOWN; "ee 123-456 789 in" → "EE123456789IN" | Tables cover India Post, DHL, FedEx and the demo carrier | Done |
+| T-107 | PayPal client: token cache, typed errors, `PayPal-Request-Id` | MSW: token reused until 60 s before expiry; one refresh on 401; header sent on writes | All PayPal calls go through it | Done |
+| T-108 | Ledger entries from capture | T-002 fixture → GROSS 12000 USD and PAYPAL\_FEE from the breakdown, source PAYPAL\_VERIFIED | Fee is never recalculated when returned | Done |
+| T-109 | FX estimate, `FxRate` table, FBIL CSV loader | Net 11442 USD cents × ₹84 × 3% → 28834 paise; a PayPal `exchange_rate` overrides the estimate | Estimate labelled REFERENCE\_RATE\_ESTIMATE | Done |
+| T-110 | Seed and reset: Neel Pottery, about 400 orders over 6 months | Seeding twice yields the same content hash | Every seeded row is DEMO\_SEEDED | Done |
+| T-111 | Storefront checkout: create and capture routes plus buttons | Integration: a tampered browser amount is ignored; capture writes ledger and buyer hash; no raw payer ID stored | Real sandbox checkout works from the store page | Done |
+| T-112 | Four-screen shell and truth-state badge component | Playwright visits all four screens; badge renders each of the seven state labels | Navigation keeps order and case context | Done |
 | T-113 | AG Grid decision, option (a) or (b) | Manual | Decision and licence dates in `DECISIONS.md` by 24 Oct | Not started |
 
 ## Phase 2: core dispute flow (25–29 Oct)
@@ -442,7 +443,7 @@ Exit check: a real sandbox dispute arrives by webhook, is approved and submitted
 | T-208 | Inbox screen | Playwright: sorted by deadline; stale badge visible | Shows reason, stage, amount, sync age | Not started |
 | T-209 | Approval service | Editing the payload after approval makes submit fail on hash mismatch | Approval stores payload and state hashes | Not started |
 | T-210 | Action service | Each of these blocks the write: stale case, action not allowed, `rawHash` changed, no approval; a retry reuses the idempotency key | Success stores status and response, then re-syncs | Not started |
-| T-211 | Write calls: send-message, provide-evidence, make-offer, accept-claim | MSW asserts multipart body with `input` JSON and file; notes over 2,000 characters are rejected before sending | Responses match T-007 fixture shape | Not started |
+| T-211 | Write calls: send-message, provide-evidence, make-offer, accept-claim | MSW asserts JSON bodies for send-message, provide-evidence and accept-claim, and a multipart body with `input` JSON and file; notes over 2,000 characters are rejected before sending | Responses match T-007 fixture shape | Not started |
 | T-212 | Lint rule: dispute writes only from `disputes/actions.ts` | A fixture file importing a write function elsewhere fails lint | Rule runs in CI | Not started |
 | T-213 | Live check against sandbox | Manual | One dispute: webhook → inbox → approve → submit → re-fetched state; noted in `DECISIONS.md` | Not started |
 
