@@ -151,6 +151,9 @@ export async function resetDemo(db: Db, opts: { demoMode: boolean }): Promise<vo
     for (let i = 0; i < ids.length; i += 200) {
       await tx.ledgerEntry.deleteMany({ where: { orderId: { in: ids.slice(i, i + 200) }, sourceType: 'DEMO_SEEDED' } });
     }
+    for (let i = 0; i < ids.length; i += 200) {
+      await tx.shipment.deleteMany({ where: { orderId: { in: ids.slice(i, i + 200) } } });
+    }
     await tx.order.deleteMany({ where: demo });
     await tx.fxRate.deleteMany({ where: { source: 'DEMO_SEED' } });
   });
