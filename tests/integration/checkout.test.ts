@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { vi, afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { Db } from '../../src/lib/db';
 import { handleCapture, handleCreate, type CheckoutDeps } from '../../src/orders/handlers';
 import { createPayPalClient } from '../../src/paypal/client';
@@ -153,6 +153,18 @@ describe('create order', () => {
     expect(res.status).toBe(400);
     expect(created).toHaveLength(0);
     expect(await db.order.count()).toBe(before);
+  });
+
+  it("logs PayPal's reason for a failed create: status, name, issues, debug id and message", async () => {
+    server.use(http.post(`${BASE}/v2/checkout/orders`, () => HttpResponse.json(realError.body, { status: 400 })));
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await handleCreate(post({ items: cart120 }), deps);
+    const line = spy.mock.calls.map((c) => c.join(' ')).join('\n');
+    spy.mockRestore();
+    expect(line).toContain('400');
+    expect(line).toContain('INVALID_REQUEST');
+    expect(line).toContain('EVIDENCE_TYPE_IS_NOT_ALLOWED');
+    expect(line).toContain(realError.body.debug_id);
   });
 
   it('turns a PayPal failure into 502 with the debug id, and keeps no local order', async () => {
