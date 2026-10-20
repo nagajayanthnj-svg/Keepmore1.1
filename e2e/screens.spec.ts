@@ -59,3 +59,22 @@ test('a hostile id in the URL is not used in a link', async ({ page }) => {
   await expect(nav(page).getByRole('link', { name: 'Dispute' })).toHaveAttribute('href', '/disputes/CASE1');
   await expect(nav(page).getByText('Order', { exact: true })).toHaveAttribute('aria-disabled', 'true');
 });
+
+// Needs the demo data: CI runs `npm run db:migrate` and `npm run db:seed` before e2e.
+test('overview shows the seeded ledger totals, each row with one label, sources kept apart', async ({ page }) => {
+  await page.goto('/overview');
+  await expect(page.getByTestId('orders-demo')).toHaveText('400');
+  const table = page.getByTestId('totals');
+  for (const [type, name] of [
+    ['GROSS', 'Sales (gross)'],
+    ['PAYPAL_FEE', 'PayPal fees'],
+    ['FX', 'Exchange-rate cost'],
+  ] as const) {
+    const row = table.locator(`tr[data-type="${type}"]`, { has: page.locator('[data-truth-state="Simulated demo"]') });
+    await expect(row).toHaveCount(1);
+    await expect(row.getByRole('rowheader')).toHaveText(name);
+    await expect(row.locator('[data-truth-state]')).toHaveCount(1); // exactly one label per row
+  }
+  await expect(table.locator('tr[data-type="FX"]').first().getByRole('cell').nth(1)).toContainText('₹');
+  await expect(table.locator('tr[data-type="GROSS"]').first().getByRole('cell').nth(1)).toContainText('$');
+});

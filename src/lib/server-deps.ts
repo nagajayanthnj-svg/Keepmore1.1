@@ -13,13 +13,18 @@ export function paypalBaseUrl(value: string | undefined): string {
 
 const g = globalThis as unknown as { __keepmoreDb?: Db };
 
+/** The app's database, one connection per server process. */
+export function getDb(): Db {
+  g.__keepmoreDb ??= createDb();
+  return g.__keepmoreDb;
+}
+
 /** Server-side dependencies from the environment. Null when PayPal credentials are missing. */
 export function getCheckoutDeps(): CheckoutDeps | null {
   const { PAYPAL_CLIENT_ID: clientId, PAYPAL_CLIENT_SECRET: clientSecret } = process.env;
   if (!clientId || !clientSecret) return null;
-  g.__keepmoreDb ??= createDb();
   return {
-    db: g.__keepmoreDb,
+    db: getDb(),
     paypal: createPayPalClient({
       clientId,
       clientSecret,
