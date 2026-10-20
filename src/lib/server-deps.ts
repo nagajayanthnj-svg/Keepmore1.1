@@ -2,6 +2,15 @@ import { createDb, type Db } from './db';
 import type { CheckoutDeps } from '../orders/handlers';
 import { createPayPalClient } from '../paypal/client';
 
+export const SANDBOX_API = 'https://api-m.sandbox.paypal.com';
+
+/** Sandbox only (CLAUDE.md). Any other host, including PayPal's live API and the sandbox website, is refused. */
+export function paypalBaseUrl(value: string | undefined): string {
+  const v = (value ?? '').trim().replace(/\/+$/, '');
+  if (v === '' || v === SANDBOX_API) return SANDBOX_API;
+  throw new Error(`PAYPAL_API_BASE must be ${SANDBOX_API} (sandbox only), got "${v}"`);
+}
+
 const g = globalThis as unknown as { __keepmoreDb?: Db };
 
 /** Server-side dependencies from the environment. Null when PayPal credentials are missing. */
@@ -14,7 +23,7 @@ export function getCheckoutDeps(): CheckoutDeps | null {
     paypal: createPayPalClient({
       clientId,
       clientSecret,
-      baseUrl: process.env.PAYPAL_API_BASE || 'https://api-m.sandbox.paypal.com',
+      baseUrl: paypalBaseUrl(process.env.PAYPAL_API_BASE),
     }),
     hmacSecret: process.env.HMAC_SECRET,
   };
