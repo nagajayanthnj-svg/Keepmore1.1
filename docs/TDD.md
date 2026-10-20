@@ -439,11 +439,11 @@ Exit check: a real sandbox dispute arrives by webhook, is approved and submitted
 | T-204 | `allowedActions` from links and options | Inquiry-stage fixture, claim-stage fixture and resolved fixture each give the expected set | Gate used by UI and server alike | Done |
 | T-205 | Poller, manual sync and stale detection | Fake timers: stale after 5 minutes; poller finds a dispute the webhook missed | Interval from `SYNC_INTERVAL_SECONDS` | Done |
 | T-206 | Link disputes to orders; buyer hash | Dispute matched by transaction ID; email fallback hashed; database dump contains no "@" | Unmatched disputes still show, flagged | Done |
-| T-207 | Evidence records with stable IDs | Re-syncing the same content keeps the same REC IDs | Records hold normalised fields | Not started |
-| T-208 | Inbox screen | Playwright: sorted by deadline; stale badge visible | Shows reason, stage, amount, sync age | Not started |
-| T-209 | Approval service | Editing the payload after approval makes submit fail on hash mismatch | Approval stores payload and state hashes | Not started |
-| T-210 | Action service | Each of these blocks the write: stale case, action not allowed, `rawHash` changed, no approval; a retry reuses the idempotency key | Success stores status and response, then re-syncs | Not started |
-| T-211 | Write calls: send-message, provide-evidence, make-offer, accept-claim | MSW asserts JSON bodies for send-message, provide-evidence and accept-claim, and a multipart body with `input` JSON and file; notes over 2,000 characters are rejected before sending | Responses match T-007 fixture shape | Not started |
+| T-207 | Evidence records with stable IDs | Re-syncing the same content keeps the same REC IDs | Records hold normalised fields | Done |
+| T-208 | Inbox screen | Playwright: sorted by deadline; stale badge visible | Shows reason, stage, amount, sync age | Done |
+| T-209 | Approval service | Editing the payload after approval makes submit fail on hash mismatch | Approval stores payload and state hashes | Done |
+| T-210 | Action service | Each of these blocks the write: stale case, action not allowed, `rawHash` changed, no approval; a retry reuses the idempotency key | Success stores status and response, then re-syncs | Done |
+| T-211 | Write calls: send-message, provide-evidence, make-offer, accept-claim | MSW asserts JSON bodies for send-message, provide-evidence and accept-claim, and a multipart body with `input` JSON and file; notes over 2,000 characters are rejected before sending | Responses match T-007 fixture shape | In progress |
 | T-212 | Lint rule: dispute writes only from `disputes/actions.ts` | A fixture file importing a write function elsewhere fails lint | Rule runs in CI | Not started |
 | T-213 | Live check against sandbox | Manual | One dispute: webhook → inbox → approve → submit → re-fetched state; noted in `DECISIONS.md` | Not started |
 
