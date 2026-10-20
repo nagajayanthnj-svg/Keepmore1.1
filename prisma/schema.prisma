@@ -20,6 +20,7 @@ model Order {
   grossMinor     Int
   currency       String               // ISO 4217
   buyerHash      String?              // HMAC of payer ID; never displayed
+  sellerProtection String?            // seller_protection.status from the capture (Verified by PayPal)
   createdAt      DateTime @default(now())
   shipment       Shipment?
   ledger         LedgerEntry[]
