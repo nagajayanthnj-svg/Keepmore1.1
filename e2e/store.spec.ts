@@ -62,3 +62,30 @@ test('an empty cart does not create an order', async ({ page }) => {
   await page.waitForTimeout(300);
   expect(calls).toBe(0);
 });
+
+test('loads the PayPal script once and draws exactly one button set', async ({ page }) => {
+  let loads = 0;
+  await page.unroute('**/sdk/js**');
+  await page.route('**/sdk/js**', (route) => {
+    loads += 1;
+    return route.fulfill({ contentType: 'application/javascript', body: sdkStub });
+  });
+  await page.goto('/store');
+  await expect(page.getByRole('button', { name: 'Stub PayPal' })).toHaveCount(1);
+  await page.waitForTimeout(500);
+  expect(loads).toBe(1);
+});
+
+test("shows PayPal's own reason when the buttons cannot be drawn", async ({ page }) => {
+  await page.unroute('**/sdk/js**');
+  await page.route('**/sdk/js**', (route) =>
+    route.fulfill({
+      contentType: 'application/javascript',
+      body: `window.paypal = { Buttons: () => ({ render: async () => { throw new Error('Invalid client id for this environment'); } }) };`,
+    }),
+  );
+  await page.goto('/store');
+  const msg = page.locator('p[role="alert"]'); // Next adds its own hidden alert for route changes
+  await expect(msg).toContainText('The PayPal buttons could not be shown');
+  await expect(msg).toContainText('Invalid client id for this environment');
+});
