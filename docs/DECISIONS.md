@@ -821,3 +821,8 @@ Three calls to `POST /api/orders/3K7336723L338842X/ship`, carrier "India Post":
 - **New e2e check:** for the inbox and the overview totals grid, every truth-state and sync badge must fit inside its cell, and no cell may have `scrollWidth` larger than `clientWidth`. The old tests only checked that badges existed.
 - **Test data (F-56):** the inbox e2e now looks only at rows whose link starts with `PP-DEMO-`, and the API test filters the same way. A dev database that also holds real sandbox disputes from the poller no longer breaks them.
 - **Checked, not a bug:** the Order and Outcome tabs on the dispute page are enabled links and carry `?case=` over (confirmed by the user on Windows). The row order the user saw came from a sort they applied to the Sync column.
+
+## T-210/T-211 live check (script added, not yet run)
+- `scripts/live-t210.ts` makes the first real write to a sandbox dispute, only through `submitApprovedAction`. A: one send-message, expect APPLIED and exactly one new message. B: the write reaches PayPal but the answer is dropped; expect PAYPAL_UNAVAILABLE, then see what a second submit of the same approval does. C: resubmitting a used approval must be ALREADY_SUBMITTED.
+- **Expected finding in B:** after a lost answer the dispute has changed, so `verifyApproval` should answer STATE_CHANGED and block the retry. That is safe (no double send) but means the seller must look at the case and approve again. This test records it; it does not prove that PayPal deduplicates a repeated `PayPal-Request-Id` (the service cannot reach that call).
+- The script saves only under `live-check-out/` (gitignored) (F-57).
