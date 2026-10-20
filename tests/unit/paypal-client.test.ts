@@ -139,6 +139,23 @@ describe('PayPal-Request-Id', () => {
     expect(apiCalls[1]!.headers.get('paypal-request-id')).toBeNull();
   });
 
+  it.each(['POST', 'PATCH', 'PUT', 'DELETE'] as const)(
+    'sends a JSON content type on %s even with no body (PayPal answers 415 without it)',
+    async (method) => {
+      server.use(tokenHandler(), echo);
+      const c = make();
+      await c.request(method, '/v1/ping');
+      expect(apiCalls[0]!.headers.get('content-type')).toContain('application/json');
+    },
+  );
+
+  it('sends no content type on GET', async () => {
+    server.use(tokenHandler(), echo);
+    const c = make();
+    await c.get('/v1/ping');
+    expect(apiCalls[0]!.headers.get('content-type')).toBeNull();
+  });
+
   it('sends the JSON body with a JSON content type', async () => {
     server.use(tokenHandler(), echo);
     const c = make();
