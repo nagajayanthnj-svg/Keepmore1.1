@@ -7,6 +7,7 @@ import { systemClock, type Clock } from '../lib/clock';
 import { PayPalChangeNotSeenError, PayPalError, rereadUntil, type PayPalClient } from '../paypal/client';
 import { getAllowedActions, hasAction, type ActionCode } from './allowed-actions';
 import { verifyApproval } from './approval';
+import { buildDisputeBody, type BodyContext } from './bodies';
 import { DisputeParseError } from './parse';
 import { isStale } from './poller';
 import { syncDispute } from './sync';
@@ -19,8 +20,8 @@ export interface ActionDeps {
   sleep?: (ms: number) => Promise<void>;
   /** How long to wait for a change to show after a write (Phase 0: up to about 28 s). */
   reread?: { attempts: number; delayMs: number };
-  /** Turns an approved payload into the body PayPal wants. */
-  build: (action: ActionCode, payload: Record<string, unknown>) => unknown;
+  /** Turns an approved payload into the request body. Defaults to buildDisputeBody (T-211). */
+  build?: (action: ActionCode, payload: Record<string, unknown>, ctx: BodyContext) => unknown;
 }
 
 export type SubmitFailure =
@@ -33,6 +34,7 @@ export type SubmitFailure =
   | 'ACTION_NOT_ALLOWED'
   | 'TYPE_NOT_OFFERED'
   | 'UNUSABLE_DISPUTE'
+  | 'INVALID_BODY'
   | 'PAYPAL_UNAVAILABLE'
   | 'PAYPAL_REJECTED';
 
@@ -91,11 +93,22 @@ export async function submitApprovedAction(deps: ActionDeps, approvalId: string)
     return { ok: false, code: 'TYPE_NOT_OFFERED' };
   }
 
+  // The body, built before anything is sent. A body that cannot be built leaves the approval unused.
+  let body: unknown;
+  try {
+    body = (deps.build ?? buildDisputeBody)(verified.action, verified.payload, {
+      currency: c.currency,
+      amountMinor: c.amountMinor,
+    });
+  } catch {
+    return { ok: false, code: 'INVALID_BODY' };
+  }
+
   // The write. The approval's key is the PayPal-Request-Id, so a retry of an unfinished call cannot do it twice.
   let status: number;
   let responseJson: string;
   try {
-    const res = await deps.paypal.post(link.path, deps.build(verified.action, verified.payload), {
+    const res = await deps.paypal.post(link.path, body, {
       requestId: verified.idempotencyKey,
     });
     status = res.status;

@@ -137,6 +137,32 @@ describe('submitApprovedAction: the one place a dispute write happens', () => {
   });
 });
 
+describe('the default request bodies (T-211)', () => {
+  it('uses the real body for the action when no builder is given', async () => {
+    const { build: _build, ...noBuild } = deps;
+    void _build;
+    const { id } = await approved();
+    await submitApprovedAction(noBuild, id);
+    expect(posts[0]!.body).toEqual({ note: 'Refunding in full.' });
+  });
+
+  it('a body that cannot be built sends nothing and leaves the approval usable', async () => {
+    const { id } = await approved();
+    const r = await submitApprovedAction(
+      {
+        ...deps,
+        build: () => {
+          throw new Error('boom');
+        },
+      },
+      id,
+    );
+    expect(r).toMatchObject({ ok: false, code: 'INVALID_BODY' });
+    expect(posts).toHaveLength(0);
+    expect((await db.caseAction.findUniqueOrThrow({ where: { id } })).submittedAt).toBeNull();
+  });
+});
+
 describe('what blocks a write', () => {
   it('no approval: nothing is sent', async () => {
     expect(await submitApprovedAction(deps, 'nope')).toMatchObject({ ok: false, code: 'NO_APPROVAL' });
