@@ -3,6 +3,7 @@
 import type { Db } from '../lib/db';
 import { systemClock, type Clock } from '../lib/clock';
 import type { PayPalClient } from '../paypal/client';
+import { allowedActions } from './allowed-actions';
 import { DISPUTE_ID, DisputeParseError, parseDispute } from './parse';
 
 export interface SyncDeps {
@@ -27,7 +28,8 @@ export async function syncDispute(deps: SyncDeps, disputeId: string): Promise<Sy
   if (d.paypalDisputeId !== disputeId) throw new DisputeParseError('PayPal returned a different dispute');
 
   const lastSyncedAt = (deps.clock ?? systemClock)();
-  // allowedActionsJson is not set here: allowed actions come from a fresh GET of the links (T-204), never from storage.
+  // A copy of the allowed actions, for display only. The gate is getAllowedActions (T-204), a fresh GET, never this.
+  const allowedActionsJson = JSON.stringify(allowedActions(res.body));
   const fields = {
     reason: d.reason,
     stage: d.stage,
@@ -44,7 +46,7 @@ export async function syncDispute(deps: SyncDeps, disputeId: string): Promise<Sy
   let existing = await deps.db.disputeCase.findUnique({ where: { paypalDisputeId: disputeId } });
   if (!existing) {
     try {
-      await deps.db.disputeCase.create({ data: { paypalDisputeId: disputeId, allowedActionsJson: '[]', ...fields } });
+      await deps.db.disputeCase.create({ data: { paypalDisputeId: disputeId, allowedActionsJson, ...fields } });
       return { disputeId, created: true, changed: true, rawHash: d.rawHash };
     } catch (e) {
       // A concurrent sync made the row first: carry on as an update.
@@ -55,7 +57,7 @@ export async function syncDispute(deps: SyncDeps, disputeId: string): Promise<Sy
   const changed = existing.rawHash !== d.rawHash;
   await deps.db.disputeCase.update({
     where: { paypalDisputeId: disputeId },
-    data: changed ? fields : { lastSyncedAt },
+    data: changed ? { ...fields, allowedActionsJson } : { lastSyncedAt, allowedActionsJson },
   });
   return { disputeId, created: false, changed, rawHash: d.rawHash };
 }
