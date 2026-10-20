@@ -1,0 +1,121 @@
+{
+  "items": [
+    {
+      "dispute_id": "PP-R-OSP-10193570",
+      "create_time": "2026-10-19T16:46:23.000Z",
+      "update_time": "2026-10-19T17:08:54.000Z",
+      "disputed_transactions": [
+        {
+          "buyer_transaction_id": "85R89075FR513710A",
+          "buyer": {
+            "payer_id": "REDACTED",
+            "name": "REDACTED"
+          },
+          "seller": {
+            "merchant_id": "REDACTED",
+            "name": "REDACTED"
+          }
+        }
+      ],
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "status": "WAITING_FOR_SELLER_RESPONSE",
+      "dispute_state": "REQUIRED_ACTION",
+      "dispute_amount": {
+        "currency_code": "USD",
+        "value": "30.00"
+      },
+      "dispute_life_cycle_stage": "CHARGEBACK",
+      "dispute_channel": "INTERNAL",
+      "seller_response_due_date": "2026-10-22T18:29:59.000Z",
+      "links": [
+        {
+          "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes/PP-R-OSP-10193570",
+          "rel": "self",
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "dispute_id": "PP-R-RAV-10193566",
+      "create_time": "2026-10-19T16:07:41.000Z",
+      "update_time": "2026-10-19T18:47:13.000Z",
+      "disputed_transactions": [
+        {
+          "buyer_transaction_id": "2WW677483X2673146",
+          "buyer": {
+            "payer_id": "REDACTED",
+            "name": "REDACTED"
+          },
+          "seller": {
+            "merchant_id": "REDACTED",
+            "name": "REDACTED"
+          }
+        }
+      ],
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "status": "RESOLVED",
+      "dispute_state": "RESOLVED",
+      "dispute_amount": {
+        "currency_code": "USD",
+        "value": "50.00"
+      },
+      "dispute_life_cycle_stage": "CHARGEBACK",
+      "dispute_channel": "INTERNAL",
+      "outcome": "WON",
+      "links": [
+        {
+          "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes/PP-R-RAV-10193566",
+          "rel": "self",
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "dispute_id": "PP-R-IUT-10193562",
+      "create_time": "2026-10-19T15:33:52.000Z",
+      "update_time": "2026-10-19T18:56:33.000Z",
+      "disputed_transactions": [
+        {
+          "buyer_transaction_id": "4EU206565W065925H",
+          "buyer": {
+            "payer_id": "REDACTED",
+            "name": "REDACTED"
+          },
+          "seller": {
+            "merchant_id": "REDACTED",
+            "name": "REDACTED"
+          }
+        }
+      ],
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "status": "RESOLVED",
+      "dispute_state": "RESOLVED",
+      "dispute_amount": {
+        "currency_code": "USD",
+        "value": "120.00"
+      },
+      "dispute_life_cycle_stage": "CHARGEBACK",
+      "dispute_channel": "INTERNAL",
+      "outcome": "LOST",
+      "links": [
+        {
+          "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes/PP-R-IUT-10193562",
+          "rel": "self",
+          "method": "GET"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes?page_size=50",
+      "rel": "self",
+      "method": "GET"
+    },
+    {
+      "href": "https://api-m.sandbox.paypal.com/v1/customer/disputes?page_size=50",
+      "rel": "first",
+      "method": "GET"
+    }
+  ]
+}
