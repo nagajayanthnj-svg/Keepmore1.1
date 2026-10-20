@@ -16,7 +16,13 @@ export interface CheckoutDeps {
 
 const CURRENCY = 'USD';
 const json = (body: unknown, status: number) => Response.json(body, { status });
-const paypalFailure = (e: PayPalError) => json({ error: 'PAYPAL_ERROR', debugId: e.debugId }, 502);
+/** The browser gets a code and a debug id. The reason goes to the server log: PayPal's own error name, issues and message, never credentials. */
+const paypalFailure = (e: PayPalError) => {
+  console.error(
+    `PayPal error ${e.status} ${e.code ?? '-'} issues=[${e.issues.join(',')}] debug=${e.debugId ?? '-'}: ${e.message}`,
+  );
+  return json({ error: 'PAYPAL_ERROR', debugId: e.debugId }, 502);
+};
 
 export async function handleCreate(req: Request, deps: CheckoutDeps): Promise<Response> {
   const parsed = cartSchema.safeParse(await req.json().catch(() => null));
