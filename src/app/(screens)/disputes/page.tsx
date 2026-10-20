@@ -31,6 +31,7 @@ export default async function InboxPage() {
         ) : (
           <DataGrid
             testId="inbox-grid"
+            fit="content"
             label="Dispute inbox"
             columns={INBOX_COLUMNS}
             rows={inboxGridRows(inbox.rows, now)}
