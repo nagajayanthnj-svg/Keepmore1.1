@@ -48,6 +48,13 @@ export async function appendLedgerEntry(db: Db, entry: LedgerEntryInput) {
   return db.ledgerEntry.create({ data: LedgerEntryInput.parse(entry) });
 }
 
+/** Bulk form of appendLedgerEntry for the demo seed. Every entry is validated first; nothing is written if one is bad. */
+export async function appendLedgerEntries(db: Db, entries: LedgerEntryInput[]) {
+  const data = entries.map((e) => LedgerEntryInput.parse(e));
+  for (let i = 0; i < data.length; i += 200) await db.ledgerEntry.createMany({ data: data.slice(i, i + 200) });
+  return data.length;
+}
+
 export async function listLedgerEntries(db: Db, orderId: string) {
   return db.ledgerEntry.findMany({
     where: { orderId },

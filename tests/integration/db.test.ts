@@ -141,7 +141,7 @@ describe('ledger store', () => {
     const functions = Object.entries(ledgerStore)
       .filter(([, v]) => typeof v === 'function')
       .map(([k]) => k);
-    expect(functions.sort()).toEqual(['appendLedgerEntry', 'listLedgerEntries']);
+    expect(functions.sort()).toEqual(['appendLedgerEntries', 'appendLedgerEntry', 'listLedgerEntries']);
     expect(Object.keys(ledgerStore).filter((n) => /update|delete|remove|upsert/i.test(n))).toEqual([]);
   });
 
