@@ -696,6 +696,20 @@ The grid wrapper (`src/components/data-grid.tsx`, columns in `grid-columns.ts`):
 - Not sent, saved as `NOT_ATTEMPTED` with a reason: demo orders (`DEMO_ORDER`), orders never captured (`NO_CAPTURE`), carriers other than INDIA_POST, DHL and FEDEX (`CARRIER_NOT_PUSHABLE`: the `OTHER` retry needs `carrier_name_other` and no fixture of it exists, and `DEMO` is not a PayPal carrier), and a server with no PayPal credentials (`PAYPAL_NOT_CONFIGURED`).
 - **Rule reading, please confirm:** CLAUDE.md says PayPal writes happen only in `src/disputes/actions.ts`, after seller approval. This write is an order-level tracking push, not a dispute action, and the seller's own ship action is the approval, like checkout's create and capture. T-212's lint rule is about dispute writes. If you want tracking inside `actions.ts` too, say so.
 - The 403 in the tests is mocked: the status is set by the test and the body is a real PayPal error from `provide-evidence-response-v2.json`. No real tracking rejection is on file, so what PayPal says on a real 403 is **UNKNOWN**.
-- Not tested live: shipping the same order twice with a different tracking number, or the same one twice, against the real sandbox. Locally there is one row per order; PayPal may add a second tracker or refuse a duplicate.
 - The order screen shows the shipment with a status chip ("Tracking sent to PayPal" or "Local tracking only") and the carrier and tracking number labelled **Seller entered**. The chip is a status, not a truth-state label.
 - `resetDemo` now deletes shipments of demo orders (the foreign key would otherwise block the reset).
+
+### T-201 live check (2026-10-20, owner's PC, sandbox, order `3K7336723L338842X`, the 120.00 capture)
+Three calls to `POST /api/orders/3K7336723L338842X/ship`, carrier "India Post":
+
+| Run | Tracking number | HTTP | outcome | pushStatus | pushedToPaypalAt (UTC) | pushError |
+|---|---|---|---|---|---|---|
+| 1 | EE123456789IN | 200 | PUSHED | PUSHED | 2026-10-20T09:40:04.890Z | null |
+| 2 | EE123456789IN again | 200 | PUSHED | PUSHED | 2026-10-20T09:40:13.361Z | null |
+| 3 | EE987654321IN, same order | 200 | PUSHED | PUSHED | 2026-10-20T09:40:21.410Z | null |
+
+- Run 1 is the first real push through the app: PayPal accepted the request and its response showed our tracker, so the PUSHED rule held against a real response. One shipment row per order throughout (same `shipmentId`); the carrier was stored as `INDIA_POST`.
+- Run 2 was accepted too. The request id is the same for the same capture and tracking number, so PayPal may have replayed its first answer; this does not show how PayPal treats a true duplicate. It shows that sending the same shipment again is safe.
+- Run 3 was accepted with a different number on the same order. **UNKNOWN:** whether PayPal now holds two trackers on that order or replaced the first. Only a GET of the order shows that, and none was made.
+- No real rejection was seen, so the 403 path is still tested only with a mock. What PayPal says on a real refusal stays **UNKNOWN**.
+- The response bodies were not saved, so there is no new fixture. The existing `track-response-*` fixtures cover the shape the code reads.
