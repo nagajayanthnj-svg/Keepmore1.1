@@ -18,6 +18,8 @@ export default defineConfig({
   webServer: {
     command: `npm run dev -- --port ${port}`,
     url: `http://localhost:${port}`,
+    // A fake public client id: the e2e tests replace the PayPal script, so no PayPal call is made.
+    env: { NEXT_PUBLIC_PAYPAL_CLIENT_ID: 'e2e-client-id' },
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
