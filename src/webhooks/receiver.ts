@@ -1,6 +1,7 @@
 // Webhook receiver (T-202): verify, deduplicate on event id, then ask for a dispute sync.
 // It decides nothing about disputes. Webhooks are a nudge, not the truth: some changes send none
 // (Phase 0), so the poller (T-205) is required alongside.
+import { DISPUTE_ID } from '../disputes/parse';
 import type { Db } from '../lib/db';
 import { systemClock, type Clock } from '../lib/clock';
 
@@ -17,7 +18,6 @@ export interface WebhookDeps {
 
 const EVENT_ID = /^[A-Za-z0-9_-]{1,100}$/;
 const EVENT_TYPE = /^[A-Za-z0-9_.]{1,100}$/;
-const DISPUTE_ID = /^PP-[A-Z0-9-]{3,40}$/;
 
 const json = (body: unknown, status: number) => Response.json(body, { status });
 const clip = (s: string) => s.slice(0, 300);

@@ -2,6 +2,7 @@ import { after } from 'next/server';
 import { createPayPalClient, type PayPalClient } from '../../../../paypal/client';
 import { verifyWebhookSignature } from '../../../../paypal/webhook-verify';
 import { getDb, guard, misconfigured, paypalBaseUrl } from '../../../../lib/server-deps';
+import { syncDispute } from '../../../../disputes/sync';
 import { handleWebhook } from '../../../../webhooks/receiver';
 
 export const runtime = 'nodejs';
@@ -33,7 +34,9 @@ export async function POST(req: Request) {
       db: getDb(),
       verify: (headers, raw) => verifyWebhookSignature(paypal, webhookId, headers, raw),
       defer: (work) => after(work),
-      // syncDispute arrives with T-203; until then verified dispute events are stored and marked NO_SYNC_AVAILABLE.
+      syncDispute: async (disputeId) => {
+        await syncDispute({ db: getDb(), paypal }, disputeId);
+      },
     });
   });
 }
