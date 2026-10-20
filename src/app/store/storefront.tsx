@@ -25,6 +25,27 @@ const usd = (minor: number) => `$${fromMinor(minor, 'USD')}`; // the shop sells 
 
 type Result = { kind: 'ok'; text: string } | { kind: 'error'; text: string } | null;
 
+const SDK_FAILED = 'The PayPal buttons could not be shown';
+let sdkPromise: Promise<PayPalSdk> | undefined;
+
+/** Loads the PayPal script once for the page, however many times the component mounts. */
+function loadSdk(clientId: string): Promise<PayPalSdk> {
+  sdkPromise ??= new Promise<PayPalSdk>((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=USD&intent=capture`;
+    s.onload = () =>
+      window.paypal
+        ? resolve(window.paypal)
+        : reject(new Error('The PayPal script loaded but defined no paypal object'));
+    s.onerror = () => {
+      sdkPromise = undefined;
+      reject(new Error('The PayPal script could not be loaded'));
+    };
+    document.head.appendChild(s);
+  });
+  return sdkPromise;
+}
+
 export function Storefront({ clientId }: { clientId: string }) {
   const [qty, setQty] = useState<Record<string, number>>({});
   const [result, setResult] = useState<Result>(null);
@@ -42,58 +63,57 @@ export function Storefront({ clientId }: { clientId: string }) {
   useEffect(() => {
     if (!clientId) return;
     let cancelled = false;
-    const mount = () => {
-      if (cancelled || !window.paypal || !box.current || box.current.childElementCount > 0) return;
-      window.paypal
-        .Buttons({
-          async onClick(_d, actions) {
-            return cart.current.length > 0 ? actions.resolve() : actions.reject();
-          },
-          async createOrder() {
-            const res = await fetch('/api/orders', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ items: cart.current }),
-            });
-            const body = (await res.json()) as { id?: string };
-            if (!res.ok || !body.id) throw new Error('Could not create the order');
-            return body.id;
-          },
-          async onApprove(data) {
-            const res = await fetch(`/api/orders/${encodeURIComponent(data.orderID)}/capture`, { method: 'POST' });
-            const body = (await res.json()) as {
-              captureId?: string;
-              grossMinor?: number;
-              error?: string;
-              debugId?: string;
-            };
-            setResult(
-              res.ok && body.captureId
-                ? {
-                    kind: 'ok',
-                    text: `Paid ${usd(body.grossMinor!)}. Capture ${body.captureId}.`,
-                  }
-                : {
-                    kind: 'error',
-                    text: `The payment could not be completed (${body.error ?? `HTTP ${res.status}`}${body.debugId ? `, PayPal debug id ${body.debugId}` : ''}).`,
-                  },
-            );
-          },
-          onError() {
-            setResult({ kind: 'error', text: 'PayPal reported an error.' });
-          },
-        })
-        .render(box.current)
-        .catch(() => setSdkError('The PayPal buttons could not be shown'));
-    };
-    if (window.paypal) mount();
-    else {
-      const s = document.createElement('script');
-      s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=USD&intent=capture`;
-      s.onload = mount;
-      s.onerror = () => setSdkError('The PayPal script could not be loaded');
-      document.head.appendChild(s);
-    }
+    loadSdk(clientId)
+      .then(async (sdk) => {
+        if (cancelled || !box.current || box.current.childElementCount > 0) return;
+        await sdk
+          .Buttons({
+            async onClick(_d, actions) {
+              return cart.current.length > 0 ? actions.resolve() : actions.reject();
+            },
+            async createOrder() {
+              const res = await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ items: cart.current }),
+              });
+              const body = (await res.json()) as { id?: string };
+              if (!res.ok || !body.id) throw new Error('Could not create the order');
+              return body.id;
+            },
+            async onApprove(data) {
+              const res = await fetch(`/api/orders/${encodeURIComponent(data.orderID)}/capture`, { method: 'POST' });
+              const body = (await res.json()) as {
+                captureId?: string;
+                grossMinor?: number;
+                error?: string;
+                debugId?: string;
+              };
+              setResult(
+                res.ok && body.captureId
+                  ? {
+                      kind: 'ok',
+                      text: `Paid ${usd(body.grossMinor!)}. Capture ${body.captureId}.`,
+                    }
+                  : {
+                      kind: 'error',
+                      text: `The payment could not be completed (${body.error ?? `HTTP ${res.status}`}${body.debugId ? `, PayPal debug id ${body.debugId}` : ''}).`,
+                    },
+              );
+            },
+            onError(err) {
+              console.error('PayPal button error', err);
+              setResult({ kind: 'error', text: 'PayPal reported an error.' });
+            },
+          })
+          .render(box.current);
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        console.error('PayPal buttons failed', err);
+        const reason = err instanceof Error ? err.message : String(err);
+        setSdkError(`${SDK_FAILED}: ${reason}`);
+      });
     return () => {
       cancelled = true;
     };
