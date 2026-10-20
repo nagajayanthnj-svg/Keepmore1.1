@@ -21,3 +21,23 @@ export function getCheckoutDeps(): CheckoutDeps | null {
 }
 
 export const misconfigured = () => Response.json({ error: 'SERVER_MISCONFIGURED' }, { status: 500 });
+
+/**
+ * Runs a route handler. A thrown error becomes a JSON 500 (never an HTML page the browser cannot read),
+ * and any error response is logged with its status and body, so the terminal says why. Bodies hold
+ * error codes and PayPal debug ids only, never credentials.
+ */
+export async function guard(
+  label: string,
+  run: () => Promise<Response>,
+  log: (line: string) => void = console.error,
+): Promise<Response> {
+  try {
+    const res = await run();
+    if (!res.ok) log(`${label} failed: ${res.status} ${await res.clone().text()}`);
+    return res;
+  } catch (e) {
+    log(`${label} crashed: ${e instanceof Error ? e.message : String(e)}`);
+    return Response.json({ error: 'INTERNAL' }, { status: 500 });
+  }
+}
