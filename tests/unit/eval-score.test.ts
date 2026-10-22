@@ -45,8 +45,9 @@ describe('T-310 scoring on two fixture cases', () => {
     expect(s.finalAcceptable).toBe(true);
   });
   it('a forbidden action that gets through the gate is a gate violation', () => {
-    // EV-14 forbids ACCEPT_CLAIM, which PayPal offers and the gate does not block.
-    const s = scoreCase(input('EV-14', (a) => ({ ...a, recommendedAction: 'ACCEPT_CLAIM' })));
+    // The gate now blocks every must-not action in the real labels, so make the label stricter for this test only.
+    const base = input('EV-01');
+    const s = scoreCase({ ...base, label: { ...base.label, mustNotRecommend: ['SEND_MESSAGE'] } });
     expect(s.aiForbiddenAction).toBe(true);
     expect(s.gateViolation).toBe(true);
   });

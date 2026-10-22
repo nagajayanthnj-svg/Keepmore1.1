@@ -32,7 +32,9 @@ export function gateSuggestion(input: {
   const nothingToSubmit = !rules.checklist.some((c) => c.supportable);
   const offered = (a: Action) =>
     NO_WRITE.includes(a) ||
-    (a !== 'ESCALATE' && !(a === 'PROVIDE_EVIDENCE' && nothingToSubmit) && (allowed as readonly string[]).includes(a));
+    (a !== 'ESCALATE' &&
+      // The AI never gives money back on its own: ACCEPT_CLAIM needs the rules to say so too (CLAUDE.md, "never decides alone").
+      !(a === 'ACCEPT_CLAIM' && rules.recommendedAction !== 'ACCEPT_CLAIM') && !(a === 'PROVIDE_EVIDENCE' && nothingToSubmit) && (allowed as readonly string[]).includes(a));
   const agreesWithRules = !ai || ai.recommendedAction === rules.recommendedAction;
   const finish = (action: Action, source: Gated['source'], reason: string | null, a: Analysis, draftHeldBack = false): Gated => ({
     draftHeldBack,
@@ -59,7 +61,9 @@ export function gateSuggestion(input: {
   const why = ai
     ? ai.recommendedAction === 'ESCALATE'
       ? 'The AI suggested escalating. Escalating cannot be undone, so it is never recommended; you can still choose it yourself. Showing the rules recommendation.'
-      : ai.recommendedAction === 'PROVIDE_EVIDENCE' && nothingToSubmit
+      : ai.recommendedAction === 'ACCEPT_CLAIM' && (allowed as readonly string[]).includes('ACCEPT_CLAIM') && rules.recommendedAction !== 'ACCEPT_CLAIM'
+        ? 'The AI suggested accepting the claim (a refund). The rules do not, and the AI may not give money back on its own. Showing the rules recommendation; you can still accept it yourself.'
+        : ai.recommendedAction === 'PROVIDE_EVIDENCE' && nothingToSubmit
         ? 'The AI suggested sending evidence, but no requested evidence can be backed by your records and evidence can be sent only once. Showing the rules recommendation.'
         : `The AI suggested ${ai.recommendedAction}, which PayPal does not offer now. Showing the rules recommendation.`
     : null;
