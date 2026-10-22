@@ -2,6 +2,7 @@ import { createDb, type Db } from './db';
 import type { CheckoutDeps } from '../orders/handlers';
 import type { SyncDeps } from '../disputes/sync';
 import { createPayPalClient, type PayPalClient } from '../paypal/client';
+import { providerFromEnv } from '../ai/provider';
 
 export const SANDBOX_API = 'https://api-m.sandbox.paypal.com';
 
@@ -79,4 +80,15 @@ export function getSharedPayPal(): PayPalClient | null {
     gp.__keepmorePayPal = { key, paypal: createPayPalClient({ clientId, clientSecret, baseUrl }) };
   }
   return gp.__keepmorePayPal.paypal;
+}
+
+/** Dependencies for the analyse route. PayPal and the model are each optional: without them the route still answers. */
+export function getAnalyseDeps(): import('../ai/analyse-route').AnalyseRouteDeps {
+  const cap = Number(process.env.AI_DAILY_CALL_CAP);
+  return {
+    db: getDb(),
+    paypal: getSharedPayPal(),
+    provider: providerFromEnv(),
+    dailyCap: Number.isFinite(cap) && cap > 0 ? cap : undefined,
+  };
 }
