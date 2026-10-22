@@ -10,6 +10,9 @@ const HEADERS = [
   ['transmission_time', 'paypal-transmission-time'],
 ] as const;
 
+/** Live checks (22 Oct, from India): verification took 0.5 to 1.7 s and timed out at 1.5 s even on a warm server. Owner raised the limit to 4 s. */
+export const WEBHOOK_VERIFY_TIMEOUT_MS = 4000;
+
 function withTimeout<T>(work: Promise<T>, ms: number): Promise<T> {
   let timer: ReturnType<typeof setTimeout>;
   const timeout = new Promise<never>((_, reject) => {
@@ -28,7 +31,7 @@ export async function verifyWebhookSignature(
   webhookId: string,
   headers: Headers,
   rawBody: string,
-  timeoutMs = 1500,
+  timeoutMs = WEBHOOK_VERIFY_TIMEOUT_MS,
 ): Promise<boolean> {
   const fields: Record<string, string> = {};
   for (const [name, header] of HEADERS) {
