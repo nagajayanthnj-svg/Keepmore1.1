@@ -1016,3 +1016,13 @@ Build order and target dates: T-308 23 Oct; routes 24 Oct; T-401 25–27 Oct; T-
 - e2e: `ship.spec.ts` now uses orders 0004–0006, away from the dispute orders; `screens.spec.ts` expects "Dispute not found" for the placeholder id.
 - **Test-only AI fixture (decision 7), with one change:** it is on when `AI_PROVIDER=fixture` and `KEEPMORE_E2E=1`, and never when `NODE_ENV=production`. Decision 7 said "only when NODE_ENV=test", but Playwright runs `next dev`, where NODE_ENV is development. Playwright sets both variables.
 - The rules draft now reads "Hello," on its own line and the carrier in plain words ("India Post").
+
+## T-401 part 2: actions, payload, approve and send
+- **Buttons only for what PayPal offers** (the allowed list from the analyse route: a fresh GET, or the demo's stored copy). Nothing is preselected; the recommended one is marked "(recommended)". Accept-claim and escalate have a dashed border.
+- **The exact payload is shown before approval**, keys sorted as stored and hashed. Defaults: a message or supporting info starts from the checked draft; evidence lists only the supportable types (never a missing one) with the shipment in plain words; **accepting a claim starts with an empty note and a full refund, and cannot be approved until the seller writes why** (R9/R11: never a preselected refund; partial refund not offered); escalating needs its own note and a "cannot be undone" tick (decision 6).
+- **Approve, then Send.** Any edit clears the approval (the hash covered the old words). Send can be pressed once per approval. After a lost answer the seller is told: "No answer from PayPal. This may have been sent. Sync and check the dispute thread before approving again." A PayPal refusal shows its code and debug id; "Sent" appears only when a re-read showed the change.
+- **An edit is labelled Seller entered** ("your words are not checked against the records"), per decision 3.
+- **Demo cases:** Approve answers "Simulated demo: approving and sending are switched off. Nothing is sent to PayPal."
+- A stale real case shows "Sync now" next to the actions (approving needs a read under five minutes old).
+- **Q2 wording:** a delivery claim on a seller-entered record now reads "The seller's tracking record shows delivered on …".
+- **Not tested end to end:** approve and send on a real sandbox dispute through the browser. The routes and services are tested with recorded PayPal responses (integration tests); the browser flow is tested on demo cases only. A live run is a manual check for you (below).

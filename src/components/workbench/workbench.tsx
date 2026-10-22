@@ -9,6 +9,7 @@ import type { Claim } from '../../ai/schema';
 import type { WorkbenchView } from '../../disputes/workbench';
 import type { RulesResult } from '../../rules/rules';
 import { TruthStateBadge } from '../truth-state-badge';
+import { ActionsPanel } from './actions-panel';
 import { ACTION_LABEL, EVIDENCE_LABEL, RESULT_LABEL, humanise } from './labels';
 
 type Result = Extract<AnalyseEvent, { type: 'result' }>;
@@ -77,6 +78,9 @@ function Records({ ids, view }: { ids: string[]; view: WorkbenchView }) {
     </span>
   );
 }
+
+const trustOf = (c: Claim, view: WorkbenchView) =>
+  view.evidence.find((e) => e.id === c.recordIds[0])?.trustState;
 
 function Recommendation({ rules, result }: { rules: RulesResult | null; result: Result | null }) {
   if (!rules) return <p role="status">Reading the case…</p>;
@@ -152,7 +156,7 @@ function TruthMap({ result, rules, view }: { result: Result | null; rules: Rules
           <ul className="mt-1 space-y-2">
             {supported.map((c) => (
               <li key={c.id}>
-                {claimText(c)}
+                {claimText(c, trustOf(c, view))}
                 <Records ids={c.recordIds} view={view} />
               </li>
             ))}
@@ -169,7 +173,7 @@ function TruthMap({ result, rules, view }: { result: Result | null; rules: Rules
               const r = checks.get(c.id);
               return (
                 <li key={c.id}>
-                  {claimText(c)}{' '}
+                  {claimText(c, trustOf(c, view))}{' '}
                   <span className="text-neutral-600">
                     — {r?.superseded ? `replaced by a later event (${r.superseded})` : `${RESULT_LABEL[r?.result ?? 'UNVERIFIED']}: ${r?.reason ?? ''}`}
                   </span>
@@ -202,25 +206,6 @@ function TruthMap({ result, rules, view }: { result: Result | null; rules: Rules
   );
 }
 
-function Allowed({ result }: { result: Result | null }) {
-  if (!result) return <p role="status">Asking PayPal what you can do now…</p>;
-  const { source, actions } = result.allowed;
-  return (
-    <>
-      <p className="text-neutral-600" data-testid="allowed-source" data-source={source}>
-        {source === 'PAYPAL'
-          ? 'What PayPal offers right now.'
-          : source === 'SIMULATED'
-            ? 'Simulated demo: nothing is sent to PayPal.'
-            : 'PayPal could not be reached, so nothing can be sent. Sync and try again.'}
-      </p>
-      <ul data-testid="allowed-actions" className="space-y-1">
-        {actions.length === 0 ? <li>No action is offered.</li> : actions.map((a) => <li key={a}>{ACTION_LABEL[a] ?? a}</li>)}
-      </ul>
-    </>
-  );
-}
-
 export function Workbench({ view }: { view: WorkbenchView }) {
   const { rules, result, failed } = useAnalysis(view.disputeId);
   return (
@@ -237,7 +222,7 @@ export function Workbench({ view }: { view: WorkbenchView }) {
         <TruthMap rules={rules} result={result} view={view} />
       </Panel>
       <Panel title="Actions" id="wb-actions" testId="actions">
-        <Allowed result={result} />
+        <ActionsPanel view={view} rules={rules} result={result} />
       </Panel>
     </div>
   );
