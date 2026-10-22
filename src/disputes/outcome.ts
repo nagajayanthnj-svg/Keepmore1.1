@@ -26,7 +26,9 @@ export function shouldRetain(kind: OutcomeKind, refundExists: boolean): boolean 
   return (kind === 'WON' || kind === 'CANCELLED') && !refundExists;
 }
 
-const CALC = 'outcome-v1';
+const CALC = 'outcome-v2';
+/** outcome-v1 (22 Oct, PR #77) wrote REFUND and DISPUTE_FEE as negative numbers, against the ledger's rule. */
+const OLD = 'outcome-v1';
 const obj = (v: unknown): Record<string, unknown> => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {});
 const list = (v: unknown): Record<string, unknown>[] => (Array.isArray(v) ? v.map(obj) : []);
 
@@ -44,7 +46,8 @@ function sellerDebits(d: Record<string, unknown>): { type: 'REFUND' | 'DISPUTE_F
     if (!type || typeof amount.value !== 'string' || typeof amount.currency_code !== 'string') continue;
     const at = new Date(String(m.initiated_time));
     if (Number.isNaN(at.getTime())) continue;
-    out.push({ type, minor: -toMinor(amount.value, amount.currency_code), currency: amount.currency_code, at });
+    // Positive amounts; the type gives the direction (DECISIONS, T-108).
+    out.push({ type, minor: toMinor(amount.value, amount.currency_code), currency: amount.currency_code, at });
   }
   return out;
 }
@@ -59,6 +62,8 @@ export async function recordOutcome(db: Db, disputeId: string, body: unknown): P
   const c = await db.disputeCase.findUnique({ where: { paypalDisputeId: disputeId } });
   if (!c?.orderId) return 0;
   if (await db.ledgerEntry.findFirst({ where: { sourceRef: disputeId, calcVersion: CALC } })) return 0;
+  const legacy = await correctOldSign(db, c.orderId, disputeId);
+  if (legacy !== null) return legacy;
 
   const { kind } = classifyOutcome(c.outcomeCode);
   const base = { orderId: c.orderId, sourceType: 'PAYPAL_VERIFIED' as const, sourceRef: disputeId, calcVersion: CALC };
@@ -84,4 +89,30 @@ export async function recordOutcome(db: Db, disputeId: string, body: unknown): P
   }
   if (entries.length === 0) return 0;
   return appendLedgerEntries(db, entries);
+}
+
+/**
+ * The ledger cannot be edited. A dispute recorded by outcome-v1 counts as recorded; its lines with a negative sign get,
+ * once each, a reversing line (the opposite amount, `correctsEntryId` pointing at it) and a corrected positive line,
+ * so totals come out right and the history stays visible. Null when the dispute has no outcome-v1 lines.
+ */
+async function correctOldSign(db: Db, orderId: string, disputeId: string): Promise<number | null> {
+  const old = await db.ledgerEntry.findMany({ where: { orderId, sourceRef: disputeId, calcVersion: OLD } });
+  if (old.length === 0) return null;
+  const out: LedgerEntryInput[] = [];
+  for (const r of old) {
+    if (r.amountMinor >= 0) continue; // RETAINED was already positive
+    if (await db.ledgerEntry.findFirst({ where: { correctsEntryId: r.id } })) continue;
+    const base = {
+      orderId,
+      type: r.type as LedgerEntryInput['type'],
+      amountMinor: -r.amountMinor,
+      currency: r.currency,
+      sourceType: r.sourceType as LedgerEntryInput['sourceType'],
+      sourceRef: disputeId,
+      occurredAt: r.occurredAt,
+    };
+    out.push({ ...base, calcVersion: `${CALC}-reversal`, correctsEntryId: r.id }, { ...base, calcVersion: CALC });
+  }
+  return out.length ? appendLedgerEntries(db, out) : 0;
 }

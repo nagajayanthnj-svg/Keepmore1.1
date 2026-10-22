@@ -22,6 +22,8 @@ export interface OutcomeLine {
   occurredAt: string;
   truthState: TruthState;
   sourceRef: string | null;
+  /** A reversing line for an earlier mistake (append-only ledger). */
+  correction: boolean;
 }
 export interface OutcomeView {
   caseId: string;
@@ -54,6 +56,7 @@ export async function loadOutcome(db: Db, id: string): Promise<OutcomeView | nul
     occurredAt: r.occurredAt.toISOString(),
     truthState: truthStateForSource(r.sourceType),
     sourceRef: r.sourceRef,
+    correction: r.correctsEntryId !== null,
   }));
   const bucket = (type: string): Bucket => {
     const mine = lines.filter((l) => l.type === type);

@@ -101,7 +101,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 <tbody>
                   {v.lines.map((l, i) => (
                     <tr key={i} className="border-b border-neutral-100">
-                      <td className="py-1 pr-2">{humanise(l.type)}</td>
+                      <td className="py-1 pr-2">
+                        {humanise(l.type)}
+                        {l.correction && <span className="text-neutral-600"> (correction of an earlier line)</span>}
+                      </td>
                       <td className="py-1 pr-2">{money(l.minor, l.currency)}</td>
                       <td className="py-1 pr-2">{l.occurredAt.slice(0, 16).replace('T', ' ')}</td>
                       <td className="py-1">

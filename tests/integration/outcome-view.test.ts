@@ -46,8 +46,8 @@ describe('loadOutcome (T-404)', () => {
     await syncDispute(deps, 'PP-R-IUT-10193562');
     const v = await loadOutcome(db, 'PP-R-IUT-10193562');
     expect(v).toMatchObject({ decided: true, kind: 'LOST', verified: true, outcomeCode: 'RESOLVED_BUYER_FAVOUR', orderRef: 'ORD-0HE26749YS519313U' });
-    expect(v!.buckets.refunded).toMatchObject({ minor: -12000, currency: 'USD', truthState: 'Verified by PayPal' });
-    expect(v!.buckets.fees).toMatchObject({ minor: -588, truthState: 'Verified by PayPal' });
+    expect(v!.buckets.refunded).toMatchObject({ minor: 12000, currency: 'USD', truthState: 'Verified by PayPal' });
+    expect(v!.buckets.fees).toMatchObject({ minor: 588, truthState: 'Verified by PayPal' });
     expect(v!.buckets.retained).toMatchObject({ minor: 0, truthState: null });
     expect(v!.lines.map((l) => l.type).sort()).toEqual(['DISPUTE_FEE', 'REFUND']);
   });
