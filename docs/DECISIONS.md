@@ -983,3 +983,20 @@ Three calls to `POST /api/orders/3K7336723L338842X/ship`, carrier "India Post":
 - **Webhook verification limit raised from 1.5 s to 4 s** (`WEBHOOK_VERIFY_TIMEOUT_MS`). Live checks from India took 0.5 to 1.7 s and four of nine deliveries timed out at 1.5 s. **This is a plan change:** `docs/TDD.md` says the endpoint answers within 2 s. I did not edit the plan; the master copy needs the new number. **UNVERIFIED:** how long PayPal waits for our 200 before it counts a delivery as failed. If it gives up before about 4 s, a slow verification could cause a redelivery. The receiver deduplicates on event id, so that is harmless but noisy. Worth one look at the delivery log in the PayPal dashboard.
 - **AG Grid: option (a) for now** (AG Studio). Ask the vendor for a new key around 30 Oct, valid through 31 Dec; if none arrives by the 5 Nov checkpoint, fall back to option (b) (Community tables and cards). Nothing reads the key until T-405.
 - **No fresh evaluation batch.** v2 is reported as tuned on the development cases: prompt v1 held-out 11 of 12; prompt v2 dev 22 of 24 (tuned, not a test); rules baseline 36 of 36.
+
+## Phase 4 plan: owner sign-off (22 Oct, "All OK")
+1. Workbench layout: three panels (recommendation, truth map, actions), stacked on a phone.
+2. Approval in two steps in one panel: "Approve this payload", then "Send to PayPal". The approval hash locks the payload; any edit needs a new approval.
+3. The seller may edit the draft. Edited text is labelled Seller entered and is not checked by the validator; payload and hash update on screen.
+4. Sandbox settle (T-402) goes through `src/disputes/actions.ts` with seller approval, only when `DEMO_MODE` is on and the base URL is the sandbox, labelled "Sandbox-simulated adjudication". `adjudicate` stays out of the seller's allowed actions everywhere else. The demo also needs a pre-resolved case (T-506), because the link appears 25–30 min after review starts.
+5. Sandbox disputes count as real: their buyer text is withheld from the model. Only `PP-DEMO-` cases send buyer words.
+6. ESCALATE shows as a button only when PayPal offers it, behind an "it cannot be undone" warning, and is never recommended.
+7. A test-only `AI_PROVIDER=fixture` (only when `NODE_ENV=test`) returns canned answers for Playwright.
+Build order and target dates: T-308 23 Oct; routes 24 Oct; T-401 25–27 Oct; T-403 28 Oct; T-402 29 Oct; T-404 30 Oct; T-405 31 Oct–1 Nov; T-406/T-407 2 Nov; T-408 3 Nov; T-409 4–5 Nov (owner arranges 5 people).
+
+## T-308: streamed analyse route
+- `POST /api/disputes/[id]/analyse` returns NDJSON: line 1 `{type:"rules"}` (Stage A, at once), line 2 `{type:"result"}` with the mode, label, shown analysis, gated action, every claim's check result (the truth map) and the allowed actions with their source. A test holds the model back and reads line 1 before releasing it.
+- **Allowed actions:** a fresh GET for a real dispute (`PAYPAL`); the stored copy for a demo case (`SIMULATED`); none when PayPal cannot be reached (`UNAVAILABLE`), so only WAIT or NO_ACTION can show and the advice still appears.
+- **Buyer text:** sent to the model only for `PP-DEMO-` cases (decision 5).
+- **Cross-origin:** `src/lib/same-origin.ts` rejects a browser request from another origin (403 `CROSS_ORIGIN`); a request with no Origin (curl, server-side) is allowed. Used on this route now and on the approve and submit routes next (part of T-503, done early).
+- `AI_DAILY_CALL_CAP` is now read by the route.
