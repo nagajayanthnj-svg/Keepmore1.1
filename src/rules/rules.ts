@@ -28,6 +28,7 @@ export interface RulesResult {
 const WRITES: readonly Action[] = ['ACCEPT_CLAIM', 'PROVIDE_EVIDENCE', 'PROVIDE_SUPPORTING_INFO', 'SEND_MESSAGE', 'ESCALATE'];
 const day = (iso: string) => iso.slice(0, 10);
 const HOUR = 3_600_000;
+const plainCarrier = (code: string) => code.split('_').map((w) => w.charAt(0) + w.slice(1).toLowerCase()).join(' ');
 
 function deadlineOf(cf: CaseFile, asOf: Date): RulesResult['deadline'] {
   if (!cf.dispute.sellerDeadline || cf.allowedActions.actions.length === 0) return null;
@@ -57,7 +58,7 @@ function claimsFor(cf: CaseFile, shipment: CaseFileEvidence | undefined, withLat
     const trackingNo = String(shipment.fields.trackingNo);
     const date = day(shipment.occurredAt);
     claims.push({ id: 'c-shipped', type: 'SHIPPED', carrier, trackingNo, date, recordIds: [shipment.id] });
-    lines.push(`Your order was shipped on ${date} with ${carrier.replace(/_/g, ' ')}, tracking number ${trackingNo}.`);
+    lines.push(`Your order was shipped on ${date} with ${plainCarrier(carrier)}, tracking number ${trackingNo}.`);
   }
   if (withLatestEvent) {
     // A carrier event labelled Unknown never supports a claim (Q3), so only trusted events are quoted.
@@ -174,7 +175,7 @@ export function runRules(cf: CaseFile, asOf: Date): RulesResult {
     urgent,
     summary: summary.slice(0, 1000),
     claims,
-    draft: drafts && lines.length ? { text: `Hello, ${lines.join(' ')}`, claimIds: claims.map((c) => c.id) } : null,
+    draft: drafts && lines.length ? { text: `Hello,\n\n${lines.join(' ')}`, claimIds: claims.map((c) => c.id) } : null,
   };
 
   return {

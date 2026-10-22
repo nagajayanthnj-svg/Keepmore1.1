@@ -1,6 +1,7 @@
 // Three invented dispute cases for the demo (T-208), linked to demo orders. Labelled Simulated demo in the inbox.
 // They are never sent to PayPal: the ids start PP-DEMO-, which the poller and the sync button refuse.
 import type { Db } from '../lib/db';
+import { DEMO_ANCHOR } from './seed';
 
 export const DEMO_DISPUTE_PREFIX = 'PP-DEMO-';
 const DAY_MS = 86_400_000;
@@ -19,10 +20,15 @@ export async function seedDemoDisputes(db: Db, now: Date): Promise<{ cases: numb
   if ((await db.disputeCase.count({ where: { paypalDisputeId: { startsWith: DEMO_DISPUTE_PREFIX } } })) > 0) {
     return { cases: 0 };
   }
-  const orders = await db.order.findMany({
-    where: { paypalOrderId: { in: ['DEMO-ORD-0001', 'DEMO-ORD-0002', 'DEMO-ORD-0003'] } },
-    orderBy: { paypalOrderId: 'asc' },
-  });
+  // Orders old enough for each story: about five weeks for the chargeback, three for the inquiry, ten for the
+  // resolved one. The demo orders end at DEMO_ANCHOR (19 Oct 2026).
+  const anchor = DEMO_ANCHOR.getTime();
+  const orderBefore = (days: number) =>
+    db.order.findFirst({
+      where: { paypalOrderId: { startsWith: 'DEMO-ORD-' }, createdAt: { lte: new Date(anchor - days * DAY_MS) } },
+      orderBy: { createdAt: 'desc' },
+    });
+  const orders = (await Promise.all([orderBefore(35), orderBefore(21), orderBefore(70)])).filter((o) => o !== null);
   if (orders.length < 3) return { cases: 0 };
   const base = {
     reason: 'MERCHANDISE_OR_SERVICE_NOT_RECEIVED',
@@ -30,6 +36,13 @@ export async function seedDemoDisputes(db: Db, now: Date): Promise<{ cases: numb
     requestedEvidence: '[]',
     rawHash: 'demo',
   };
+  // What PayPal offers on a real case at this stage (Phase 0), so the workbench has something to show.
+  // Nothing is ever sent for a demo case: the approve and sync routes refuse PP-DEMO- ids.
+  const offered = (id: string, actions: [string, string][], acceptClaimTypes: string[]) =>
+    JSON.stringify({
+      actions: actions.map(([action, slug]) => ({ action, rel: slug.replace(/-/g, '_'), method: 'POST', path: `/v1/customer/disputes/${id}/${slug}` })),
+      acceptClaimTypes,
+    });
   const [a, b, c] = orders as [(typeof orders)[number], (typeof orders)[number], (typeof orders)[number]];
   await db.disputeCase.createMany({
     data: [
@@ -37,6 +50,8 @@ export async function seedDemoDisputes(db: Db, now: Date): Promise<{ cases: numb
         ...base,
         paypalDisputeId: 'PP-DEMO-0001',
         orderId: a.id,
+        allowedActionsJson: offered('PP-DEMO-0001', [['ACCEPT_CLAIM', 'accept-claim'], ['PROVIDE_EVIDENCE', 'provide-evidence']], ['REFUND']),
+        requestedEvidence: JSON.stringify(['PROOF_OF_FULFILLMENT', 'PROOF_OF_DELIVERY_SIGNATURE']),
         stage: 'CHARGEBACK',
         status: 'WAITING_FOR_SELLER_RESPONSE',
         amountMinor: a.grossMinor,
@@ -49,6 +64,11 @@ export async function seedDemoDisputes(db: Db, now: Date): Promise<{ cases: numb
         ...base,
         paypalDisputeId: 'PP-DEMO-0002',
         orderId: b.id,
+        allowedActionsJson: offered(
+          'PP-DEMO-0002',
+          [['ACCEPT_CLAIM', 'accept-claim'], ['SEND_MESSAGE', 'send-message'], ['ESCALATE', 'escalate']],
+          ['REFUND'],
+        ),
         stage: 'INQUIRY',
         status: 'WAITING_FOR_BUYER_RESPONSE',
         amountMinor: b.grossMinor,
@@ -70,5 +90,24 @@ export async function seedDemoDisputes(db: Db, now: Date): Promise<{ cases: numb
       },
     ],
   });
+  // Invented shipments (the tracking numbers start DEMO, so they can never be a real parcel), events labelled DEMO.
+  // Dated from each order: shipped the next day, then the tracking events.
+  const after = (o: { createdAt: Date }, days: number) => new Date(o.createdAt.getTime() + days * DAY_MS);
+  for (const [order, no, events] of [
+    [a, 'DEMO0000001IN', [[3, 'IN_TRANSIT'], [11, 'DELIVERED']]],
+    [b, 'DEMO0000002IN', [[4, 'IN_TRANSIT']]],
+  ] as const) {
+    if (await db.shipment.findUnique({ where: { orderId: order.id } })) continue;
+    await db.shipment.create({
+      data: {
+        orderId: order.id,
+        carrier: 'INDIA_POST',
+        trackingNo: no,
+        pushStatus: 'PUSHED',
+        pushedToPaypalAt: after(order, 1),
+        eventsJson: JSON.stringify(events.map(([d, status]) => ({ at: after(order, d).toISOString(), status, source: 'DEMO' }))),
+      },
+    });
+  }
   return { cases: 3 };
 }

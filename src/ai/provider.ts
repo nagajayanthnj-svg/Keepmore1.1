@@ -1,3 +1,5 @@
+import { FixtureProvider } from './fixture-provider';
+
 // The AI provider seam (T-305). The adapter only knows this interface, so tests use a mock and the
 // real model is called only by `npm run eval` and the live smoke test (CLAUDE.md).
 export interface AiPrompt {
@@ -42,6 +44,10 @@ export class GeminiProvider implements AiProvider {
 
 /** Builds the provider from the environment, or null when no key is set (the app then runs on rules only). */
 export function providerFromEnv(env: NodeJS.ProcessEnv = process.env): AiProvider | null {
+  if (env.AI_PROVIDER === 'fixture') {
+    // Test only: Playwright sets both. Never in production, whatever the environment says.
+    return env.KEEPMORE_E2E === '1' && env.NODE_ENV !== 'production' ? new FixtureProvider() : null;
+  }
   const key = env.AI_API_KEY;
   if (!key || key === 'your-gemini-api-key' || (env.AI_PROVIDER ?? 'gemini') !== 'gemini') return null;
   return new GeminiProvider(key, env.AI_MODEL ?? 'gemini-3.5-flash-lite');

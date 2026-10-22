@@ -114,6 +114,11 @@ describe('T-302 decision table (one test per row)', () => {
       expect(v.results.every((x) => x.result === 'SUPPORTED')).toBe(true);
     }
   });
+  it('the rules draft reads as a message: greeting on its own line, carrier in plain words', () => {
+    const d = run('EV-01').analysis.draft!;
+    expect(d.text.startsWith('Hello,\n\nYour order was shipped')).toBe(true);
+    expect(d.text).toContain('with India Post,');
+  });
   it('R12 an Unknown-trust delivery is not claimed', () => {
     const r = run('EV-02');
     expect(r.analysis.claims.some((c) => c.type === 'DELIVERED')).toBe(false);
