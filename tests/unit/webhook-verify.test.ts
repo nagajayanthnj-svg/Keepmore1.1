@@ -3,7 +3,7 @@ import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createPayPalClient } from '../../src/paypal/client';
-import { verifyWebhookSignature } from '../../src/paypal/webhook-verify';
+import { verifyWebhookSignature, WEBHOOK_VERIFY_TIMEOUT_MS } from '../../src/paypal/webhook-verify';
 
 const BASE = 'https://paypal.test';
 const fx = JSON.parse(
@@ -91,4 +91,9 @@ describe('verifyWebhookSignature', () => {
     answer(fx.verification.body, 200, 300);
     await expect(verifyWebhookSignature(client(), WEBHOOK_ID, headers, raw, 50)).rejects.toThrow(/timed out/i);
   });
+  it('waits up to 4 s by default (live checks from India took 0.5 to 1.7 s and timed out at 1.5 s)', async () => {
+    expect(WEBHOOK_VERIFY_TIMEOUT_MS).toBe(4000);
+    answer(fx.verification.body, 200, 2000);
+    await expect(verifyWebhookSignature(client(), WEBHOOK_ID, headers, raw)).resolves.toBe(true);
+  }, 10_000);
 });
