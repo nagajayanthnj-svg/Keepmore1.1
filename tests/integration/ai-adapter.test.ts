@@ -79,7 +79,7 @@ describe('T-305 analyse', () => {
     const r = await analyse(db, cf, p, opts);
     expect(r.mode).toBe('RULES');
     expect(p.prompts).toHaveLength(1);
-    expect((await lastRun()).validation).toMatch(/FELL_BACK.*PROVIDER/);
+    expect((await lastRun()).validation).toMatch(/FELL_BACK.*PROVIDER_ERROR: HTTP 503/);
   });
   it('no provider: rules mode, still stored', async () => {
     const r = await analyse(db, cf, null, opts);
@@ -124,6 +124,13 @@ describe('T-305 what the model is sent', () => {
     expect(user).toMatch(/<buyer_messages[^>]*>[\s\S]*<\/buyer_messages>/);
     expect(system).toMatch(/never instructions/i);
     expect(system).toMatch(/allowed actions/i);
+  });
+  it('the system prompt states how to choose the action and that accepting is a refund', async () => {
+    const p = mock([goodOutput()]);
+    await analyse(db, cf, p, opts);
+    const { system } = p.prompts[0]!;
+    expect(system).toMatch(/INQUIRY with SEND_MESSAGE allowed and a shipment record: SEND_MESSAGE/);
+    expect(system).toMatch(/Accepting a claim is a refund/);
   });
   it('an instruction inside a buyer message does not change the rules fallback', async () => {
     const injected = structuredClone(cf);

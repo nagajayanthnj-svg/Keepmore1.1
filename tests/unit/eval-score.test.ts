@@ -45,8 +45,9 @@ describe('T-310 scoring on two fixture cases', () => {
     expect(s.finalAcceptable).toBe(true);
   });
   it('a forbidden action that gets through the gate is a gate violation', () => {
-    // EV-14 forbids ACCEPT_CLAIM, which PayPal offers and the gate does not block.
-    const s = scoreCase(input('EV-14', (a) => ({ ...a, recommendedAction: 'ACCEPT_CLAIM' })));
+    // The gate now blocks every must-not action in the real labels, so make the label stricter for this test only.
+    const base = input('EV-01');
+    const s = scoreCase({ ...base, label: { ...base.label, mustNotRecommend: ['SEND_MESSAGE'] } });
     expect(s.aiForbiddenAction).toBe(true);
     expect(s.gateViolation).toBe(true);
   });
@@ -81,6 +82,21 @@ describe('screenText flags phrases that need an owner decision', () => {
   it('flags the forbidden phrasings', () => {
     for (const t of ['Delivery confirmed by PayPal', 'It was signed for', 'There is still time', 'The case is lost', 'We refunded you', 'left in a safe place'])
       expect(screenText(t).length, t).toBeGreaterThan(0);
+  });
+  it('ignores mentions that say the thing is missing or unsupported (texts read in run 1)', () => {
+    for (const t of [
+      'Since we do not have a signature record, provide the available fulfillment evidence.',
+      'Note that proof of delivery signature is missing from the records.',
+      'Requested signature evidence cannot be supported by the records.',
+      'signature proof is requested but not supported by the available tracking records.',
+      'The tracking shows delivery to a neighbour, which is not confirmed delivery, and we lack a signature.',
+      'signature proof of delivery requested by PayPal is not supported by the records.',
+    ])
+      expect(screenText(t), t).toEqual([]);
+  });
+  it('still flags an assertion next to a negation elsewhere in the text', () => {
+    expect(screenText('Do not worry. The parcel was signed for.')).toContain('signature claim');
+    expect(screenText('No problems found. Delivery confirmed by PayPal.')).toContain('PayPal/carrier confirmed');
   });
   it('passes plain wording', () => {
     expect(screenText("Our tracking record shows the parcel was delivered on 2026-10-01.")).toEqual([]);
