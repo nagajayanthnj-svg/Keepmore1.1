@@ -10,6 +10,8 @@ export interface ClaimCheck {
   claimId: string;
   result: ClaimResult;
   reason: string;
+  /** Set when a later trusted tracking event replaced this status. A draft must not rest on it. */
+  superseded?: string;
 }
 export interface Validation {
   results: ClaimCheck[];
@@ -98,10 +100,19 @@ export function validateClaims(output: Analysis, cf: CaseFile): Validation {
     const cited = c.recordIds.map((id) => evidence.get(id)).filter((e): e is CaseFileEvidence => !!e && e.type === KIND[c.type]);
     if (!cited.length) return { claimId: c.id, result: 'UNVERIFIED', reason: `no cited ${KIND[c.type]} record` };
     const best = cited.map((e) => checkEvidence(c, e)).sort((a, b) => RANK[b.result] - RANK[a.result])[0]!;
-    return { claimId: c.id, ...best };
+    const out: ClaimCheck = { claimId: c.id, ...best };
+    if (c.type === 'TRACKING_STATUS' && best.result === 'SUPPORTED') {
+      // "In transit on 23 Sep" is true, but a draft saying so is misleading once a later trusted event says delivered.
+      const at = cited.find((e) => checkEvidence(c, e).result === 'SUPPORTED')!.occurredAt;
+      const later = cf.evidence
+        .filter((e) => e.type === 'TRACKING_EVENT' && e.trustState !== 'Unknown' && e.occurredAt > at)
+        .sort((a, b) => b.occurredAt.localeCompare(a.occurredAt))[0];
+      if (later) out.superseded = `${String(later.fields.status)} on ${day(later.occurredAt)}`;
+    }
+    return out;
   });
 
-  const bad = new Set(results.filter((r) => r.result !== 'SUPPORTED').map((r) => r.claimId));
+  const bad = new Set(results.filter((r) => r.result !== 'SUPPORTED' || r.superseded).map((r) => r.claimId));
   return {
     results,
     hallucinatedCitations: [...hallucinated],
