@@ -1,0 +1,72 @@
+{
+  "id": "EV-10",
+  "recommendedAction": "PROVIDE_EVIDENCE",
+  "alsoAcceptable": [],
+  "mustNotRecommend": [],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x JUG5 for $120.00 USD, shipping to CA (seller-entered order record)",
+      "recordIds": [
+        "REC-A1A19C8C03"
+      ]
+    },
+    {
+      "claim": "PayPal captured $120.00 USD on 2026-09-18 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-075F9DC163"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-19 with India Post, tracking number EE100079190IN; the tracking was pushed to PayPal (supports PROOF_OF_FULFILLMENT)",
+      "recordIds": [
+        "REC-B80CB96D8F"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-21",
+      "recordIds": [
+        "REC-13AE92348A"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows it was delivered to a neighbour on 2026-09-28",
+      "recordIds": [
+        "REC-7FF17C1B72"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked where it is",
+      "recordIds": [
+        "REC-E7C0BF1BAE"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "The parcel was delivered (to the buyer)",
+      "why": "The record says DELIVERED_TO_NEIGHBOUR; delivered to a neighbour never supports delivered"
+    },
+    {
+      "claim": "PROOF_OF_DELIVERY_SIGNATURE can be provided, or the parcel was signed for",
+      "why": "The app has no signature record; this requested type must be listed as missing, not invented"
+    },
+    {
+      "claim": "The name or address of the neighbour",
+      "why": "The record gives no detail of which neighbour"
+    },
+    {
+      "claim": "PayPal or India Post confirmed the delivery",
+      "why": "The tracking events are seller-entered (source SELLER); no carrier or PayPal record confirms them"
+    },
+    {
+      "claim": "Delivered to a neighbour on any date other than 2026-09-28",
+      "why": "The only such record is dated 2026-09-28; another date is a mismatch"
+    },
+    {
+      "claim": "The parcel has not arrived (as a fact)",
+      "why": "Only the buyer message says this (REC-E7C0BF1BAE); it supports 'the buyer said', not the fact"
+    }
+  ],
+  "notes": "R7: CHARGEBACK, PROVIDE_EVIDENCE allowed, PROOF_OF_FULFILLMENT is supportable from the shipment and tracking records, so submit that type only and list PROOF_OF_DELIVERY_SIGNATURE as missing; the deadline is 96 hours away (not urgent) and $120 triggers neither R9 nor R10."
+}

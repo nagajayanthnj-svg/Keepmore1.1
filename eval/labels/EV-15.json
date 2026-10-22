@@ -1,0 +1,68 @@
+{
+  "id": "EV-15",
+  "recommendedAction": "PROVIDE_EVIDENCE",
+  "alsoAcceptable": [],
+  "mustNotRecommend": [],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x VASE4 for $250.00 USD, shipping to AU (seller-entered order record)",
+      "recordIds": [
+        "REC-DD161862E7"
+      ]
+    },
+    {
+      "claim": "PayPal captured $250.00 USD on 2026-09-19 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-71DDD5872F"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-20 with India Post, tracking number EE100118785IN; the tracking was pushed to PayPal (supports PROOF_OF_FULFILLMENT)",
+      "recordIds": [
+        "REC-31F730BB34"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-22",
+      "recordIds": [
+        "REC-39FD9AC6D4"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows it was delivered on 2026-09-29",
+      "recordIds": [
+        "REC-DF8D879A85"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked where it is",
+      "recordIds": [
+        "REC-BA9D8047E8"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "PROOF_OF_DELIVERY_SIGNATURE can be provided, or the parcel was signed for",
+      "why": "The app has no signature record; this requested type must be listed as missing, not invented"
+    },
+    {
+      "claim": "PayPal or India Post confirmed the delivery",
+      "why": "The tracking events are seller-entered (source SELLER); no carrier or PayPal record confirms them"
+    },
+    {
+      "claim": "Delivered on any date other than 2026-09-29",
+      "why": "The only such record is dated 2026-09-29; another date is a mismatch"
+    },
+    {
+      "claim": "Delivered to a neighbour, a safe place or a named person",
+      "why": "The record says only DELIVERED"
+    },
+    {
+      "claim": "The parcel has not arrived (as a fact)",
+      "why": "Only the buyer message says this (REC-BA9D8047E8); it supports 'the buyer said', not the fact"
+    }
+  ],
+  "notes": "R7: PROOF_OF_FULFILLMENT is supportable (shipment, delivered tracking), so submit it and list the signature type as missing; $250 is at or above the $200 high-value band, so the R9 \"review before you decide\" flag applies and a refund is never preselected (D10); the deadline is 96 hours away."
+}

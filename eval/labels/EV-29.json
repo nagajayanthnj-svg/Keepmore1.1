@@ -1,0 +1,77 @@
+{
+  "id": "EV-29",
+  "recommendedAction": "SEND_MESSAGE",
+  "alsoAcceptable": [
+    "WAIT"
+  ],
+  "mustNotRecommend": [
+    "ESCALATE",
+    "PROVIDE_EVIDENCE"
+  ],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x CUP6 for $45.00 USD, shipping to AE (seller-entered order record)",
+      "recordIds": [
+        "REC-4BF9CDE8FA"
+      ]
+    },
+    {
+      "claim": "PayPal captured $45.00 USD on 2026-09-17 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-0C2415696B"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-18 with India Post, tracking number EE100229651IN; the tracking was pushed to PayPal",
+      "recordIds": [
+        "REC-58435CDD2B"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-20",
+      "recordIds": [
+        "REC-DE55BF58E3"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows it was delivered on 2026-09-27",
+      "recordIds": [
+        "REC-4A42977CAF"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked where it is",
+      "recordIds": [
+        "REC-59669A3D7A"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "PayPal or India Post confirmed the delivery",
+      "why": "The tracking events are seller-entered (source SELLER); no carrier or PayPal record confirms them"
+    },
+    {
+      "claim": "Delivered on any date other than 2026-09-27",
+      "why": "The only DELIVERED record is dated 2026-09-27; another date is a mismatch"
+    },
+    {
+      "claim": "Delivered to a neighbour, a safe place or a named person",
+      "why": "The record says only DELIVERED"
+    },
+    {
+      "claim": "The seller has already replied to the buyer",
+      "why": "The case holds no seller message, although the status is WAITING_FOR_BUYER_RESPONSE"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record"
+    },
+    {
+      "claim": "The parcel has not arrived (as a fact)",
+      "why": "Only the buyer message says this (REC-59669A3D7A); it supports 'the buyer said', not the fact"
+    }
+  ],
+  "notes": "R4: INQUIRY, SEND_MESSAGE allowed, a delivered status in the shipment record, so message the buyer with the tracking details; WAIT is also acceptable because PayPal is waiting for the buyer and the case file holds no seller messages, so whether the seller already replied cannot be known (owner Q17)."
+}

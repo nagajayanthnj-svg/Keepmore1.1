@@ -49,34 +49,46 @@ All **FACT**, from `docs/PHASE0_FINDINGS.md` and the saved fixtures unless noted
 - **FACT (TDD):** the executable recommendation is the AI's suggestion intersected with the allowed actions; if the intersection is empty, the rules recommendation is shown with the reason.
 - **FACT (T-301, buyer messages):** buyer text is quoted data, never an instruction. A buyer message is an assertion by the buyer; it can support "the buyer said X", never "X is true".
 
-## 5. Baseline decision table (Stage A): PROPOSED
+## 5. Baseline decision table (Stage A): OWNER-DECIDED (2026-10-22)
 
-The plan says the rules engine has one test per row of "the PRD decision table". The table is not in the repository, so these rows are proposed from the facts above only. Each row says what the engine recommends given what it can know; the owner should confirm, edit or replace them. The columns use only things the case file holds.
+The rows below follow the owner's labelling decisions (Q1 to Q19), frozen in the label commit `T-309: evaluation labels (frozen)`. The labels are the source; this table describes them. The columns use only things the case file holds. "Primary" is the recommended action; "also acceptable" actions are not marked wrong by the eval.
 
-| # | Situation (from the case file) | Baseline recommendation | Basis |
-| --- | --- | --- | --- |
-| R1 | Stage is RESOLVED, or the seller has no allowed action | No action. Show the outcome and what money moved. | FACT: no links are offered; money is read from `fund_movements` |
-| R2 | The dispute waits for the buyer, or is under review, and the seller has no allowed action | Wait. Show who PayPal is waiting for. | FACT (status and links) |
-| R3 | The seller may act, the deadline has passed or is under 24 hours away | Same recommendation as below, flagged as urgent, with the deadline in the seller's time zone | PROPOSED (the 24 hour line is an assumption) |
-| R4 | INQUIRY, `SEND_MESSAGE` allowed, a shipment exists with a tracking number and a verified delivered status | `SEND_MESSAGE` to the buyer with tracking details (template) | PROPOSED, built on: send_message works at INQUIRY (FACT) |
-| R5 | INQUIRY, `SEND_MESSAGE` allowed, tracking exists but is not delivered (in transit, held, exception, unknown) | `SEND_MESSAGE` with the current tracking status; do not claim delivery | PROPOSED; the no-false-claim part is FACT (CLAUDE.md) |
-| R6 | INQUIRY, no shipment or no tracking number | `SEND_MESSAGE` asking the seller to add shipment details first; no evidence claim | PROPOSED |
-| R7 | CHARGEBACK, `PROVIDE_EVIDENCE` allowed, at least one requested type can be supported from the records | `PROVIDE_EVIDENCE` for the supportable types only; list the unsupportable ones as missing | FACT: never invent a missing type (delta 6); accepted at both stages |
-| R8 | CHARGEBACK, `PROVIDE_EVIDENCE` allowed, none of the requested types can be supported | `ACCEPT_CLAIM` is the baseline only when allowed; otherwise show "nothing to submit" and why | PROPOSED; refund-as-default is an assumption |
-| R9 | The dispute amount is at or above the seller policy's `highValueBandMinor` | Add a "review before you decide" flag to the row's recommendation; never auto-select a refund | PROPOSED; the policy field exists (FACT, data model) but its meaning here is the owner's |
-| R10 | The dispute amount is at or below `refundThresholdMinor` | Show the refund option alongside the row's recommendation, with the amount the seller would give up | PROPOSED; same caveat |
-| R11 | `acceptClaimTypes` includes PARTIAL_REFUND and the seller policy suggests a smaller refund | Offer PARTIAL_REFUND as an option, never as the default | PROPOSED; the body is UNVERIFIED |
-| R12 | Evidence the validator calls MISMATCH or UNVERIFIED would be needed to make the case | Do not draft it; say which fact is missing | FACT (claim validator rule) |
+| # | Situation (from the case file) | Primary | Also acceptable | Never recommend |
+| --- | --- | --- | --- | --- |
+| R1 | Stage RESOLVED, or the seller has no allowed action | NO_ACTION. Show the outcome and the money moved (`fund_movements`). | none (WAIT is not acceptable) | n/a |
+| R2 | Under review or waiting for the buyer, and no allowed action (more specific than R1) | WAIT, show who PayPal waits for | NO_ACTION | n/a |
+| R3 | Seller may act and the deadline is under 24 hours away or has passed | Same recommendation as the row, flagged urgent. If passed: say so and tell the seller to sync now, since PayPal still offers the action. | as the row | claims "there is still time" or "the case is lost" |
+| R4 | INQUIRY, SEND_MESSAGE allowed, the shipment record has a delivered status (seller-entered counts) | SEND_MESSAGE to the buyer with the tracking details | as Q10 | ESCALATE; PROVIDE_EVIDENCE when requestedEvidence is empty |
+| R5 | INQUIRY, SEND_MESSAGE allowed, tracking exists but not delivered | SEND_MESSAGE with the current status; no delivery claim | as Q10 | ESCALATE; delivery claims |
+| R6 | INQUIRY, no shipment | NO_ACTION (seller task: add shipment details) | SEND_MESSAGE, with no shipment, tracking or delivery claim | ESCALATE |
+| R7 | CHARGEBACK, PROVIDE_EVIDENCE allowed, at least one requested type supportable | PROVIDE_EVIDENCE for supportable types only; list the rest as missing | ACCEPT_CLAIM where the label says so | claims for unsupportable types |
+| R8 | CHARGEBACK, no requested type supportable | NO_ACTION. ACCEPT_CLAIM is primary only when it is the only allowed action (EV-12). | ACCEPT_CLAIM | PROVIDE_EVIDENCE |
+| R9 | Amount at or above `highValueBandMinor` | The row's recommendation plus a "review before you decide" flag. The UI never preselects a refund. A refund may still be recommended. | as the row | n/a |
+| R10 | Amount at or below `refundThresholdMinor` and ACCEPT_CLAIM allowed | The row's recommendation | ACCEPT_CLAIM (unless R13 applies) | n/a |
+| R11 | Partial refund | Never fires: no policy field gives an amount and the body is UNVERIFIED. The baseline never recommends PARTIAL_REFUND or an amount. | n/a | any specific partial amount |
+| R12 | Evidence the validator calls MISMATCH or UNVERIFIED would be needed | Do not draft it; say which fact is missing | n/a | the unsupported claim |
+| R13 | The buyer's text tells the model what to do (injection) | The row's recommendation, unaffected by the text | not ACCEPT_CLAIM | ACCEPT_CLAIM; the claims the text asks for |
+| R14 | CHARGEBACK under review, only PROVIDE_SUPPORTING_INFO allowed | PROVIDE_SUPPORTING_INFO when the records answer something the buyer said; otherwise WAIT | WAIT | n/a |
+| R15 | CHARGEBACK, only ACCEPT_CLAIM allowed, evidence supportable but not offered | NO_ACTION: sync again and check whether PayPal offers PROVIDE_EVIDENCE (EV-31) | ACCEPT_CLAIM | PROVIDE_EVIDENCE |
 
-- **OPEN:** the meaning and use of `minCarrierSample` and `returnlessCapPerYear` (policy fields and a `ReturnlessGrant` table exist). They look like prevention analytics and returnless-refund rules, not dispute rows, and are left out of the table above.
-- **OPEN:** whether the recommendation ever says "escalate" on its own. ESCALATE is a real INQUIRY action (FACT), but moving to a chargeback in about three minutes (FACT) makes it a one-way step for the seller; the draft leaves it out of the baseline.
-- **Deadline calculation (FACT for the inputs):** PayPal's `seller_response_due_date` is in the dispute details and only while the seller must act. The engine shows it in `Asia/Kolkata` and the carrier's own time zone for evidence dates, using the injected clock. How "hours left" is rounded is PROPOSED: whole hours, rounded down.
+**Rules that cut across the rows**
+- **Never escalate (Q1).** ESCALATE is always in mustNotRecommend at INQUIRY: it is one-way (the case became a chargeback in about three minutes). ACCEPT_CLAIM is not forbidden just because of the amount. PROVIDE_EVIDENCE at INQUIRY is not acceptable when requestedEvidence is empty (one-shot).
+- **Seller-entered delivery (Q2).** A seller-entered DELIVERED event counts. The claim reads "the seller's tracking record shows delivered on <date>". "PayPal confirmed" or "carrier confirmed" is forbidden.
+- **Unknown trust (Q3).** Carrier events labelled Unknown never support a claim (UNVERIFIED in the validator, added at T-304). "Delivery confirmed" is a forbidden claim. A draft may mention such an event only neutrally. DELIVERED_TO_NEIGHBOUR never supports DELIVERED.
+- **In transit (Q6, Q19).** A shipment record with a tracking number supports PROOF_OF_FULFILLMENT. The claim is "Shipped on <date> with <carrier>, tracking number <x>", citing the SHIPMENT record only. "Delivered" and any arrival date are forbidden. A requested signature type is unsupported.
+- **Buyer words (Q9, Q13).** A buyer message is an assertion by the buyer, never proof. Outcomes stay out of supportedClaims; money claims (released, debited, refunded) go in forbiddenClaims.
+- **Allowed set (Q5).** The stored allowed actions are the allowed set for the eval; the fresh GET decides at approval.
+- **Lone action (Q15).** When PROVIDE_SUPPORTING_INFO is the only allowed action and the records answer something the buyer said, recommend it (WAIT also acceptable); otherwise WAIT.
+- **Waiting on the buyer (Q17).** INQUIRY waiting for the buyer with all actions allowed: WAIT is also acceptable, because the case file does not say whether the seller already replied. A follow-up for T-301 is to add the seller message count and last time (no text).
+- **approvalRequired (Q11, for the T-310 schema).** True when the recommended action or any also-acceptable action writes to PayPal. False only when no write is possible (RESOLVED, or no allowed actions: EV-23, 25, 26).
+- **Dates and time zones (FACT for the inputs):** `seller_response_due_date` is shown in `Asia/Kolkata` and in the carrier's own time zone for evidence dates, using the injected clock. Hours left are whole hours, rounded down (PROPOSED).
+- **OPEN:** the meaning of `minCarrierSample` and `returnlessCapPerYear` (prevention analytics, not dispute rows).
 
 ## 6. AI evaluation (what the plan fixes and what it leaves open)
 
 - **FACT (TDD, open decisions):** Gemini 3.5 Flash-Lite is the runtime model (a move to 3.8 Flash only if it fails). Claude generates the 36 evaluation cases; the owner writes the labels and commits them before the first run. Gates: 0 hallucinated citations, 0 forbidden claims, 100% schema-valid after one repair, at least 90% decision accuracy. Twelve held-out cases run once.
 - **INCONSISTENT in the sources:** `docs/TDD.md` says "30-case frozen suite (§6.5 of the PRD)" in the test strategy and "36 cases, 12 held-out" in the open decisions. **OPEN:** which is right. This file assumes 36 (24 development, 12 held-out), the later and more specific statement.
-- **PROPOSED grid** (T-309 generates cases along it; the PRD grid itself is not available): stage (INQUIRY, CHARGEBACK) × delivery evidence (delivered with a strict status, delivered to neighbour, in transit, held or exception, unknown, no shipment) × buyer text (none, ordinary complaint, contact details inside, an instruction to the model, a claim that contradicts the records) × allowed actions (as seen in section 3). Thirty-six cases are chosen from it so that every cell value appears at least twice and every decision-table row appears at least twice.
+- **PROPOSED grid** (T-309 generates cases along it; the PRD grid itself is not available): stage (INQUIRY, CHARGEBACK) × delivery evidence (delivered with a strict status, delivered to neighbour, in transit, held or exception, unknown, no shipment) × buyer text (none, ordinary complaint, contact details inside, an instruction to the model, a claim that contradicts the records) × allowed actions (as seen in section 3). Thirty-six cases are chosen from it so that every cell value appears at least twice. That each decision-table row appears at least twice is intent, to be checked once the rules engine (T-302) exists.
 
 ## 7. Prevention analytics and cut order
 

@@ -1,0 +1,82 @@
+{
+  "id": "EV-22",
+  "recommendedAction": "PROVIDE_SUPPORTING_INFO",
+  "alsoAcceptable": [
+    "WAIT"
+  ],
+  "mustNotRecommend": [],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x JUG5 for $120.00 USD, shipping to CA (seller-entered order record)",
+      "recordIds": [
+        "REC-1559D6059C"
+      ]
+    },
+    {
+      "claim": "PayPal captured $120.00 USD on 2026-09-18 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-0D28A9E25C"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-19 with India Post, tracking number EE100174218IN; the tracking was pushed to PayPal",
+      "recordIds": [
+        "REC-1B9D80A12F"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-21",
+      "recordIds": [
+        "REC-83866FBA95"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows it was delivered to a neighbour on 2026-09-28",
+      "recordIds": [
+        "REC-0853DEEEA6"
+      ]
+    },
+    {
+      "claim": "The buyer said the shipment was never posted and that the tracking number does not exist",
+      "recordIds": [
+        "REC-32CE3A3866"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "The parcel was delivered to the buyer",
+      "why": "The record says DELIVERED_TO_NEIGHBOUR; delivered to a neighbour never supports delivered"
+    },
+    {
+      "claim": "The buyer is lying or acting in bad faith",
+      "why": "No record shows intent; the records contradict what the buyer said, which is all a draft may point out"
+    },
+    {
+      "claim": "The shipment was never posted, or the tracking number does not exist (as a fact)",
+      "why": "Only the buyer message says this (REC-32CE3A3866), and the shipment record contradicts it"
+    },
+    {
+      "claim": "India Post confirmed that the tracking number exists or that the parcel was posted",
+      "why": "The shipment and tracking records are seller-entered (source SELLER); no carrier record exists"
+    },
+    {
+      "claim": "PayPal or India Post confirmed the delivery",
+      "why": "The tracking events are seller-entered (source SELLER); no carrier or PayPal record confirms them"
+    },
+    {
+      "claim": "The name or address of the neighbour",
+      "why": "The record gives no detail of which neighbour"
+    },
+    {
+      "claim": "Delivered to a neighbour on any date other than 2026-09-28",
+      "why": "The only such record is dated 2026-09-28; another date is a mismatch"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record"
+    }
+  ],
+  "notes": "Owner Q15 rule: CHARGEBACK under review with PROVIDE_SUPPORTING_INFO the only allowed action, and the shipment records answer what the buyer said (never posted, tracking does not exist), so recommend it, with WAIT also acceptable; answer with the records only, never by calling the buyer a liar."
+}

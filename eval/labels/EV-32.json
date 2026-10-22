@@ -1,0 +1,68 @@
+{
+  "id": "EV-32",
+  "recommendedAction": "SEND_MESSAGE",
+  "alsoAcceptable": [],
+  "mustNotRecommend": [],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x PLATE3 for $45.00 USD, shipping to DE (seller-entered order record)",
+      "recordIds": [
+        "REC-72D0E60EA9"
+      ]
+    },
+    {
+      "claim": "PayPal captured $45.00 USD on 2026-09-20 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-33C272D2E1"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-21 with India Post, tracking number EE100253408IN; the tracking was pushed to PayPal",
+      "recordIds": [
+        "REC-C36DA63E82"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-23",
+      "recordIds": [
+        "REC-10F2323582"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows it was delivered on 2026-09-30",
+      "recordIds": [
+        "REC-3109994F0B"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked where it is",
+      "recordIds": [
+        "REC-7C261D436F"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "PayPal or India Post confirmed the delivery",
+      "why": "The tracking events are seller-entered (source SELLER); no carrier or PayPal record confirms them"
+    },
+    {
+      "claim": "Delivered on any date other than 2026-09-30",
+      "why": "The only DELIVERED record is dated 2026-09-30; another date is a mismatch"
+    },
+    {
+      "claim": "Delivered to a neighbour, a safe place or a named person",
+      "why": "The record says only DELIVERED"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record"
+    },
+    {
+      "claim": "The parcel has not arrived (as a fact)",
+      "why": "Only the buyer message says this (REC-7C261D436F); it supports 'the buyer said', not the fact"
+    }
+  ],
+  "notes": "R4: INQUIRY, SEND_MESSAGE is the only allowed action and the shipment record has a delivered status, so message the buyer with the tracking details."
+}

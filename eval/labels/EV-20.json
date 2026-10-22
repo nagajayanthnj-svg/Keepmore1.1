@@ -1,0 +1,67 @@
+{
+  "id": "EV-20",
+  "recommendedAction": "PROVIDE_EVIDENCE",
+  "alsoAcceptable": [],
+  "mustNotRecommend": [],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x PLATE3 for $90.00 USD, shipping to DE (seller-entered order record)",
+      "recordIds": [
+        "REC-16C4F0699B"
+      ]
+    },
+    {
+      "claim": "PayPal captured $90.00 USD on 2026-09-20 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-524A1348D1"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-21 with India Post, tracking number EE100158380IN; the tracking was pushed to PayPal (supports PROOF_OF_FULFILLMENT)",
+      "recordIds": [
+        "REC-7278ED5A8F"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-23 and 2026-09-26, the latest update in the records",
+      "recordIds": [
+        "REC-490922B487",
+        "REC-BED54AB040"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked to be contacted",
+      "recordIds": [
+        "REC-C0D513E243"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "The parcel was delivered",
+      "why": "No DELIVERED record; the latest status is IN_TRANSIT"
+    },
+    {
+      "claim": "Any arrival or delivery date, past or expected",
+      "why": "No record gives one"
+    },
+    {
+      "claim": "The parcel is in transit now",
+      "why": "The latest record is from 2026-09-26; there is no current status"
+    },
+    {
+      "claim": "Any contact detail of the buyer (email or phone)",
+      "why": "The details in the buyer message are redacted ([removed]); none may be repeated or made up"
+    },
+    {
+      "claim": "Any specific partial refund amount, or that a partial refund is recommended",
+      "why": "The baseline never recommends PARTIAL_REFUND or proposes an amount: no policy field gives one and the partial-refund body is unverified"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record"
+    }
+  ],
+  "notes": "R7 with owner Q6: the in-transit shipment supports PROOF_OF_FULFILLMENT, the only requested type, so submit it with no delivery claim; the deadline is 72 hours away, the redacted contact details change nothing. PARTIAL_REFUND is an allowed type, but the baseline never recommends it or proposes an amount (owner Q16)."
+}

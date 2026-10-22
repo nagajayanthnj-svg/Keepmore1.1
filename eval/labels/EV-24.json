@@ -1,0 +1,67 @@
+{
+  "id": "EV-24",
+  "recommendedAction": "NO_ACTION",
+  "alsoAcceptable": [],
+  "mustNotRecommend": [],
+  "approvalRequired": false,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x MUG1 for $120.00 USD, shipping to US (seller-entered order record)",
+      "recordIds": [
+        "REC-071880D898"
+      ]
+    },
+    {
+      "claim": "PayPal captured $120.00 USD on 2026-09-22 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-1CA90373A6"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-23 with India Post, tracking number EE100190056IN; the tracking was pushed to PayPal",
+      "recordIds": [
+        "REC-F4C1B0B41D"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-25 and 2026-09-28, the latest update in the records",
+      "recordIds": [
+        "REC-FB27D24770",
+        "REC-D61823BAC7"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked where it is",
+      "recordIds": [
+        "REC-BA67F446CB"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "Any amount was debited, refunded, released or kept (for example $120.00 debited as a settlement, or the fee returned)",
+      "why": "The case has no fund_movements record; money is read only from fund_movements and never inferred from the outcome (D15)"
+    },
+    {
+      "claim": "Why PayPal decided for the buyer",
+      "why": "No record gives PayPal's reason"
+    },
+    {
+      "claim": "The seller can still respond, appeal or submit evidence",
+      "why": "The dispute is RESOLVED and no action is allowed"
+    },
+    {
+      "claim": "The parcel was delivered",
+      "why": "No DELIVERED record; the latest status is IN_TRANSIT"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record"
+    },
+    {
+      "claim": "The parcel has not arrived (as a fact)",
+      "why": "Only the buyer message says this (REC-BA67F446CB); it supports 'the buyer said', not the fact"
+    }
+  ],
+  "notes": "R1: the dispute is RESOLVED (outcome RESOLVED_BUYER_FAVOUR, kept as PayPal sent it) and no action is allowed, so NO_ACTION, WAIT not acceptable (D16); show the outcome, and no money movement can be shown because the case has no fund_movements record."
+}

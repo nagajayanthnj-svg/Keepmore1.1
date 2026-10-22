@@ -1,0 +1,54 @@
+{
+  "id": "EV-16",
+  "recommendedAction": "NO_ACTION",
+  "alsoAcceptable": [
+    "ACCEPT_CLAIM"
+  ],
+  "mustNotRecommend": [
+    "PROVIDE_EVIDENCE"
+  ],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x JUG5 for $310.00 USD, shipping to CA (seller-entered order record)",
+      "recordIds": [
+        "REC-0112043E71"
+      ]
+    },
+    {
+      "claim": "PayPal captured $310.00 USD on 2026-09-18 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-15C48081C9"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked where it is",
+      "recordIds": [
+        "REC-34217E1982"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "The item was shipped, or any tracking number or carrier",
+      "why": "There is no shipment record in the case"
+    },
+    {
+      "claim": "Any tracking status: in transit, held, delivered, delivered to a neighbour",
+      "why": "No tracking events in the case"
+    },
+    {
+      "claim": "PROOF_OF_FULFILLMENT can be provided",
+      "why": "No shipment record supports it; the type may not be invented"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record"
+    },
+    {
+      "claim": "The parcel has not arrived (as a fact)",
+      "why": "Only the buyer message says this (REC-34217E1982); it supports 'the buyer said', not the fact"
+    }
+  ],
+  "notes": "Owner Q7/Q8: CHARGEBACK with no shipment, so NO_ACTION with the seller task 'add shipment details before the deadline' (2026-10-25 06:00 UTC, 120 hours away), ACCEPT_CLAIM also acceptable; $310 is at or above the $200 high-value band, so the R9 'review before you decide' flag applies and the refund is never preselected. PROVIDE_EVIDENCE is mustNotRecommend: no requested type is supportable and evidence is one-shot (owner Q12)."
+}

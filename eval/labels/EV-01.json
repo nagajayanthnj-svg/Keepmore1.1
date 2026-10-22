@@ -1,0 +1,71 @@
+{
+  "id": "EV-01",
+  "recommendedAction": "SEND_MESSAGE",
+  "alsoAcceptable": [],
+  "mustNotRecommend": [
+    "ESCALATE",
+    "PROVIDE_EVIDENCE"
+  ],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x BOWL2 for $45.00 USD, shipping to GB (seller-entered order record)",
+      "recordIds": [
+        "REC-A1E0FD3A94"
+      ]
+    },
+    {
+      "claim": "PayPal captured $45.00 USD on 2026-09-21 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-D48C86874E"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-22 with India Post, tracking number EE100007919IN; the tracking was pushed to PayPal",
+      "recordIds": [
+        "REC-FBC79863F3"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-24",
+      "recordIds": [
+        "REC-75F0702B0A"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows it was delivered on 2026-10-01",
+      "recordIds": [
+        "REC-7EBD6DD0C4"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked where it is",
+      "recordIds": [
+        "REC-F8628BE5D5"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record; nothing in the case shows one"
+    },
+    {
+      "claim": "PayPal or India Post confirmed the delivery",
+      "why": "The DELIVERED event is labelled Seller entered, with source SELLER; no carrier or PayPal record confirms it"
+    },
+    {
+      "claim": "Delivered on any date other than 2026-10-01",
+      "why": "The only DELIVERED record is dated 2026-10-01; another date is a mismatch"
+    },
+    {
+      "claim": "Delivered to a neighbour, a safe place or a named person",
+      "why": "The record says only DELIVERED; no detail of where or to whom"
+    },
+    {
+      "claim": "The parcel has not arrived (as a fact)",
+      "why": "Only the buyer message says this (REC-F8628BE5D5); it supports 'the buyer said', not the fact, and the seller tracking says DELIVERED"
+    }
+  ],
+  "notes": "R4: INQUIRY, SEND_MESSAGE allowed, the shipment record has a delivered status (seller-entered, owner-confirmed as enough for R4), so message the buyer with the tracking details; PROVIDE_EVIDENCE is ruled out because PayPal requested nothing and evidence is one-shot."
+}
