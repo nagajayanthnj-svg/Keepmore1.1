@@ -1000,3 +1000,9 @@ Build order and target dates: T-308 23 Oct; routes 24 Oct; T-401 25–27 Oct; T-
 - **Buyer text:** sent to the model only for `PP-DEMO-` cases (decision 5).
 - **Cross-origin:** `src/lib/same-origin.ts` rejects a browser request from another origin (403 `CROSS_ORIGIN`); a request with no Origin (curl, server-side) is allowed. Used on this route now and on the approve and submit routes next (part of T-503, done early).
 - `AI_DAILY_CALL_CAP` is now read by the route.
+
+## T-401 routes: approve and send
+- `POST /api/disputes/[id]/approve` (body: action, payload, the `rawHash` the screen showed) wraps `approveAction`: 201 with the approval id and payload hash; 409 CASE_CHANGED or STALE; 403 ACTION_NOT_ALLOWED or TYPE_NOT_OFFERED; 422 INVALID_PAYLOAD with the issues; 409 DEMO_CASE for `PP-DEMO-` cases (nothing is ever sent for them); 502 PAYPAL_UNAVAILABLE when the fresh GET fails. **Approving writes nothing to PayPal** (a test counts the POSTs).
+- `POST /api/approvals/[id]/submit` wraps `submitApprovedAction`: 200 with APPLIED or PENDING; 409 ALREADY_SUBMITTED on a second send of the same approval (one POST only); a PayPal failure comes back with `retryable` and the debug id, never as success. This is the only HTTP path to a dispute write.
+- Both reject cross-origin browser requests. The approver is the fixed name `seller` (one seller per installation).
+- **Gap found: T-212 (a lint rule that only `src/disputes/actions.ts` may call a dispute write endpoint) was never built**, although the plan lists it in Phase 2. Today the rule holds by structure (only the action service builds write paths, from the links of a fresh GET), not by a check. To add as its own small task.
