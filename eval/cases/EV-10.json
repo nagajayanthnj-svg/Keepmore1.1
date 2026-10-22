@@ -1,0 +1,122 @@
+{
+  "id": "EV-10",
+  "split": "dev",
+  "asOf": "2026-10-20T06:00:00.000Z",
+  "caseFile": {
+    "version": 1,
+    "caseId": "EVAL-10-CASE",
+    "disputeId": "PP-EVAL-0010",
+    "dispute": {
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "stage": "CHARGEBACK",
+      "status": "WAITING_FOR_SELLER_RESPONSE",
+      "amount": {
+        "minor": 12000,
+        "currency": "USD"
+      },
+      "sellerDeadline": "2026-10-24T06:00:00.000Z",
+      "requestedEvidence": [
+        "PROOF_OF_FULFILLMENT",
+        "PROOF_OF_DELIVERY_SIGNATURE"
+      ],
+      "outcome": null
+    },
+    "allowedActions": {
+      "actions": [
+        "ACCEPT_CLAIM",
+        "PROVIDE_EVIDENCE"
+      ],
+      "acceptClaimTypes": [
+        "REFUND"
+      ],
+      "source": "STORED_COPY"
+    },
+    "orderLinked": true,
+    "evidence": [
+      {
+        "id": "REC-A1A19C8C03",
+        "type": "ORDER",
+        "source": "KEEPMORE",
+        "occurredAt": "2026-09-18T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "country": "CA",
+          "grossMinor": 12000,
+          "currency": "USD",
+          "items": [
+            {
+              "sku": "JUG5",
+              "qty": 1,
+              "unitMinor": 12000
+            }
+          ]
+        }
+      },
+      {
+        "id": "REC-075F9DC163",
+        "type": "CAPTURE",
+        "source": "PAYPAL",
+        "occurredAt": "2026-09-18T06:05:00.000Z",
+        "trustState": "Verified by PayPal",
+        "fields": {
+          "captureId": "5EV100000001K",
+          "grossMinor": 12000,
+          "currency": "USD",
+          "sellerProtection": "ELIGIBLE"
+        }
+      },
+      {
+        "id": "REC-B80CB96D8F",
+        "type": "SHIPMENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-19T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "trackingNo": "EE100079190IN",
+          "pushStatus": "PUSHED"
+        }
+      },
+      {
+        "id": "REC-13AE92348A",
+        "type": "TRACKING_EVENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-21T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "status": "IN_TRANSIT"
+        }
+      },
+      {
+        "id": "REC-7FF17C1B72",
+        "type": "TRACKING_EVENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-28T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "status": "DELIVERED_TO_NEIGHBOUR"
+        }
+      }
+    ],
+    "policy": {
+      "refundThresholdMinor": 2000,
+      "highValueBandMinor": 20000,
+      "minCarrierSample": 20,
+      "returnlessCapPerYear": 1,
+      "currency": "USD",
+      "returnPolicyText": "Returns accepted within 14 days of delivery. The buyer pays return postage."
+    },
+    "buyerMessages": [
+      {
+        "id": "REC-E7C0BF1BAE",
+        "at": "2026-10-15T06:00:00.000Z",
+        "text": "My parcel has not arrived yet. Can you tell me where it is?",
+        "quoted": true,
+        "trustState": "Verified by PayPal"
+      }
+    ],
+    "hash": "e389c28ed4c8ab5e4ee70a7ad6b1564149401a20ded4cc3aa745a868846898db"
+  }
+}

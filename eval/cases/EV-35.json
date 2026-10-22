@@ -1,0 +1,115 @@
+{
+  "id": "EV-35",
+  "split": "dev",
+  "asOf": "2026-10-20T06:00:00.000Z",
+  "caseFile": {
+    "version": 1,
+    "caseId": "EVAL-35-CASE",
+    "disputeId": "PP-EVAL-0035",
+    "dispute": {
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "stage": "CHARGEBACK",
+      "status": "WAITING_FOR_SELLER_RESPONSE",
+      "amount": {
+        "minor": 12000,
+        "currency": "USD"
+      },
+      "sellerDeadline": "2026-10-24T06:00:00.000Z",
+      "requestedEvidence": [
+        "PROOF_OF_FULFILLMENT",
+        "PROOF_OF_DELIVERY_SIGNATURE"
+      ],
+      "outcome": null
+    },
+    "allowedActions": {
+      "actions": [
+        "ACCEPT_CLAIM",
+        "PROVIDE_EVIDENCE"
+      ],
+      "acceptClaimTypes": [
+        "REFUND"
+      ],
+      "source": "STORED_COPY"
+    },
+    "orderLinked": true,
+    "evidence": [
+      {
+        "id": "REC-B28925EA4C",
+        "type": "ORDER",
+        "source": "KEEPMORE",
+        "occurredAt": "2026-09-17T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "country": "AE",
+          "grossMinor": 12000,
+          "currency": "USD",
+          "items": [
+            {
+              "sku": "CUP6",
+              "qty": 1,
+              "unitMinor": 12000
+            }
+          ]
+        }
+      },
+      {
+        "id": "REC-65AA4FB49A",
+        "type": "CAPTURE",
+        "source": "PAYPAL",
+        "occurredAt": "2026-09-17T06:05:00.000Z",
+        "trustState": "Verified by PayPal",
+        "fields": {
+          "captureId": "5EV350000001K",
+          "grossMinor": 12000,
+          "currency": "USD",
+          "sellerProtection": "ELIGIBLE"
+        }
+      },
+      {
+        "id": "REC-7A02C51595",
+        "type": "SHIPMENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-18T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "trackingNo": "EE100277165IN",
+          "pushStatus": "PUSHED"
+        }
+      },
+      {
+        "id": "REC-EF42FDAC54",
+        "type": "TRACKING_EVENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-20T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "status": "IN_TRANSIT"
+        }
+      },
+      {
+        "id": "REC-F8A8C9EE60",
+        "type": "TRACKING_EVENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-27T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "status": "DELIVERED"
+        }
+      }
+    ],
+    "policy": null,
+    "buyerMessages": [
+      {
+        "id": "REC-07540BEEFA",
+        "at": "2026-10-14T06:00:00.000Z",
+        "text": "My parcel has not arrived yet. Can you tell me where it is?",
+        "quoted": true,
+        "trustState": "Verified by PayPal"
+      }
+    ],
+    "hash": "4b0f215bfe900700c4202428f9602a276a4783c8d7707c64dbf4422aac475d4d"
+  }
+}

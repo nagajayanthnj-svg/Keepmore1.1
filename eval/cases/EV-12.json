@@ -1,0 +1,78 @@
+{
+  "id": "EV-12",
+  "split": "heldout",
+  "asOf": "2026-10-20T06:00:00.000Z",
+  "caseFile": {
+    "version": 1,
+    "caseId": "EVAL-12-CASE",
+    "disputeId": "PP-EVAL-0012",
+    "dispute": {
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "stage": "CHARGEBACK",
+      "status": "WAITING_FOR_SELLER_RESPONSE",
+      "amount": {
+        "minor": 8800,
+        "currency": "USD"
+      },
+      "sellerDeadline": "2026-10-24T06:00:00.000Z",
+      "requestedEvidence": [
+        "PROOF_OF_FULFILLMENT"
+      ],
+      "outcome": null
+    },
+    "allowedActions": {
+      "actions": [
+        "ACCEPT_CLAIM"
+      ],
+      "acceptClaimTypes": [
+        "REFUND"
+      ],
+      "source": "STORED_COPY"
+    },
+    "orderLinked": true,
+    "evidence": [
+      {
+        "id": "REC-B06BF9C077",
+        "type": "ORDER",
+        "source": "KEEPMORE",
+        "occurredAt": "2026-09-22T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "country": "US",
+          "grossMinor": 8800,
+          "currency": "USD",
+          "items": [
+            {
+              "sku": "MUG1",
+              "qty": 1,
+              "unitMinor": 8800
+            }
+          ]
+        }
+      },
+      {
+        "id": "REC-D381B459A3",
+        "type": "CAPTURE",
+        "source": "PAYPAL",
+        "occurredAt": "2026-09-22T06:05:00.000Z",
+        "trustState": "Verified by PayPal",
+        "fields": {
+          "captureId": "5EV120000001K",
+          "grossMinor": 8800,
+          "currency": "USD",
+          "sellerProtection": "ELIGIBLE"
+        }
+      }
+    ],
+    "policy": {
+      "refundThresholdMinor": 2000,
+      "highValueBandMinor": 20000,
+      "minCarrierSample": 20,
+      "returnlessCapPerYear": 1,
+      "currency": "USD",
+      "returnPolicyText": "Returns accepted within 14 days of delivery. The buyer pays return postage."
+    },
+    "buyerMessages": [],
+    "hash": "452dddba1765d3691e8a79645c669d4f108c6f709fca956f83df8182c659ff82"
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "id": "EV-21",
+  "split": "heldout",
+  "asOf": "2026-10-20T06:00:00.000Z",
+  "caseFile": {
+    "version": 1,
+    "caseId": "EVAL-21-CASE",
+    "disputeId": "PP-EVAL-0021",
+    "dispute": {
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "stage": "CHARGEBACK",
+      "status": "WAITING_FOR_SELLER_RESPONSE",
+      "amount": {
+        "minor": 12000,
+        "currency": "USD"
+      },
+      "sellerDeadline": "2026-10-24T06:00:00.000Z",
+      "requestedEvidence": [
+        "PROOF_OF_FULFILLMENT",
+        "PROOF_OF_DELIVERY_SIGNATURE"
+      ],
+      "outcome": null
+    },
+    "allowedActions": {
+      "actions": [
+        "ACCEPT_CLAIM",
+        "PROVIDE_EVIDENCE"
+      ],
+      "acceptClaimTypes": [
+        "REFUND"
+      ],
+      "source": "STORED_COPY"
+    },
+    "orderLinked": true,
+    "evidence": [
+      {
+        "id": "REC-34B1EF6DAC",
+        "type": "ORDER",
+        "source": "KEEPMORE",
+        "occurredAt": "2026-09-19T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "country": "AU",
+          "grossMinor": 12000,
+          "currency": "USD",
+          "items": [
+            {
+              "sku": "VASE4",
+              "qty": 1,
+              "unitMinor": 12000
+            }
+          ]
+        }
+      },
+      {
+        "id": "REC-BAB2D1D7BB",
+        "type": "CAPTURE",
+        "source": "PAYPAL",
+        "occurredAt": "2026-09-19T06:05:00.000Z",
+        "trustState": "Verified by PayPal",
+        "fields": {
+          "captureId": "5EV210000001K",
+          "grossMinor": 12000,
+          "currency": "USD",
+          "sellerProtection": "ELIGIBLE"
+        }
+      },
+      {
+        "id": "REC-C5C121CF4E",
+        "type": "SHIPMENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-20T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "trackingNo": "EE100166299IN",
+          "pushStatus": "PUSHED"
+        }
+      },
+      {
+        "id": "REC-6E0D5D6DA2",
+        "type": "TRACKING_EVENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-22T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "status": "IN_TRANSIT"
+        }
+      },
+      {
+        "id": "REC-BD8AD1AFF3",
+        "type": "TRACKING_EVENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-29T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "status": "DELIVERED"
+        }
+      }
+    ],
+    "policy": {
+      "refundThresholdMinor": 2000,
+      "highValueBandMinor": 20000,
+      "minCarrierSample": 20,
+      "returnlessCapPerYear": 1,
+      "currency": "USD",
+      "returnPolicyText": "Returns accepted within 14 days of delivery. The buyer pays return postage."
+    },
+    "buyerMessages": [
+      {
+        "id": "REC-3183490624",
+        "at": "2026-10-16T06:00:00.000Z",
+        "text": "The tracking says it was delivered on 2026-09-21, but I was travelling then and nothing was at my door.",
+        "quoted": true,
+        "trustState": "Verified by PayPal"
+      }
+    ],
+    "hash": "255dd45299556481b6bb2a1ff29e5e54a5d502cf3114621b0eca2f43547bfbbe"
+  }
+}

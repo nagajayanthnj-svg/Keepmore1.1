@@ -1,0 +1,112 @@
+{
+  "id": "EV-31",
+  "split": "dev",
+  "asOf": "2026-10-20T06:00:00.000Z",
+  "caseFile": {
+    "version": 1,
+    "caseId": "EVAL-31-CASE",
+    "disputeId": "PP-EVAL-0031",
+    "dispute": {
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "stage": "CHARGEBACK",
+      "status": "WAITING_FOR_SELLER_RESPONSE",
+      "amount": {
+        "minor": 9000,
+        "currency": "USD"
+      },
+      "sellerDeadline": "2026-10-21T02:00:00.000Z",
+      "requestedEvidence": [
+        "PROOF_OF_FULFILLMENT"
+      ],
+      "outcome": null
+    },
+    "allowedActions": {
+      "actions": [
+        "ACCEPT_CLAIM"
+      ],
+      "acceptClaimTypes": [
+        "REFUND"
+      ],
+      "source": "STORED_COPY"
+    },
+    "orderLinked": true,
+    "evidence": [
+      {
+        "id": "REC-5803ACE1E6",
+        "type": "ORDER",
+        "source": "KEEPMORE",
+        "occurredAt": "2026-09-21T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "country": "GB",
+          "grossMinor": 9000,
+          "currency": "USD",
+          "items": [
+            {
+              "sku": "BOWL2",
+              "qty": 1,
+              "unitMinor": 9000
+            }
+          ]
+        }
+      },
+      {
+        "id": "REC-F752AD5F39",
+        "type": "CAPTURE",
+        "source": "PAYPAL",
+        "occurredAt": "2026-09-21T06:05:00.000Z",
+        "trustState": "Verified by PayPal",
+        "fields": {
+          "captureId": "5EV310000001K",
+          "grossMinor": 9000,
+          "currency": "USD",
+          "sellerProtection": "ELIGIBLE"
+        }
+      },
+      {
+        "id": "REC-490F07CB13",
+        "type": "SHIPMENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-22T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "trackingNo": "EE100245489IN",
+          "pushStatus": "PUSHED"
+        }
+      },
+      {
+        "id": "REC-3320E58413",
+        "type": "TRACKING_EVENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-24T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "status": "IN_TRANSIT"
+        }
+      },
+      {
+        "id": "REC-CE32717826",
+        "type": "TRACKING_EVENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-27T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "status": "IN_TRANSIT"
+        }
+      }
+    ],
+    "policy": {
+      "refundThresholdMinor": 2000,
+      "highValueBandMinor": 20000,
+      "minCarrierSample": 20,
+      "returnlessCapPerYear": 1,
+      "currency": "USD",
+      "returnPolicyText": "Returns accepted within 14 days of delivery. The buyer pays return postage."
+    },
+    "buyerMessages": [],
+    "hash": "6adb6ab4119b674ee111304482038a01e196cd7b56a07450d8ae1a5bd2a023cf"
+  }
+}

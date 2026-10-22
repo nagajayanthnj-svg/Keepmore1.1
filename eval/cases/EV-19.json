@@ -1,0 +1,123 @@
+{
+  "id": "EV-19",
+  "split": "dev",
+  "asOf": "2026-10-20T06:00:00.000Z",
+  "caseFile": {
+    "version": 1,
+    "caseId": "EVAL-19-CASE",
+    "disputeId": "PP-EVAL-0019",
+    "dispute": {
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "stage": "CHARGEBACK",
+      "status": "WAITING_FOR_SELLER_RESPONSE",
+      "amount": {
+        "minor": 12000,
+        "currency": "USD"
+      },
+      "sellerDeadline": "2026-10-23T06:00:00.000Z",
+      "requestedEvidence": [
+        "PROOF_OF_FULFILLMENT",
+        "PROOF_OF_DELIVERY_SIGNATURE"
+      ],
+      "outcome": null
+    },
+    "allowedActions": {
+      "actions": [
+        "ACCEPT_CLAIM",
+        "PROVIDE_EVIDENCE"
+      ],
+      "acceptClaimTypes": [
+        "REFUND",
+        "PARTIAL_REFUND"
+      ],
+      "source": "STORED_COPY"
+    },
+    "orderLinked": true,
+    "evidence": [
+      {
+        "id": "REC-058FFB70A2",
+        "type": "ORDER",
+        "source": "KEEPMORE",
+        "occurredAt": "2026-09-21T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "country": "GB",
+          "grossMinor": 12000,
+          "currency": "USD",
+          "items": [
+            {
+              "sku": "BOWL2",
+              "qty": 1,
+              "unitMinor": 12000
+            }
+          ]
+        }
+      },
+      {
+        "id": "REC-2CD94EBF53",
+        "type": "CAPTURE",
+        "source": "PAYPAL",
+        "occurredAt": "2026-09-21T06:05:00.000Z",
+        "trustState": "Verified by PayPal",
+        "fields": {
+          "captureId": "5EV190000001K",
+          "grossMinor": 12000,
+          "currency": "USD",
+          "sellerProtection": "ELIGIBLE"
+        }
+      },
+      {
+        "id": "REC-DD41A772B8",
+        "type": "SHIPMENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-22T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "trackingNo": "EE100150461IN",
+          "pushStatus": "PUSHED"
+        }
+      },
+      {
+        "id": "REC-21C315233A",
+        "type": "TRACKING_EVENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-24T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "status": "IN_TRANSIT"
+        }
+      },
+      {
+        "id": "REC-74359EFB37",
+        "type": "TRACKING_EVENT",
+        "source": "SELLER",
+        "occurredAt": "2026-10-01T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "status": "DELIVERED_TO_NEIGHBOUR"
+        }
+      }
+    ],
+    "policy": {
+      "refundThresholdMinor": 2000,
+      "highValueBandMinor": 20000,
+      "minCarrierSample": 20,
+      "returnlessCapPerYear": 1,
+      "currency": "USD",
+      "returnPolicyText": "Returns accepted within 14 days of delivery. The buyer pays return postage."
+    },
+    "buyerMessages": [
+      {
+        "id": "REC-C865F2E150",
+        "at": "2026-10-14T06:00:00.000Z",
+        "text": "My parcel has not arrived yet. Can you tell me where it is?",
+        "quoted": true,
+        "trustState": "Verified by PayPal"
+      }
+    ],
+    "hash": "0c93e2e55543df17b1f909818d7c4f844d88677766d06eae2a4e6417cda6e9b1"
+  }
+}
