@@ -4,10 +4,11 @@
 import { createHash } from 'node:crypto';
 import type { Db } from '../lib/db';
 import type { TruthState } from '../lib/truth-state';
+import { scrubText } from '../lib/scrub';
 import { CANONICAL_STATUSES } from '../normalise/carrier-status';
 
-export type EvidenceType = 'ORDER' | 'CAPTURE' | 'SHIPMENT' | 'TRACKING_EVENT';
-// BUYER_MESSAGE and POLICY (in the data model) are not built yet: messages are not stored, and a policy has no date.
+export type EvidenceType = 'ORDER' | 'CAPTURE' | 'SHIPMENT' | 'TRACKING_EVENT' | 'BUYER_MESSAGE';
+// POLICY (in the data model) is not built yet: a policy has no date.
 
 export interface EvidenceRecordView {
   id: string;
@@ -85,74 +86,117 @@ function parseEvents(json: string): TrackingEvent[] {
   return out.sort((a, b) => a.at.getTime() - b.at.getTime() || (a.status < b.status ? -1 : 1));
 }
 
+interface StoredMessage {
+  postedBy: string;
+  at: Date;
+  text: string;
+}
+
+/** Messages as stored by the sync (T-203); anything unreadable is dropped. */
+function parseMessages(json: string): StoredMessage[] {
+  let v: unknown;
+  try {
+    v = JSON.parse(json);
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(v)) return [];
+  const out: StoredMessage[] = [];
+  for (const m of v) {
+    const { postedBy, at, text } = (m ?? {}) as Record<string, unknown>;
+    if (typeof postedBy !== 'string' || typeof at !== 'string' || typeof text !== 'string') continue;
+    const when = new Date(at);
+    if (!Number.isNaN(when.getTime())) out.push({ postedBy, at: when, text });
+  }
+  return out;
+}
+
 /**
  * Rebuilds the records of one case from the order, capture and shipment it is linked to, keeps the
  * ids of those that already exist, updates their content, and removes those whose source is gone.
  */
 export async function syncEvidenceRecords(db: Db, caseId: string): Promise<EvidenceRecordView[]> {
-  const theCase = await db.disputeCase.findUnique({ where: { id: caseId }, select: { orderId: true } });
-  if (!theCase?.orderId) return [];
-  const order = await db.order.findUnique({ where: { id: theCase.orderId }, include: { shipment: true } });
-  if (!order) return [];
+  const theCase = await db.disputeCase.findUnique({
+    where: { id: caseId },
+    select: { orderId: true, paypalDisputeId: true, messagesJson: true },
+  });
+  if (!theCase) return [];
+  const order = theCase.orderId
+    ? await db.order.findUnique({ where: { id: theCase.orderId }, include: { shipment: true } })
+    : null;
 
-  const demo = order.paypalOrderId.startsWith('DEMO-');
+  const demo = theCase.paypalDisputeId.startsWith('PP-DEMO-') || (order?.paypalOrderId.startsWith('DEMO-') ?? false);
   const trust = (real: TruthState): TruthState => (demo ? 'Simulated demo' : real);
   const records: Draft[] = [];
   const add = (key: string, r: Omit<Draft, 'key'>) => records.push({ ...r, key });
 
-  add(`order:${order.id}`, {
-    type: 'ORDER',
-    source: 'KEEPMORE',
-    occurredAt: order.createdAt,
-    fields: {
-      country: order.country,
-      grossMinor: order.grossMinor,
-      currency: order.currency,
-      items: parseItems(order.itemsJson),
-    },
-    trustState: trust('Seller entered'),
-  });
-
-  if (order.captureId) {
-    const gross = await db.ledgerEntry.findFirst({
-      where: { orderId: order.id, type: 'GROSS', sourceRef: order.captureId },
-      orderBy: { occurredAt: 'asc' },
-    });
-    add(`capture:${order.captureId}`, {
-      type: 'CAPTURE',
-      source: demo ? 'KEEPMORE_DEMO' : 'PAYPAL',
-      occurredAt: gross?.occurredAt ?? order.createdAt,
+  if (order) {
+    add(`order:${order.id}`, {
+      type: 'ORDER',
+      source: 'KEEPMORE',
+      occurredAt: order.createdAt,
       fields: {
-        captureId: order.captureId,
+        country: order.country,
         grossMinor: order.grossMinor,
         currency: order.currency,
-        sellerProtection: order.sellerProtection,
+        items: parseItems(order.itemsJson),
       },
-      trustState: trust('Verified by PayPal'),
-    });
-  }
-
-  const s = order.shipment;
-  if (s) {
-    add(`shipment:${s.id}`, {
-      type: 'SHIPMENT',
-      source: 'SELLER',
-      // The shipment has no date of its own: the push time when there is one, else the order's date.
-      occurredAt: s.pushedToPaypalAt ?? order.createdAt,
-      fields: { carrier: s.carrier, trackingNo: s.trackingNo, pushStatus: s.pushStatus },
       trustState: trust('Seller entered'),
     });
-    for (const e of parseEvents(s.eventsJson)) {
-      add(`event:${s.id}:${e.at.toISOString()}:${e.status}`, {
-        type: 'TRACKING_EVENT',
-        source: e.source || 'UNKNOWN',
-        occurredAt: e.at,
-        fields: { carrier: s.carrier, status: e.status },
-        trustState: trust(
-          e.source === 'SELLER' ? 'Seller entered' : e.source === 'DEMO' ? 'Simulated demo' : 'Unknown',
-        ),
+
+    if (order.captureId) {
+      const gross = await db.ledgerEntry.findFirst({
+        where: { orderId: order.id, type: 'GROSS', sourceRef: order.captureId },
+        orderBy: { occurredAt: 'asc' },
+      });
+      add(`capture:${order.captureId}`, {
+        type: 'CAPTURE',
+        source: demo ? 'KEEPMORE_DEMO' : 'PAYPAL',
+        occurredAt: gross?.occurredAt ?? order.createdAt,
+        fields: {
+          captureId: order.captureId,
+          grossMinor: order.grossMinor,
+          currency: order.currency,
+          sellerProtection: order.sellerProtection,
+        },
+        trustState: trust('Verified by PayPal'),
       });
     }
+
+    const s = order.shipment;
+    if (s) {
+      add(`shipment:${s.id}`, {
+        type: 'SHIPMENT',
+        source: 'SELLER',
+        // The shipment has no date of its own: the push time when there is one, else the order's date.
+        occurredAt: s.pushedToPaypalAt ?? order.createdAt,
+        fields: { carrier: s.carrier, trackingNo: s.trackingNo, pushStatus: s.pushStatus },
+        trustState: trust('Seller entered'),
+      });
+      for (const e of parseEvents(s.eventsJson)) {
+        add(`event:${s.id}:${e.at.toISOString()}:${e.status}`, {
+          type: 'TRACKING_EVENT',
+          source: e.source || 'UNKNOWN',
+          occurredAt: e.at,
+          fields: { carrier: s.carrier, status: e.status },
+          trustState: trust(
+            e.source === 'SELLER' ? 'Seller entered' : e.source === 'DEMO' ? 'Simulated demo' : 'Unknown',
+          ),
+        });
+      }
+    }
+  }
+
+  // What the buyer wrote. Kept as quoted data with contact details removed; the claims in it are the buyer's, not PayPal's.
+  for (const m of parseMessages(theCase.messagesJson)) {
+    if (m.postedBy !== 'BUYER') continue;
+    add(`msg:${m.at.toISOString()}:${sha256(m.text).slice(0, 8)}`, {
+      type: 'BUYER_MESSAGE',
+      source: demo ? 'KEEPMORE_DEMO' : 'PAYPAL',
+      occurredAt: m.at,
+      fields: { speaker: 'BUYER', text: scrubText(m.text), quoted: true },
+      trustState: trust('Verified by PayPal'),
+    });
   }
 
   const views: EvidenceRecordView[] = records.map(({ key, ...r }) => ({

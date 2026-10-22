@@ -147,3 +147,40 @@ describe('parseDispute: the transaction and payer used to link a dispute (T-206)
     expect(d.buyerPayerId).toBeNull();
   });
 });
+
+describe('parseDispute: messages', () => {
+  it('reads the real messages in time order, with who posted them', () => {
+    const m = parseDispute(rav).messages;
+    expect(m).toHaveLength(3);
+    expect(m[0]).toEqual({ postedBy: 'BUYER', at: new Date('2026-10-19T16:07:41.708Z'), text: 'SEHTH' });
+    expect(m.map((x) => x.postedBy)).toEqual(['BUYER', 'SELLER', 'SELLER']);
+  });
+
+  it('gives no messages when PayPal sends none', () => {
+    expect(parseDispute(first).messages).toEqual([]);
+  });
+
+  it('drops malformed entries, labels an unknown poster OTHER, caps length and count, and never throws', () => {
+    const base = { ...rav };
+    const odd = [
+      { posted_by: 'BUYER', time_posted: 'not a date', content: 'x' },
+      { posted_by: 'BUYER', time_posted: '2026-10-19T10:00:00.000Z' },
+      { posted_by: 'PAYPAL_AGENT', time_posted: '2026-10-19T10:01:00.000Z', content: 'hello' },
+      { posted_by: 'BUYER', time_posted: '2026-10-19T10:02:00.000Z', content: 'y'.repeat(5000) },
+      'junk',
+      null,
+    ];
+    const d = parseDispute({ ...base, messages: odd });
+    expect(d.messages.map((x) => x.postedBy)).toEqual(['OTHER', 'BUYER']);
+    expect(d.messages[1]!.text).toHaveLength(2000);
+    const many = Array.from({ length: 80 }, (_, i) => ({
+      posted_by: 'BUYER',
+      time_posted: new Date(Date.UTC(2026, 9, 1, 0, i)).toISOString(),
+      content: `m${i}`,
+    }));
+    const kept = parseDispute({ ...base, messages: many }).messages;
+    expect(kept).toHaveLength(50);
+    expect(kept.at(-1)!.text).toBe('m79');
+    expect(parseDispute({ ...base, messages: 'nope' }).messages).toEqual([]);
+  });
+});

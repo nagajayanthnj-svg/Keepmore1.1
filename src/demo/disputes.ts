@@ -5,6 +5,16 @@ import type { Db } from '../lib/db';
 export const DEMO_DISPUTE_PREFIX = 'PP-DEMO-';
 const DAY_MS = 86_400_000;
 
+/** Invented buyer words for the demo cases: no real person, and the only kind of text the AI provider ever sees. */
+const demoMessages = (now: Date, texts: string[]) =>
+  JSON.stringify(
+    texts.map((text, i) => ({
+      postedBy: 'BUYER',
+      at: new Date(now.getTime() - (texts.length - i + 1) * DAY_MS).toISOString(),
+      text,
+    })),
+  );
+
 export async function seedDemoDisputes(db: Db, now: Date): Promise<{ cases: number }> {
   if ((await db.disputeCase.count({ where: { paypalDisputeId: { startsWith: DEMO_DISPUTE_PREFIX } } })) > 0) {
     return { cases: 0 };
@@ -33,6 +43,7 @@ export async function seedDemoDisputes(db: Db, now: Date): Promise<{ cases: numb
         currency: a.currency,
         sellerDeadline: new Date(now.getTime() + 2 * DAY_MS),
         lastSyncedAt: new Date(now.getTime() - 30_000),
+        messagesJson: demoMessages(now, ['My parcel has not arrived and the tracking has not moved for two weeks.']),
       },
       {
         ...base,
@@ -43,6 +54,7 @@ export async function seedDemoDisputes(db: Db, now: Date): Promise<{ cases: numb
         amountMinor: b.grossMinor,
         currency: b.currency,
         lastSyncedAt: new Date(now.getTime() - 40 * 60_000),
+        messagesJson: demoMessages(now, ['Where is my order? It was meant to arrive last week.']),
       },
       {
         ...base,
@@ -54,6 +66,7 @@ export async function seedDemoDisputes(db: Db, now: Date): Promise<{ cases: numb
         currency: c.currency,
         outcomeCode: 'RESOLVED_SELLER_FAVOUR',
         lastSyncedAt: new Date(now.getTime() - 3 * DAY_MS),
+        messagesJson: demoMessages(now, ['Nothing came. Please refund me.', 'Update: it arrived, sorry.']),
       },
     ],
   });
