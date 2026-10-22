@@ -978,3 +978,8 @@ Three calls to `POST /api/orders/3K7336723L338842X/ship`, carrier "India Post":
 - **New module `src/ai/pipeline.ts`** (`analyseAndGate`): the one call the screens will make (T-401). `eval/run.ts` and the smoke script still do the same two steps by hand; they can switch later.
 - **Not proven:** that the real model resists. Live, it did not follow the instruction on EV-36 (held-out, v1) and EV-13 (v2 dev), but one run is not a proof. The guarantee is the pipeline, not the model.
 - Limits: the injection cases are in English, plain text, in one message. Other languages, text split across several messages and instructions hidden in the seller's own records are not covered.
+
+## Owner decisions, 22 Oct
+- **Webhook verification limit raised from 1.5 s to 4 s** (`WEBHOOK_VERIFY_TIMEOUT_MS`). Live checks from India took 0.5 to 1.7 s and four of nine deliveries timed out at 1.5 s. **This is a plan change:** `docs/TDD.md` says the endpoint answers within 2 s. I did not edit the plan; the master copy needs the new number. **UNVERIFIED:** how long PayPal waits for our 200 before it counts a delivery as failed. If it gives up before about 4 s, a slow verification could cause a redelivery. The receiver deduplicates on event id, so that is harmless but noisy. Worth one look at the delivery log in the PayPal dashboard.
+- **AG Grid: option (a) for now** (AG Studio). Ask the vendor for a new key around 30 Oct, valid through 31 Dec; if none arrives by the 5 Nov checkpoint, fall back to option (b) (Community tables and cards). Nothing reads the key until T-405.
+- **No fresh evaluation batch.** v2 is reported as tuned on the development cases: prompt v1 held-out 11 of 12; prompt v2 dev 22 of 24 (tuned, not a test); rules baseline 36 of 36.
