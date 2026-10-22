@@ -2,6 +2,7 @@
 // They are never sent to PayPal: the ids start PP-DEMO-, which the poller and the sync button refuse.
 import type { Db } from '../lib/db';
 import { DEMO_ANCHOR } from './seed';
+import { appendLedgerEntries } from '../ledger/store';
 
 export const DEMO_DISPUTE_PREFIX = 'PP-DEMO-';
 const DAY_MS = 86_400_000;
@@ -91,6 +92,21 @@ export async function seedDemoDisputes(db: Db, now: Date): Promise<{ cases: numb
     ],
   });
   // Invented shipments (the tracking numbers start DEMO, so they can never be a real parcel), events labelled DEMO.
+  // The resolved demo case was won with no refund, so the seller kept the money: one RETAINED line, as T-403 writes
+  // for a real win, but DEMO_SEEDED (Simulated demo) so the demo reset can remove it.
+  await appendLedgerEntries(db, [
+    {
+      orderId: c.id,
+      type: 'RETAINED',
+      amountMinor: c.grossMinor,
+      currency: c.currency,
+      sourceType: 'DEMO_SEEDED',
+      sourceRef: 'PP-DEMO-0003',
+      calcVersion: 'demo-outcome-v1',
+      occurredAt: new Date(now.getTime() - 3 * DAY_MS),
+    },
+  ]);
+
   // Dated from each order: shipped the next day, then the tracking events.
   const after = (o: { createdAt: Date }, days: number) => new Date(o.createdAt.getTime() + days * DAY_MS);
   for (const [order, no, events] of [
