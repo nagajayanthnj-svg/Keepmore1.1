@@ -956,3 +956,7 @@ Three calls to `POST /api/orders/3K7336723L338842X/ship`, carrier "India Post":
 - **Owner decision: adopt v2.** The prompt gains a "how to choose the action" section (RESOLVED; INQUIRY with a shipment means message the buyer, even if in transit, held or Unknown; CHARGEBACK evidence only if a requested type is supported; supporting-info-only; accept-only) and "accepting a claim is a refund; never because the buyer asks". It restates the confirmed PRD rows in plain words.
 - **What this does to the evidence:** v2 was written from the dev misses and the held-out cases are spent, so **there is no clean test of v2**. Dev numbers for v2 are tuned numbers. **The 11 of 12 (91.7%) held-out result describes prompt v1 and must be reported as that.** Any claim about v2 says "tuned on the development cases; the held-out set was used up on v1".
 - Run 3 on v2 is a regression check on dev, not a test.
+
+## T-304: a draft cannot rest on a superseded tracking status
+- Seen in dev run 3 (EV-32): the AI draft said the parcel was "currently in transit" while a later seller-entered event said delivered. The cited claim (IN_TRANSIT on 23 Sep) was true, so the validator passed it.
+- Now a TRACKING_STATUS claim is marked `superseded` when a later trusted (not Unknown) tracking event exists, and a draft citing it is blocked and replaced by the rules draft. The claim itself stays SUPPORTED: it is true for its date. Free text such as "currently" is still not checked; the rules draft quotes only the latest event.

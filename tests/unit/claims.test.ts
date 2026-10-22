@@ -145,3 +145,36 @@ describe('T-304 claim validator', () => {
     });
   });
 });
+
+describe('T-304 a draft must not rest on a tracking status a later event replaced (seen live on EV-32)', () => {
+  const ev32 = JSON.parse(readFileSync('eval/cases/EV-32.json', 'utf8')).caseFile as CaseFile;
+  const OLD = 'REC-10F2323582'; // IN_TRANSIT, 23 Sep
+  const NEW = 'REC-3109994F0B'; // DELIVERED, 30 Sep (seller entered)
+  const mk = (id: string, status: string, date: string) =>
+    parse([{ id: 'c1', type: 'TRACKING_STATUS', status, date, recordIds: [id] }], { text: 'It is in transit', claimIds: ['c1'] });
+
+  it('the old status is still a true claim, but is marked superseded and blocks the draft', () => {
+    const v = validateClaims(mk(OLD, 'IN_TRANSIT', '2026-09-23'), ev32);
+    expect(v.results[0]!.result).toBe('SUPPORTED');
+    expect(v.results[0]!.superseded).toMatch(/DELIVERED.*2026-09-30/);
+    expect(v.draftBlocked).toBe(true);
+  });
+  it('the latest status does not block', () => {
+    const v = validateClaims(mk(NEW, 'DELIVERED', '2026-09-30'), ev32);
+    expect(v.results[0]!.superseded).toBeUndefined();
+    expect(v.draftBlocked).toBe(false);
+  });
+  it('an Unknown-trust later event does not supersede anything', () => {
+    const cf: CaseFile = {
+      ...ev32,
+      evidence: ev32.evidence.map((e) => (e.id === NEW ? { ...e, trustState: 'Unknown' as const } : e)),
+    };
+    const v = validateClaims(mk(OLD, 'IN_TRANSIT', '2026-09-23'), cf);
+    expect(v.results[0]!.superseded).toBeUndefined();
+    expect(v.draftBlocked).toBe(false);
+  });
+  it('a superseded claim that no draft cites is only reported', () => {
+    const out = parse([{ id: 'c1', type: 'TRACKING_STATUS', status: 'IN_TRANSIT', date: '2026-09-23', recordIds: [OLD] }]);
+    expect(validateClaims(out, ev32).draftBlocked).toBe(false);
+  });
+});
