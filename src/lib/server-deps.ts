@@ -1,7 +1,7 @@
 import { createDb, type Db } from './db';
 import type { CheckoutDeps } from '../orders/handlers';
 import type { SyncDeps } from '../disputes/sync';
-import { createPayPalClient } from '../paypal/client';
+import { createPayPalClient, type PayPalClient } from '../paypal/client';
 
 export const SANDBOX_API = 'https://api-m.sandbox.paypal.com';
 
@@ -61,4 +61,22 @@ export async function guard(
     log(`${label} crashed: ${e instanceof Error ? e.message : String(e)}`);
     return Response.json({ error: 'INTERNAL' }, { status: 500 });
   }
+}
+
+const gp = globalThis as unknown as { __keepmorePayPal?: { key: string; paypal: PayPalClient } };
+
+/**
+ * One PayPal client for the process, so its access token is reused. The webhook route answers within a
+ * time limit and uses this one; the server warms it at start (instrumentation). Null without credentials.
+ */
+export function getSharedPayPal(): PayPalClient | null {
+  const { PAYPAL_CLIENT_ID: clientId, PAYPAL_CLIENT_SECRET: clientSecret } = process.env;
+  if (!clientId || !clientSecret) return null;
+  const baseUrl = paypalBaseUrl(process.env.PAYPAL_API_BASE);
+  const key = `${clientId}:${clientSecret}:${baseUrl}`;
+  // On globalThis like the database: instrumentation and the route can be separate bundles.
+  if (gp.__keepmorePayPal?.key !== key) {
+    gp.__keepmorePayPal = { key, paypal: createPayPalClient({ clientId, clientSecret, baseUrl }) };
+  }
+  return gp.__keepmorePayPal.paypal;
 }
