@@ -37,3 +37,29 @@ test.describe('AG Studio dashboard on the Overview', () => {
     await expect(page.getByTestId('totals')).toBeVisible();
   });
 });
+
+test.describe('AG Studio AI assistant (demo data only; the test fixture stands in for the model)', () => {
+  test('opens on demo data with a notice, and a prompt goes through our server and back', async ({ page }) => {
+    const calls: string[] = [];
+    page.on('request', (r) => {
+      if (r.method() === 'POST') calls.push(new URL(r.url()).pathname);
+    });
+    await page.goto('/overview');
+    const studio = page.getByTestId('overview-studio');
+    await expect(studio.getByText('Fees by month (USD)')).toBeVisible({ timeout: 60_000 });
+    await page.getByTestId('studio-ai').click();
+    await expect(page.getByTestId('studio-ai-note')).toContainText('demo shop only');
+    await studio.getByText('Fees by country', { exact: true }).first().click();
+    await expect(studio.getByText('Fixture answer for tests.')).toBeVisible({ timeout: 30_000 });
+    expect(calls).toContain('/api/studio-ai');
+    expect(calls.some((c) => c.includes('googleapis'))).toBe(false);
+  });
+
+  test('the route refuses a request from another site', async ({ request }) => {
+    const res = await request.post('/api/studio-ai', {
+      headers: { origin: 'https://evil.example' },
+      data: { input: [], responseFormat: { type: 'text' } },
+    });
+    expect(res.status()).toBe(403);
+  });
+});

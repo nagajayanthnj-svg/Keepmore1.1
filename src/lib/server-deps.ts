@@ -117,3 +117,19 @@ export function getSettleDeps() {
   const deps = getActionDeps();
   return deps ? { ...deps, demoMode: demoMode() } : null;
 }
+
+/**
+ * The model behind AG Studio's AI assistant (T-405), or null when none is set. The test fixture is used only when
+ * Playwright sets AI_PROVIDER=fixture and KEEPMORE_E2E=1, and never in production.
+ */
+export function getStudioAi(env: NodeJS.ProcessEnv = process.env): import('../ai/studio-ai-route').StudioAi | null {
+  if (env.AI_PROVIDER === 'fixture') return env.KEEPMORE_E2E === '1' && env.NODE_ENV !== 'production' ? { kind: 'fixture' } : null;
+  const key = env.AI_API_KEY;
+  if (!key || key === 'your-gemini-api-key' || (env.AI_PROVIDER ?? 'gemini') !== 'gemini') return null;
+  return { kind: 'gemini', apiKey: key, model: env.AI_MODEL ?? 'gemini-3.5-flash-lite' };
+}
+
+export function getStudioAiDeps() {
+  const cap = Number(process.env.AI_STUDIO_DAILY_CALL_CAP ?? 300);
+  return { db: getDb(), ai: getStudioAi(), dailyCap: Number.isFinite(cap) && cap > 0 ? cap : 300 };
+}

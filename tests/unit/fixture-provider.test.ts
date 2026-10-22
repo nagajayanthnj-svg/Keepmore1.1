@@ -29,3 +29,13 @@ describe('test-only AI fixture (decision 7)', () => {
     expect(out.recommendedAction).toBe('PROVIDE_EVIDENCE');
   });
 });
+
+describe('getStudioAi (T-405 assistant)', () => {
+  it('fixture only under Playwright, never in production; Gemini with a real key; else off', async () => {
+    const { getStudioAi } = await import('../../src/lib/server-deps');
+    expect(getStudioAi({ AI_PROVIDER: 'fixture', KEEPMORE_E2E: '1', NODE_ENV: 'development' } as NodeJS.ProcessEnv)).toEqual({ kind: 'fixture' });
+    expect(getStudioAi({ AI_PROVIDER: 'fixture', KEEPMORE_E2E: '1', NODE_ENV: 'production' } as NodeJS.ProcessEnv)).toBeNull();
+    expect(getStudioAi({ AI_API_KEY: 'k', NODE_ENV: 'development' } as NodeJS.ProcessEnv)).toMatchObject({ kind: 'gemini', apiKey: 'k' });
+    expect(getStudioAi({ AI_API_KEY: 'your-gemini-api-key' } as unknown as NodeJS.ProcessEnv)).toBeNull();
+  });
+});
