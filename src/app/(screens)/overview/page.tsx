@@ -6,6 +6,7 @@ import { LEDGER_KIND_NAME } from '../../../ledger/labels';
 import { OverviewStudioLazy } from '../../../components/overview-studio-lazy';
 import { loadStudioData } from '../../../overview/studio-data';
 import { overviewReport } from '../../../overview/studio-report';
+import { assistantStatus } from '../../../overview/assistant-status';
 import { getDb, getStudioAi } from '../../../lib/server-deps';
 import { TRUTH_STATES, TRUTH_STATE_MEANING, truthStateForSource } from '../../../lib/truth-state';
 
@@ -23,8 +24,10 @@ export default async function OverviewPage() {
   const view = await loadOverview(getDb());
   const studio = view.ready ? await loadStudioData(getDb()).catch(() => null) : null;
   // The AI assistant gets the demo shop only (owner decision 22 Oct; CLAUDE.md: synthetic demo data only).
-  const demo = studio && getStudioAi() ? await loadStudioData(getDb(), { demoOnly: true }).catch(() => null) : null;
-  const ai = demo && demo.ledger.length > 0 ? { data: demo, report: overviewReport(demo) } : null;
+  const model = getStudioAi();
+  const demo = studio ? await loadStudioData(getDb(), { demoOnly: true }).catch(() => null) : null;
+  const status = assistantStatus({ ai: model?.kind ?? null, demoLines: demo?.ledger.length ?? 0 });
+  const ai = status.ready && demo ? { data: demo, report: overviewReport(demo) } : null;
   return (
     <>
       <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
@@ -41,7 +44,7 @@ export default async function OverviewPage() {
           <p className="mt-1 mb-3 text-sm text-neutral-700">
             Built with AG Studio from the same ledger as the table below. Each tile names its source label.
           </p>
-          <OverviewStudioLazy data={studio} report={overviewReport(studio)} ai={ai} />
+          <OverviewStudioLazy data={studio} report={overviewReport(studio)} ai={ai} aiOff={status.ready ? null : status.reason} />
         </section>
       )}
 

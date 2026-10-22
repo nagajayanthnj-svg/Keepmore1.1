@@ -1105,3 +1105,8 @@ Build order and target dates: T-308 23 Oct; routes 24 Oct; T-401 25–27 Oct; T-
 - **Leakage is listed line by line** (one row per kind, label and currency: PayPal fees in USD, FX cost in INR, dispute fees) **and never added into one total**, because the parts differ in currency or label.
 - **Open for the owner:** the plan's "done when" says "Order #1042 reads ₹757 listed leakage with labels". That worked example comes from the master PRD, which is not in the repo, and no order #1042 or ₹757 exists in our data, so I did not reproduce it. A single ₹ figure would also need the USD fee converted to INR and added to an estimated FX cost, which mixes labels. Send the example's inputs (gross, fee, rate, spread, and whether the total should be one ₹ number) and I will add it as a test.
 - Shipment label: invented demo shipments (tracking numbers starting DEMO) are Simulated demo; anything the seller typed is Seller entered, also on a demo order.
+
+## AI assistant button: never hidden silently
+- The owner could not see "Ask the AI assistant" on his PC although `AI_API_KEY` is set. The button was hidden in three cases (no model seen by the server, no demo data, code not updated) with nothing to say which.
+- Now it always shows; when it cannot be used it is greyed out with the reason (`src/overview/assistant-status.ts`, tested): no AI model on the server (check `AI_API_KEY`, `AI_PROVIDER`, restart `npm run dev`), or no demo shop (`npm run db:seed`).
+- New script `scripts/check-ai-setup.ts` prints what the server sees (provider, whether a key is set, model, AG licence key yes/no, demo ledger lines). It never prints a key.

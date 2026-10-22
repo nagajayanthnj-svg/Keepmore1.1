@@ -126,7 +126,18 @@ export interface StudioAiProps {
   report: AgReportState;
 }
 
-export function OverviewStudio({ data, report, ai }: { data: StudioData; report: AgReportState; ai?: StudioAiProps | null }) {
+export function OverviewStudio({
+  data,
+  report,
+  ai,
+  aiOff,
+}: {
+  data: StudioData;
+  report: AgReportState;
+  ai?: StudioAiProps | null;
+  /** Why the assistant cannot be used here; the button shows greyed out with this reason. */
+  aiOff?: string | null;
+}) {
   const [aiOn, setAiOn] = useState(false);
   const api = useRef<AgStudioApi | null>(null);
   const [mode, setMode] = useState<'view' | 'edit'>('view');
@@ -164,6 +175,16 @@ export function OverviewStudio({ data, report, ai }: { data: StudioData; report:
           <button type="button" onClick={toggle} data-testid="studio-mode" className="rounded border border-neutral-500 px-3 py-1.5">
             {mode === 'view' ? 'Customise this dashboard' : 'Done customising'}
           </button>
+        )}
+        {!ai && aiOff && (
+          <span className="flex flex-wrap items-center gap-2">
+            <button type="button" disabled data-testid="studio-ai" className="rounded border border-neutral-300 px-3 py-1.5 text-neutral-400">
+              Ask the AI assistant (demo data only)
+            </button>
+            <span className="text-neutral-600" data-testid="studio-ai-off">
+              {aiOff}
+            </span>
+          </span>
         )}
         {ai && (
           <button
