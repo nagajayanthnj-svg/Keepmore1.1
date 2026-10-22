@@ -53,6 +53,8 @@ const PATTERNS: Array<[string, RegExp]> = [
 ];
 /** A mention is not a claim when the same sentence says it is missing or unsupported, close to the phrase. */
 const NEG_BEFORE = /\b(no|not|cannot|can't|isn't|never|without|lack|lacks|lacking)\b[^.!?]{0,40}$/i;
+/** Naming what PayPal requested is not claiming it. */
+const REQUESTED = /\brequest(s|ed|ing)?\b[^.!?]{0,60}$/i;
 const NEG_AFTER = /^[^.!?]{0,40}\b(is |are )?(missing|unsupported|not supported|not available|cannot be supported)\b/i;
 
 export function screenText(text: string): string[] {
@@ -64,7 +66,7 @@ export function screenText(text: string): string[] {
       const sentenceStart = Math.max(text.lastIndexOf('.', start - 1), text.lastIndexOf('!', start - 1), text.lastIndexOf('?', start - 1)) + 1;
       const before = text.slice(sentenceStart, start);
       const after = text.slice(start + m[0].length);
-      if (!NEG_BEFORE.test(before) && !NEG_AFTER.test(after)) {
+      if (!NEG_BEFORE.test(before) && !REQUESTED.test(before) && !NEG_AFTER.test(after)) {
         hits.push(name);
         break;
       }
