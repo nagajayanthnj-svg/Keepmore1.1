@@ -7,7 +7,7 @@ test('visits all four screens, each with its heading and the current screen mark
     ['/overview', 'Overview', 'Overview', 2], // Order and Outcome need ids, so they are not links yet; Dispute opens the inbox
     ['/orders/ORD1?case=CASE1', 'Order', 'Order ORD1', 4],
     ['/disputes/CASE1?order=ORD1', 'Dispute', 'Dispute not found', 4], // the workbench (T-401) looks the case up
-    ['/outcome/CASE1?order=ORD1', 'Outcome', 'Outcome for CASE1', 4],
+    ['/outcome/CASE1?order=ORD1', 'Outcome', 'Outcome not found', 4], // the outcome screen (T-404) looks the case up
   ];
   for (const [url, current, heading, links] of visits) {
     await page.goto(url);

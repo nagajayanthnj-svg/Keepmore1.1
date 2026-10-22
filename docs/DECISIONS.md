@@ -1048,3 +1048,11 @@ Build order and target dates: T-308 23 Oct; routes 24 Oct; T-401 25–27 Oct; T-
 - **After it:** the sync records the outcome (T-403), so a seller win adds the RETAINED line. The analyse route tells the screen whether the link is there (`OFFERED`) or not yet (`NOT_YET`: it appears 25–30 min after review starts, F-39).
 - The shared write step (`writeAndConfirm`) was pulled out of `submitApprovedAction` without changing its behaviour; the existing action tests pass unchanged.
 - **Not done live yet.** Needs a sandbox chargeback under review for about 30 minutes.
+
+## T-404: outcome screen
+- `/outcome/[id]` (case id or PayPal id): how the dispute ended in plain words with PayPal's raw code beside it, and **three amounts shown apart, each with its truth-state label: refunded to the buyer, dispute fees, retained** (Playwright). An outcome code not seen in the sandbox gets a warning that its meaning is our reading of PayPal's docs. An open dispute says "Not decided yet" and links to the workbench.
+- **No net cost is shown**, on purpose: whether PayPal also keeps the original sale fee on a lost dispute is unverified (T-403 entry). The screen says so in one line.
+- Read from our ledger only: the lines T-403 writes from PayPal's money lines (or the demo seed). `sourceRef` ties each line to its dispute.
+- **The ledger change is visible from the order:** the order page now lists the order's money lines (type, amount, label, date, reference), so the RETAINED, REFUND or DISPUTE_FEE line from a dispute shows there too (Playwright follows the link). This is a first slice of T-406; the full timeline (rates, formulas, ₹757 on order #1042) is still T-406.
+- **Demo:** PP-DEMO-0003 (won) now has a RETAINED line for its order's gross, DEMO_SEEDED (Simulated demo), which the demo reset removes. Reseed to see it.
+- `screens.spec.ts` now expects "Outcome not found" for the placeholder id.
