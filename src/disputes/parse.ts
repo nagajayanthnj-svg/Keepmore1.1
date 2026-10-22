@@ -25,6 +25,34 @@ const detailsSchema = z.object({
   evidences: z.array(z.object({ evidence_type: z.string().optional(), source: z.string().optional() })).optional(),
 });
 
+export interface ParsedMessage {
+  postedBy: 'BUYER' | 'SELLER' | 'OTHER';
+  at: Date;
+  text: string;
+}
+
+const MAX_MESSAGES = 50;
+const MAX_MESSAGE_CHARS = 2000;
+
+/** The dispute's messages in time order. Lenient: a malformed entry is dropped, and nothing here throws. */
+function parseMessages(details: unknown): ParsedMessage[] {
+  const list = (details as { messages?: unknown } | null)?.messages;
+  if (!Array.isArray(list)) return [];
+  const out: ParsedMessage[] = [];
+  for (const m of list) {
+    const { posted_by: by, time_posted: when, content } = (m ?? {}) as Record<string, unknown>;
+    if (typeof by !== 'string' || typeof when !== 'string' || typeof content !== 'string') continue;
+    const at = new Date(when);
+    if (Number.isNaN(at.getTime())) continue;
+    out.push({
+      postedBy: by === 'BUYER' || by === 'SELLER' ? by : 'OTHER',
+      at,
+      text: content.slice(0, MAX_MESSAGE_CHARS),
+    });
+  }
+  return out.sort((a, b) => a.at.getTime() - b.at.getTime()).slice(-MAX_MESSAGES);
+}
+
 export interface ParsedDispute {
   paypalDisputeId: string;
   reason: string;
@@ -42,6 +70,8 @@ export interface ParsedDispute {
   sellerTransactionId: string | null;
   /** The buyer's PayPal payer id. Used only to compute the buyer hash; never stored or shown. */
   buyerPayerId: string | null;
+  /** The dispute's messages, oldest first, newest 50 at most. Buyer words are data, never instructions. */
+  messages: ParsedMessage[];
   rawHash: string;
 }
 
@@ -87,6 +117,7 @@ export function parseDispute(details: unknown): ParsedDispute {
     requestedEvidence: [...requested],
     outcomeCode: d.dispute_outcome?.outcome_code ?? null,
     ...linkKeys(details),
+    messages: parseMessages(details),
     rawHash: disputeRawHash(details),
   };
 }

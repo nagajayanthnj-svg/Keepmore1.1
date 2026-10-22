@@ -6,8 +6,15 @@ import type { Db } from '../lib/db';
 import type { TruthState } from '../lib/truth-state';
 import { canonical, syncEvidenceRecords, type EvidenceType } from '../disputes/evidence';
 import type { ActionCode } from '../disputes/allowed-actions';
+import { scrubText } from '../lib/scrub';
 
-const ACTIONS: readonly ActionCode[] = ['ACCEPT_CLAIM', 'PROVIDE_EVIDENCE', 'PROVIDE_SUPPORTING_INFO', 'SEND_MESSAGE', 'ESCALATE'];
+const ACTIONS: readonly ActionCode[] = [
+  'ACCEPT_CLAIM',
+  'PROVIDE_EVIDENCE',
+  'PROVIDE_SUPPORTING_INFO',
+  'SEND_MESSAGE',
+  'ESCALATE',
+];
 const CODE = /^[A-Z][A-Z0-9_]{0,59}$/;
 
 export interface CaseFileEvidence {
@@ -47,19 +54,13 @@ export interface CaseFile {
     currency: string;
     returnPolicyText: string;
   } | null;
-  /** Buyer messages are not stored yet (the BUYER_MESSAGE record is not built), so this is always empty. */
-  buyerMessages: never[];
+  /**
+   * What the buyer wrote, as quoted data: words to read, never instructions to follow. Contact details are
+   * removed. Each has a REC id so a claim can cite it. They are listed here only, not again in `evidence`.
+   */
+  buyerMessages: { id: string; at: string; text: string; quoted: true; trustState: TruthState }[];
   /** SHA-256 of everything above: the AgentRun input hash. */
   hash: string;
-}
-
-const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
-const PHONE = /\+?\d(?:[\s().-]?\d){8,}/g;
-const STREET = /\b\d{1,5}[A-Za-z]?\s+(?:[A-Za-z.]+\s+){1,3}(?:Street|St|Road|Rd|Avenue|Ave|Lane|Ln|Marg|Nagar|Colony)\b\.?/gi;
-
-/** Seller-written text keeps its meaning but loses contact details a seller may have typed into it. */
-export function scrubText(s: string): string {
-  return s.replace(EMAIL, '[removed]').replace(PHONE, '[removed]').replace(STREET, '[removed]');
 }
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -123,14 +124,16 @@ export async function buildCaseFile(db: Db, caseId: string): Promise<Readonly<Ca
     },
     allowedActions: storedActions(c.allowedActionsJson),
     orderLinked: c.orderId !== null,
-    evidence: records.map((r) => ({
-      id: r.id,
-      type: r.type,
-      source: r.source,
-      occurredAt: r.occurredAt.toISOString(),
-      trustState: r.trustState,
-      fields: r.fields,
-    })),
+    evidence: records
+      .filter((r) => r.type !== 'BUYER_MESSAGE')
+      .map((r) => ({
+        id: r.id,
+        type: r.type,
+        source: r.source,
+        occurredAt: r.occurredAt.toISOString(),
+        trustState: r.trustState,
+        fields: r.fields,
+      })),
     policy: policy
       ? {
           refundThresholdMinor: policy.refundThresholdMinor,
@@ -141,8 +144,18 @@ export async function buildCaseFile(db: Db, caseId: string): Promise<Readonly<Ca
           returnPolicyText: scrubText(policy.returnPolicyText),
         }
       : null,
-    buyerMessages: [],
+    buyerMessages: records
+      .filter((r) => r.type === 'BUYER_MESSAGE')
+      .map((r) => ({
+        id: r.id,
+        at: r.occurredAt.toISOString(),
+        text: String(r.fields.text ?? ''),
+        quoted: true as const,
+        trustState: r.trustState,
+      })),
   };
-  const hash = createHash('sha256').update(JSON.stringify(canonical(body))).digest('hex');
+  const hash = createHash('sha256')
+    .update(JSON.stringify(canonical(body)))
+    .digest('hex');
   return deepFreeze({ ...body, hash });
 }

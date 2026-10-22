@@ -44,6 +44,9 @@ export async function syncDispute(deps: SyncDeps, disputeId: string): Promise<Sy
     outcomeCode: d.outcomeCode,
     lastSyncedAt,
     rawHash: d.rawHash,
+    messagesJson: JSON.stringify(
+      d.messages.map((m) => ({ postedBy: m.postedBy, at: m.at.toISOString(), text: m.text })),
+    ),
   };
   // Link to the order that holds this capture, and hash the buyer. Only the hash is kept: no email, name or payer id.
   const secret = deps.hmacSecret;

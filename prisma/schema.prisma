@@ -83,6 +83,7 @@ model DisputeCase {
   buyerHash          String?
   lastSyncedAt       DateTime
   rawHash            String    // hash of last details payload
+  messagesJson       String    @default("[]") // the dispute's messages: [{postedBy, at, text}], newest 50
 }
 
 model EvidenceRecord {
