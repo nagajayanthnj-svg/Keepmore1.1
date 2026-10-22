@@ -1,0 +1,76 @@
+{
+  "id": "EV-19",
+  "recommendedAction": "PROVIDE_EVIDENCE",
+  "alsoAcceptable": [],
+  "mustNotRecommend": [],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x BOWL2 for $120.00 USD, shipping to GB (seller-entered order record)",
+      "recordIds": [
+        "REC-058FFB70A2"
+      ]
+    },
+    {
+      "claim": "PayPal captured $120.00 USD on 2026-09-21 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-2CD94EBF53"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-22 with India Post, tracking number EE100150461IN; the tracking was pushed to PayPal (supports PROOF_OF_FULFILLMENT)",
+      "recordIds": [
+        "REC-DD41A772B8"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-24",
+      "recordIds": [
+        "REC-21C315233A"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows it was delivered to a neighbour on 2026-10-01",
+      "recordIds": [
+        "REC-74359EFB37"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked where it is",
+      "recordIds": [
+        "REC-C865F2E150"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "The parcel was delivered (to the buyer)",
+      "why": "The record says DELIVERED_TO_NEIGHBOUR; delivered to a neighbour never supports delivered"
+    },
+    {
+      "claim": "PROOF_OF_DELIVERY_SIGNATURE can be provided, or the parcel was signed for",
+      "why": "The app has no signature record; this requested type must be listed as missing, not invented"
+    },
+    {
+      "claim": "The name or address of the neighbour",
+      "why": "The record gives no detail of which neighbour"
+    },
+    {
+      "claim": "PayPal or India Post confirmed the delivery",
+      "why": "The tracking events are seller-entered (source SELLER); no carrier or PayPal record confirms them"
+    },
+    {
+      "claim": "Delivered to a neighbour on any date other than 2026-10-01",
+      "why": "The only such record is dated 2026-10-01; another date is a mismatch"
+    },
+    {
+      "claim": "Any specific partial refund amount, or that a partial refund is recommended",
+      "why": "The baseline never recommends PARTIAL_REFUND or proposes an amount: no policy field gives one and the partial-refund body is unverified"
+    },
+    {
+      "claim": "The parcel has not arrived (as a fact)",
+      "why": "Only the buyer message says this (REC-C865F2E150); it supports 'the buyer said', not the fact"
+    }
+  ],
+  "notes": "R7: the shipment and neighbour-delivery tracking support PROOF_OF_FULFILLMENT, so submit it and list the signature type as missing; the deadline is 72 hours away (not urgent). PARTIAL_REFUND is an allowed type, but the baseline never recommends it or proposes an amount (owner Q16)."
+}

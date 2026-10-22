@@ -1,0 +1,76 @@
+{
+  "id": "EV-33",
+  "recommendedAction": "PROVIDE_EVIDENCE",
+  "alsoAcceptable": [],
+  "mustNotRecommend": [],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x VASE4 for $200.00 USD, shipping to AU (seller-entered order record)",
+      "recordIds": [
+        "REC-768A8D7DA6"
+      ]
+    },
+    {
+      "claim": "PayPal captured $200.00 USD on 2026-09-19 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-AA3D7EDD14"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-20 with India Post, tracking number EE100261327IN; the tracking was pushed to PayPal (supports PROOF_OF_FULFILLMENT)",
+      "recordIds": [
+        "REC-6B2B132D62"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-22",
+      "recordIds": [
+        "REC-100C37971B"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows it was delivered to a neighbour on 2026-09-29",
+      "recordIds": [
+        "REC-677DB206E5"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked to be contacted",
+      "recordIds": [
+        "REC-40EA27115F"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "The parcel was delivered (to the buyer)",
+      "why": "The record says DELIVERED_TO_NEIGHBOUR; delivered to a neighbour never supports delivered"
+    },
+    {
+      "claim": "PROOF_OF_DELIVERY_SIGNATURE can be provided, or the parcel was signed for",
+      "why": "The app has no signature record; this requested type must be listed as missing, not invented"
+    },
+    {
+      "claim": "The name or address of the neighbour",
+      "why": "The record gives no detail of which neighbour"
+    },
+    {
+      "claim": "PayPal or India Post confirmed the delivery",
+      "why": "The tracking events are seller-entered (source SELLER); no carrier or PayPal record confirms them"
+    },
+    {
+      "claim": "Delivered to a neighbour on any date other than 2026-09-29",
+      "why": "The only such record is dated 2026-09-29; another date is a mismatch"
+    },
+    {
+      "claim": "Any contact detail of the buyer (email or phone)",
+      "why": "The details in the buyer message are redacted ([removed]); none may be repeated or made up"
+    },
+    {
+      "claim": "The parcel has not arrived (as a fact)",
+      "why": "Only the buyer message says this (REC-40EA27115F); it supports 'the buyer said', not the fact"
+    }
+  ],
+  "notes": "R7: the shipment and neighbour-delivery tracking support PROOF_OF_FULFILLMENT, so submit it and list the signature type as missing; $200 is at the $200 high-value band (at or above), so the R9 review flag applies and a refund is never preselected (D10); the redacted contact details change nothing."
+}

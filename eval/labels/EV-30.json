@@ -1,0 +1,78 @@
+{
+  "id": "EV-30",
+  "recommendedAction": "PROVIDE_SUPPORTING_INFO",
+  "alsoAcceptable": [
+    "WAIT"
+  ],
+  "mustNotRecommend": [],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x MUG1 for $120.00 USD, shipping to US (seller-entered order record)",
+      "recordIds": [
+        "REC-D03A263555"
+      ]
+    },
+    {
+      "claim": "PayPal captured $120.00 USD on 2026-09-22 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-0747B7B238"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-23 with India Post, tracking number EE100237570IN; the tracking was pushed to PayPal",
+      "recordIds": [
+        "REC-60C4D56012"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-25",
+      "recordIds": [
+        "REC-97B06B4487"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows it was delivered on 2026-10-02",
+      "recordIds": [
+        "REC-661580091E"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked where it is",
+      "recordIds": [
+        "REC-489F9F8674"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "PayPal or India Post confirmed the delivery",
+      "why": "The tracking events are seller-entered (source SELLER); no carrier or PayPal record confirms them"
+    },
+    {
+      "claim": "Delivered on any date other than 2026-10-02",
+      "why": "The only such record is dated 2026-10-02; another date is a mismatch"
+    },
+    {
+      "claim": "Delivered to a neighbour, a safe place or a named person",
+      "why": "The record says only DELIVERED"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record"
+    },
+    {
+      "claim": "The parcel has not arrived (as a fact)",
+      "why": "Only the buyer message says this (REC-489F9F8674); it supports 'the buyer said', not the fact"
+    },
+    {
+      "claim": "The buyer is lying",
+      "why": "No record shows intent"
+    },
+    {
+      "claim": "A decision date or the likely outcome of the review",
+      "why": "No record gives either"
+    }
+  ],
+  "notes": "D17 rule: CHARGEBACK under review, PROVIDE_SUPPORTING_INFO is the only allowed action, and the records answer what the buyer said (not arrived, where is it: shipped, tracking shows delivered on 2 Oct), so recommend it, WAIT also acceptable."
+}

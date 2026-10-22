@@ -1,0 +1,65 @@
+{
+  "id": "EV-17",
+  "recommendedAction": "PROVIDE_EVIDENCE",
+  "alsoAcceptable": [
+    "ACCEPT_CLAIM"
+  ],
+  "mustNotRecommend": [],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x CUP6 for $15.00 USD, shipping to AE (seller-entered order record)",
+      "recordIds": [
+        "REC-E19E4D585C"
+      ]
+    },
+    {
+      "claim": "PayPal captured $15.00 USD on 2026-09-17 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-612DB1AC99"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-18 with India Post, tracking number EE100134623IN; the tracking was pushed to PayPal (supports PROOF_OF_FULFILLMENT)",
+      "recordIds": [
+        "REC-825C86A8C1"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-20 and 2026-09-23, the latest update in the records",
+      "recordIds": [
+        "REC-6B5478A68A",
+        "REC-3D5AAAFC77"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked where it is",
+      "recordIds": [
+        "REC-67EEC826DD"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "The parcel was delivered",
+      "why": "No DELIVERED record; the latest status is IN_TRANSIT"
+    },
+    {
+      "claim": "Any arrival or delivery date, past or expected",
+      "why": "No record gives one"
+    },
+    {
+      "claim": "The parcel is in transit now",
+      "why": "The latest record is from 2026-09-23; there is no current status"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record"
+    },
+    {
+      "claim": "The parcel has not arrived (as a fact)",
+      "why": "Only the buyer message says this (REC-67EEC826DD); it supports 'the buyer said', not the fact"
+    }
+  ],
+  "notes": "R7 with owner Q6: the in-transit shipment supports PROOF_OF_FULFILLMENT, so submit it with no delivery claim; $15 is at or below the $20 refund threshold, so ACCEPT_CLAIM is also acceptable (owner Q10)."
+}

@@ -1,0 +1,62 @@
+{
+  "id": "EV-34",
+  "recommendedAction": "NO_ACTION",
+  "alsoAcceptable": [
+    "ACCEPT_CLAIM"
+  ],
+  "mustNotRecommend": [
+    "PROVIDE_EVIDENCE"
+  ],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x JUG5 for $20.00 USD, shipping to CA (seller-entered order record)",
+      "recordIds": [
+        "REC-F34BFE6ED0"
+      ]
+    },
+    {
+      "claim": "PayPal captured $20.00 USD on 2026-09-18 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-6992284D81"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked where it is",
+      "recordIds": [
+        "REC-2E7D837495"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "The item was shipped, or any tracking number or carrier",
+      "why": "There is no shipment record in the case"
+    },
+    {
+      "claim": "Any tracking status: in transit, held, delivered, delivered to a neighbour",
+      "why": "No tracking events in the case"
+    },
+    {
+      "claim": "PROOF_OF_FULFILLMENT can be provided",
+      "why": "No shipment record supports it; the type may not be invented"
+    },
+    {
+      "claim": "The deadline has not passed, or there is time left to respond",
+      "why": "The deadline was 2026-10-20T04:00Z (09:30 IST), two hours before the evaluation time"
+    },
+    {
+      "claim": "The case is lost",
+      "why": "Unknown: PayPal still offers actions after the deadline and no outcome exists"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record"
+    },
+    {
+      "claim": "The parcel has not arrived (as a fact)",
+      "why": "Only the buyer message says this (REC-2E7D837495); it supports 'the buyer said', not the fact"
+    }
+  ],
+  "notes": "Owner Q7: CHARGEBACK with no shipment, so NO_ACTION with the seller task to add shipment details, ACCEPT_CLAIM also acceptable ($20 is at the refund threshold, owner Q10), PROVIDE_EVIDENCE mustNotRecommend (Q12). R3 (owner rule): the deadline (2026-10-20 09:30 IST) passed two hours before the evaluation time but PayPal still offers actions, so the recommendation stands with an urgent flag, and the text must say the deadline has passed and to sync now."
+}

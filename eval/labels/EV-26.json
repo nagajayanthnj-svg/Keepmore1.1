@@ -1,0 +1,70 @@
+{
+  "id": "EV-26",
+  "recommendedAction": "WAIT",
+  "alsoAcceptable": [
+    "NO_ACTION"
+  ],
+  "mustNotRecommend": [],
+  "approvalRequired": false,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x PLATE3 for $45.00 USD, shipping to DE (seller-entered order record)",
+      "recordIds": [
+        "REC-8BA36B2681"
+      ]
+    },
+    {
+      "claim": "PayPal captured $45.00 USD on 2026-09-20 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-029D811E19"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-21 with India Post, tracking number EE100205894IN; the tracking was pushed to PayPal",
+      "recordIds": [
+        "REC-467E948197"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-23",
+      "recordIds": [
+        "REC-B8785A9574"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows it was delivered on 2026-09-30",
+      "recordIds": [
+        "REC-0F7D1AD4F0"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked where it is",
+      "recordIds": [
+        "REC-1E30F794CE"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "PayPal or India Post confirmed the delivery",
+      "why": "The DELIVERED event is seller-entered (source SELLER)"
+    },
+    {
+      "claim": "Delivered on any date other than 2026-09-30",
+      "why": "The only DELIVERED record is dated 2026-09-30; another date is a mismatch"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record"
+    },
+    {
+      "claim": "The buyer has replied, or what the buyer will reply",
+      "why": "The only buyer message is from 2026-10-15; the dispute is waiting for the buyer and no later message exists"
+    },
+    {
+      "claim": "The parcel has not arrived (as a fact)",
+      "why": "Only the buyer message says this (REC-1E30F794CE); it supports 'the buyer said', not the fact"
+    }
+  ],
+  "notes": "R2: INQUIRY waiting for the buyer with no allowed action, so WAIT and show that PayPal is waiting for the buyer; NO_ACTION is also acceptable (owner Q14)."
+}

@@ -1,0 +1,70 @@
+{
+  "id": "EV-23",
+  "recommendedAction": "NO_ACTION",
+  "alsoAcceptable": [],
+  "mustNotRecommend": [],
+  "approvalRequired": false,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x CUP6 for $120.00 USD, shipping to AE (seller-entered order record)",
+      "recordIds": [
+        "REC-9F9E66F163"
+      ]
+    },
+    {
+      "claim": "PayPal captured $120.00 USD on 2026-09-17 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-48410DE029"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-18 with India Post, tracking number EE100182137IN; the tracking was pushed to PayPal",
+      "recordIds": [
+        "REC-8E247BFA4C"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-20",
+      "recordIds": [
+        "REC-F9DC41657D"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows it was delivered on 2026-09-27",
+      "recordIds": [
+        "REC-3D83CF0E64"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "Any amount was released, returned or debited (for example the hold of $120.00 or the net amount was released)",
+      "why": "The case has no fund_movements record; money is read only from fund_movements and never inferred from the outcome"
+    },
+    {
+      "claim": "The buyer was refunded, or the seller was debited",
+      "why": "No fund_movements record, and the outcome is RESOLVED_SELLER_FAVOUR; no money movement may be claimed"
+    },
+    {
+      "claim": "PayPal decided in the seller's favour because of the tracking or delivery evidence",
+      "why": "No record gives PayPal's reason"
+    },
+    {
+      "claim": "The seller can still respond, appeal or submit evidence",
+      "why": "The dispute is RESOLVED and no action is allowed"
+    },
+    {
+      "claim": "PayPal or India Post confirmed the delivery",
+      "why": "The DELIVERED event is seller-entered (source SELLER)"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record"
+    },
+    {
+      "claim": "The buyer said or complained about something",
+      "why": "The case has no buyer message"
+    }
+  ],
+  "notes": "R1: the dispute is RESOLVED (outcome RESOLVED_SELLER_FAVOUR, kept as PayPal sent it) and no action is allowed, so NO_ACTION; show the outcome, and no money movement can be shown because the case has no fund_movements record. WAIT is not acceptable for a resolved dispute (owner Q14)."
+}

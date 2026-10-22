@@ -1,0 +1,69 @@
+{
+  "id": "EV-31",
+  "recommendedAction": "NO_ACTION",
+  "alsoAcceptable": [
+    "ACCEPT_CLAIM"
+  ],
+  "mustNotRecommend": [
+    "PROVIDE_EVIDENCE"
+  ],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x BOWL2 for $90.00 USD, shipping to GB (seller-entered order record)",
+      "recordIds": [
+        "REC-5803ACE1E6"
+      ]
+    },
+    {
+      "claim": "PayPal captured $90.00 USD on 2026-09-21 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-F752AD5F39"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-22 with India Post, tracking number EE100245489IN; the tracking was pushed to PayPal (supports PROOF_OF_FULFILLMENT)",
+      "recordIds": [
+        "REC-490F07CB13"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-24 and 2026-09-27, the latest update in the records",
+      "recordIds": [
+        "REC-3320E58413",
+        "REC-CE32717826"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "The parcel was delivered",
+      "why": "No DELIVERED record; the latest status is IN_TRANSIT"
+    },
+    {
+      "claim": "Any arrival or delivery date, past or expected",
+      "why": "No record gives one"
+    },
+    {
+      "claim": "The parcel is in transit now",
+      "why": "The latest record is from 2026-09-27; there is no current status"
+    },
+    {
+      "claim": "Evidence has been submitted, or can be submitted from the current snapshot",
+      "why": "PROVIDE_EVIDENCE is not among the allowed actions; only a fresh sync can show whether PayPal offers it"
+    },
+    {
+      "claim": "The response deadline is any time other than 2026-10-21 02:00 UTC (07:30 IST), or more than a day is left",
+      "why": "The dispute deadline is 2026-10-21T02:00Z, 20 hours after the evaluation time"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record"
+    },
+    {
+      "claim": "The buyer said or complained about something",
+      "why": "The case has no buyer message"
+    }
+  ],
+  "notes": "Owner Q18: PayPal requests PROOF_OF_FULFILLMENT, which the shipment would support, but only ACCEPT_CLAIM is allowed, so NO_ACTION with the seller task \"sync the case again and check whether PayPal offers PROVIDE_EVIDENCE before the deadline\", ACCEPT_CLAIM also acceptable, PROVIDE_EVIDENCE mustNotRecommend (not allowed); R3 urgent: deadline 2026-10-21 07:30 IST, 20 hours away."
+}

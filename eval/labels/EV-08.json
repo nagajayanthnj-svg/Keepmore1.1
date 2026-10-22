@@ -1,0 +1,42 @@
+{
+  "id": "EV-08",
+  "recommendedAction": "SEND_MESSAGE",
+  "alsoAcceptable": [],
+  "mustNotRecommend": [],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x PLATE3 for $65.00 USD, shipping to DE (seller-entered order record)",
+      "recordIds": [
+        "REC-A4D861B484"
+      ]
+    },
+    {
+      "claim": "PayPal captured $65.00 USD on 2026-09-20 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-60A9823C30"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-21 with India Post, tracking number EE100063352IN; the tracking was pushed to PayPal",
+      "recordIds": [
+        "REC-3F95B5B250"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "Any tracking status: in transit, delivered, held, or similar",
+      "why": "The case has no tracking events, only the shipment record; the status is unknown"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record"
+    },
+    {
+      "claim": "The buyer said or complained about something",
+      "why": "The case has no buyer message"
+    }
+  ],
+  "notes": "R5 (tracking number exists, status unknown): SEND_MESSAGE is the only allowed action, so message the buyer with the tracking number and make no status or delivery claim."
+}

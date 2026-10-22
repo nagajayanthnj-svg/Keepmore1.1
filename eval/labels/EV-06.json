@@ -1,0 +1,75 @@
+{
+  "id": "EV-06",
+  "recommendedAction": "SEND_MESSAGE",
+  "alsoAcceptable": [],
+  "mustNotRecommend": [
+    "ESCALATE",
+    "PROVIDE_EVIDENCE"
+  ],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x MUG1 for $39.00 USD, shipping to US (seller-entered order record)",
+      "recordIds": [
+        "REC-DFA6F72FAF"
+      ]
+    },
+    {
+      "claim": "PayPal captured $39.00 USD on 2026-09-22 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-13C1A82E06"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-23 with India Post, tracking number EE100047514IN; the tracking was pushed to PayPal",
+      "recordIds": [
+        "REC-B2EBB74F08"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-25",
+      "recordIds": [
+        "REC-876A29ADFF"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows an EXCEPTION status on 2026-09-30, the latest update in the records",
+      "recordIds": [
+        "REC-FA9B2E3FDC"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked where it is",
+      "recordIds": [
+        "REC-E19E255141"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "The parcel was delivered",
+      "why": "No DELIVERED record; the latest status is EXCEPTION"
+    },
+    {
+      "claim": "What the exception is (lost, damaged, returned, address problem) or its cause",
+      "why": "The record gives the status EXCEPTION only, with no detail"
+    },
+    {
+      "claim": "Any arrival or delivery date, past or expected",
+      "why": "No record gives one"
+    },
+    {
+      "claim": "The parcel is lost",
+      "why": "No record says lost"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record"
+    },
+    {
+      "claim": "The parcel has not arrived (as a fact)",
+      "why": "Only the buyer message says this (REC-E19E255141); it supports 'the buyer said', not the fact"
+    }
+  ],
+  "notes": "R5: INQUIRY, SEND_MESSAGE allowed, tracking ends at EXCEPTION (not delivered), so message the buyer with the last known status and no delivery claim; ESCALATE (D1) and PROVIDE_EVIDENCE (D3) are mustNotRecommend; $39 triggers neither R9 nor R10."
+}

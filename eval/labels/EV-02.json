@@ -1,0 +1,57 @@
+{
+  "id": "EV-02",
+  "recommendedAction": "SEND_MESSAGE",
+  "alsoAcceptable": [],
+  "mustNotRecommend": [
+    "ESCALATE",
+    "PROVIDE_EVIDENCE"
+  ],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x PLATE3 for $45.00 USD, shipping to DE (seller-entered order record)",
+      "recordIds": [
+        "REC-F8F16C754A"
+      ]
+    },
+    {
+      "claim": "PayPal captured $45.00 USD on 2026-09-20 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-1B67A7F686"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-21 with India Post, tracking number EE100015838IN; the tracking was pushed to PayPal",
+      "recordIds": [
+        "REC-9F4BC45A8D"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "The parcel was delivered (on 2026-09-30 or any date)",
+      "why": "The only DELIVERED event (REC-4B054577F4) is a carrier-feed event labelled Unknown; it cannot support a claim (UNVERIFIED). A draft may only say tracking shows an update we could not verify"
+    },
+    {
+      "claim": "India Post shows the parcel in transit on 2026-09-23",
+      "why": "The IN_TRANSIT event (REC-01120E5912) is also a carrier-feed event labelled Unknown; same rule"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record; nothing in the case shows one"
+    },
+    {
+      "claim": "Delivered to a neighbour, a safe place or a named person",
+      "why": "No record says where or to whom"
+    },
+    {
+      "claim": "PayPal confirmed the delivery",
+      "why": "No PayPal record covers delivery; the only PayPal record is the capture"
+    },
+    {
+      "claim": "The buyer said or complained about something",
+      "why": "The case has no buyer message"
+    }
+  ],
+  "notes": "R5: INQUIRY with a tracking number but no usable status (both carrier events are labelled Unknown and support no claim), so message the buyer with the tracking number, mention the feed only as an update we could not verify, and claim no delivery."
+}

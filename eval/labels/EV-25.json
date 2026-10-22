@@ -1,0 +1,62 @@
+{
+  "id": "EV-25",
+  "recommendedAction": "WAIT",
+  "alsoAcceptable": [
+    "NO_ACTION"
+  ],
+  "mustNotRecommend": [],
+  "approvalRequired": false,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x BOWL2 for $50.00 USD, shipping to GB (seller-entered order record)",
+      "recordIds": [
+        "REC-01BD6761DD"
+      ]
+    },
+    {
+      "claim": "PayPal captured $50.00 USD on 2026-09-21 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-4781AE4124"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-22 with India Post, tracking number EE100197975IN; the tracking was pushed to PayPal",
+      "recordIds": [
+        "REC-49A84729D3"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows an UNKNOWN status on 2026-09-25, the only update in the records",
+      "recordIds": [
+        "REC-8C52C5B3AE"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "Any known tracking status: in transit, held, delivered, delivered to a neighbour",
+      "why": "The only tracking event has status UNKNOWN"
+    },
+    {
+      "claim": "Any arrival or delivery date",
+      "why": "No record gives one"
+    },
+    {
+      "claim": "The seller escalated the inquiry, or why it is under review",
+      "why": "No record says who or what moved it to UNDER_REVIEW"
+    },
+    {
+      "claim": "A decision date or the likely outcome of the review",
+      "why": "No record gives either"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record"
+    },
+    {
+      "claim": "The buyer said or complained about something",
+      "why": "The case has no buyer message"
+    }
+  ],
+  "notes": "R2: INQUIRY under review with no allowed action, so WAIT and show that PayPal is reviewing; R2 is read as taking precedence over the broader 'no allowed action' wording in R1; NO_ACTION is also acceptable (owner Q14)."
+}

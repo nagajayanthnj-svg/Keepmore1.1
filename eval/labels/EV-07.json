@@ -1,0 +1,55 @@
+{
+  "id": "EV-07",
+  "recommendedAction": "NO_ACTION",
+  "alsoAcceptable": [
+    "SEND_MESSAGE"
+  ],
+  "mustNotRecommend": [
+    "ESCALATE",
+    "PROVIDE_EVIDENCE"
+  ],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x BOWL2 for $48.00 USD, shipping to GB (seller-entered order record)",
+      "recordIds": [
+        "REC-3531642B82"
+      ]
+    },
+    {
+      "claim": "PayPal captured $48.00 USD on 2026-09-21 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-EF144DD4B9"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked where it is",
+      "recordIds": [
+        "REC-47652793BE"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "The item was shipped",
+      "why": "There is no shipment record in the case"
+    },
+    {
+      "claim": "Any tracking number or carrier",
+      "why": "No shipment record, so no tracking number exists in the case"
+    },
+    {
+      "claim": "Any tracking status: in transit, held, delivered, delivered to a neighbour",
+      "why": "No tracking events in the case"
+    },
+    {
+      "claim": "The parcel was signed for, or a signature exists",
+      "why": "The app has no signature record"
+    },
+    {
+      "claim": "The parcel has not arrived (as a fact)",
+      "why": "Only the buyer message says this (REC-47652793BE); it supports 'the buyer said', not the fact"
+    }
+  ],
+  "notes": "R6 as corrected by the owner: INQUIRY with no shipment, so the next step is a seller task inside KeepMore (add shipment details), not a PayPal action; SEND_MESSAGE is also acceptable only if it makes no shipment or delivery claim, and ACCEPT_CLAIM is not the baseline just because evidence is missing. approvalRequired is true because the acceptable SEND_MESSAGE writes to PayPal (owner Q11)."
+}

@@ -1,0 +1,68 @@
+{
+  "id": "EV-35",
+  "recommendedAction": "PROVIDE_EVIDENCE",
+  "alsoAcceptable": [],
+  "mustNotRecommend": [],
+  "approvalRequired": true,
+  "supportedClaims": [
+    {
+      "claim": "The order was 1 x CUP6 for $120.00 USD, shipping to AE (seller-entered order record)",
+      "recordIds": [
+        "REC-B28925EA4C"
+      ]
+    },
+    {
+      "claim": "PayPal captured $120.00 USD on 2026-09-17 and the capture is marked seller protection ELIGIBLE",
+      "recordIds": [
+        "REC-65AA4FB49A"
+      ]
+    },
+    {
+      "claim": "Shipped on 2026-09-18 with India Post, tracking number EE100277165IN; the tracking was pushed to PayPal (supports PROOF_OF_FULFILLMENT)",
+      "recordIds": [
+        "REC-7A02C51595"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows the parcel in transit on 2026-09-20",
+      "recordIds": [
+        "REC-EF42FDAC54"
+      ]
+    },
+    {
+      "claim": "Our tracking record shows it was delivered on 2026-09-27",
+      "recordIds": [
+        "REC-F8A8C9EE60"
+      ]
+    },
+    {
+      "claim": "The buyer said the parcel has not arrived and asked where it is",
+      "recordIds": [
+        "REC-07540BEEFA"
+      ]
+    }
+  ],
+  "forbiddenClaims": [
+    {
+      "claim": "PROOF_OF_DELIVERY_SIGNATURE can be provided, or the parcel was signed for",
+      "why": "The app has no signature record; this requested type must be listed as missing, not invented"
+    },
+    {
+      "claim": "PayPal or India Post confirmed the delivery",
+      "why": "The tracking events are seller-entered (source SELLER); no carrier or PayPal record confirms them"
+    },
+    {
+      "claim": "Delivered on any date other than 2026-09-27",
+      "why": "The only DELIVERED record is dated 2026-09-27; another date is a mismatch"
+    },
+    {
+      "claim": "Anything about the seller policy: return terms, refund threshold or high-value band",
+      "why": "The case has no seller policy"
+    },
+    {
+      "claim": "The parcel has not arrived (as a fact)",
+      "why": "Only the buyer message says this (REC-07540BEEFA); it supports 'the buyer said', not the fact"
+    }
+  ],
+  "notes": "R7: the shipment and delivered tracking support PROOF_OF_FULFILLMENT, so submit it and list the signature type as missing; there is no seller policy, so R9 and R10 cannot apply and no policy term may be quoted; the deadline is 96 hours away."
+}
