@@ -94,6 +94,13 @@ describe('screenText flags phrases that need an owner decision', () => {
     ])
       expect(screenText(t), t).toEqual([]);
   });
+  it('ignores a signature that is only named as something PayPal requested (EV-19, v2 dev run)', () => {
+    expect(screenText('The chargeback requests proof of fulfillment and signature. We have a shipment record.')).toEqual([]);
+    expect(screenText('PayPal requested proof of delivery signature.')).toEqual([]);
+  });
+  it('still flags a signature claim made in another sentence from the request', () => {
+    expect(screenText('PayPal requested evidence. The parcel was signed for.')).toContain('signature claim');
+  });
   it('still flags an assertion next to a negation elsewhere in the text', () => {
     expect(screenText('Do not worry. The parcel was signed for.')).toContain('signature claim');
     expect(screenText('No problems found. Delivery confirmed by PayPal.')).toContain('PayPal/carrier confirmed');
