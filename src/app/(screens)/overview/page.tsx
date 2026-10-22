@@ -2,23 +2,16 @@ import { DataGrid } from '../../../components/data-grid';
 import type { GridColumn } from '../../../components/grid-columns';
 import { TruthStateBadge } from '../../../components/truth-state-badge';
 import { loadOverview } from '../../../ledger/views';
+import { LEDGER_KIND_NAME } from '../../../ledger/labels';
+import { OverviewStudioLazy } from '../../../components/overview-studio-lazy';
+import { loadStudioData } from '../../../overview/studio-data';
+import { overviewReport } from '../../../overview/studio-report';
 import { getDb } from '../../../lib/server-deps';
 import { TRUTH_STATES, TRUTH_STATE_MEANING, truthStateForSource } from '../../../lib/truth-state';
 
 export const metadata = { title: 'Overview · KeepMore' };
 export const dynamic = 'force-dynamic';
 
-const TYPE_NAME: Record<string, string> = {
-  GROSS: 'Sales (gross)',
-  PAYPAL_FEE: 'PayPal fees',
-  FX: 'Exchange-rate cost',
-  DUTY: 'Duty',
-  SHIPPING: 'Shipping',
-  RETURN_POSTAGE: 'Return postage',
-  REFUND: 'Refunds',
-  DISPUTE_FEE: 'Dispute fees',
-  RETAINED: 'Retained',
-};
 const TOTAL_COLUMNS: GridColumn[] = [
   { kind: 'text', field: 'type', header: 'Kind' },
   { kind: 'truth', field: 'truthState', header: 'Source' },
@@ -28,6 +21,7 @@ const TOTAL_COLUMNS: GridColumn[] = [
 
 export default async function OverviewPage() {
   const view = await loadOverview(getDb());
+  const studio = view.ready ? await loadStudioData(getDb()).catch(() => null) : null;
   return (
     <>
       <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
@@ -35,6 +29,18 @@ export default async function OverviewPage() {
         Totals from the ledger, one row per kind and source. Rows with different sources or currencies are never added
         together.
       </p>
+
+      {studio && studio.ledger.length > 0 && (
+        <section aria-labelledby="dashboard" className="mt-6">
+          <h2 id="dashboard" className="text-lg font-medium">
+            Dashboard
+          </h2>
+          <p className="mt-1 mb-3 text-sm text-neutral-700">
+            Built with AG Studio from the same ledger as the table below. Each tile names its source label.
+          </p>
+          <OverviewStudioLazy data={studio} report={overviewReport(studio)} />
+        </section>
+      )}
 
       <section aria-labelledby="totals" className="mt-6">
         <h2 id="totals" className="text-lg font-medium">
@@ -74,7 +80,7 @@ export default async function OverviewPage() {
                   columns={TOTAL_COLUMNS}
                   rows={view.rows.map((r) => ({
                     id: `${r.type}|${r.sourceType}|${r.currency}`,
-                    type: TYPE_NAME[r.type] ?? r.type,
+                    type: LEDGER_KIND_NAME[r.type] ?? r.type,
                     truthState: truthStateForSource(r.sourceType),
                     totalMinor: r.totalMinor,
                     currency: r.currency,
