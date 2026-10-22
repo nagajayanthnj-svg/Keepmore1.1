@@ -16,6 +16,9 @@ const FROZEN_LABELS_TREE = '08a3bce9c1eebe23f10facc2e67669160acb5eaa'; // docs/D
 const heldout = process.argv.includes('--heldout');
 const split = heldout ? 'heldout' : 'dev';
 const lock = 'eval/runs/heldout.lock';
+// The provider limits calls per minute (the first dev run lost its last 9 cases after about 15 quick calls). Pace the calls.
+const paceMs = Number(process.argv.find((a) => a.startsWith('--pace='))?.slice(7) ?? 6000);
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 function labelsTree(): string {
   try {
@@ -47,6 +50,7 @@ async function main() {
     const c = JSON.parse(fs.readFileSync(`eval/cases/${f}`, 'utf8')) as { id: string; split: string; asOf: string; caseFile: CaseFile };
     if (c.split !== split) continue;
     const label = JSON.parse(fs.readFileSync(`eval/labels/${f}`, 'utf8')) as Label;
+    if (scores.length) await sleep(paceMs);
     const r = await analyse(db, c.caseFile, provider, { asOf: new Date(c.asOf), syntheticData: true });
     const run = await db.agentRun.findUniqueOrThrow({ where: { id: r.runId } });
     const gated = gateSuggestion({
@@ -90,7 +94,7 @@ async function main() {
 ## Cases
 | Case | Label | Also OK | Must not | Model | After gate | Result |
 | --- | --- | --- | --- | --- | --- | --- |
-${rows.map((r) => `| ${r.id} | ${r.label} | ${(r.also as string[]).join(', ') || '-'} | ${(r.mustNot as string[]).join(', ') || '-'} | ${r.ai ?? 'fell back'} | ${r.final} | ${(r.score as CaseScore).decisionAcceptable ? 'ok' : 'MISS'}${(r.score as CaseScore).textFlags.length ? ' (flag)' : ''} |`).join('\n')}
+${rows.map((r) => `| ${r.id} | ${r.label} | ${(r.also as string[]).join(', ') || '-'} | ${(r.mustNot as string[]).join(', ') || '-'} | ${r.ai ?? `fell back: ${String(r.validation).replace(/\|/g, '/').slice(0, 70)}`} | ${r.final} | ${(r.score as CaseScore).decisionAcceptable ? 'ok' : 'MISS'}${(r.score as CaseScore).textFlags.length ? ' (flag)' : ''} |`).join('\n')}
 `;
   fs.writeFileSync(heldout ? 'eval/report-heldout.md' : 'eval/report.md', md);
   if (heldout) fs.writeFileSync(lock, `${stamp} labels=${tree}\n`);

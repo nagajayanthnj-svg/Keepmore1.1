@@ -107,7 +107,8 @@ export async function analyse(db: Db, cf: CaseFile, provider: AiProvider | null,
     try {
       raw = await call(provider, current, ms);
     } catch (e) {
-      return fallBack(e instanceof Timeout ? `TIMEOUT after ${ms} ms` : 'PROVIDER_ERROR', true);
+      const msg = e instanceof Error ? e.message.replace(/key=[^&\s]+/gi, 'key=[removed]').slice(0, 120) : 'unknown';
+      return fallBack(e instanceof Timeout ? `TIMEOUT after ${ms} ms` : `PROVIDER_ERROR: ${msg}`, true);
     }
     const parsed = parseOutput(raw);
     if (parsed.ok) {

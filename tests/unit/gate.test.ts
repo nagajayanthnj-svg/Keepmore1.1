@@ -102,3 +102,19 @@ describe('T-306 PROVIDE_EVIDENCE needs something the records can support (seen l
     expect(g).toMatchObject({ action: 'PROVIDE_EVIDENCE', source: 'AI' });
   });
 });
+
+describe('T-306/T-307 the AI never decides to give money back alone (seen live on EV-13)', () => {
+  it('an AI ACCEPT_CLAIM is not executable unless the rules also say ACCEPT_CLAIM', () => {
+    const { rules } = setup('EV-13'); // rules: NO_ACTION
+    const g = gateSuggestion({ ai: ai(rules.analysis, { recommendedAction: 'ACCEPT_CLAIM' }), rules, allowed: ALL });
+    expect(g.action).toBe('NO_ACTION');
+    expect(g.source).toBe('RULES');
+    expect(g.reason).toMatch(/accept|refund/i);
+    expect(g.reason).toMatch(/rules/i);
+  });
+  it('is executable when the rules agree', () => {
+    const { rules } = setup('EV-12'); // rules: ACCEPT_CLAIM (only allowed action)
+    const g = gateSuggestion({ ai: ai(rules.analysis, { recommendedAction: 'ACCEPT_CLAIM' }), rules, allowed: ['ACCEPT_CLAIM'] });
+    expect(g).toMatchObject({ action: 'ACCEPT_CLAIM', source: 'AI' });
+  });
+});

@@ -79,7 +79,7 @@ describe('T-305 analyse', () => {
     const r = await analyse(db, cf, p, opts);
     expect(r.mode).toBe('RULES');
     expect(p.prompts).toHaveLength(1);
-    expect((await lastRun()).validation).toMatch(/FELL_BACK.*PROVIDER/);
+    expect((await lastRun()).validation).toMatch(/FELL_BACK.*PROVIDER_ERROR: HTTP 503/);
   });
   it('no provider: rules mode, still stored', async () => {
     const r = await analyse(db, cf, null, opts);
