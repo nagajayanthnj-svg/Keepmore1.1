@@ -22,7 +22,7 @@ export interface EvidenceRecordView {
 
 const sha256 = (s: string) => createHash('sha256').update(s).digest('hex');
 
-function canonical(v: unknown): unknown {
+export function canonical(v: unknown): unknown {
   if (Array.isArray(v)) return v.map(canonical);
   if (v && typeof v === 'object') {
     return Object.fromEntries(
