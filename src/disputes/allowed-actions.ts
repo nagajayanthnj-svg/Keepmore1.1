@@ -52,6 +52,19 @@ function trustedPath(link: Record<string, unknown>, disputeId: string, slug: str
   return path;
 }
 
+/**
+ * SANDBOX ONLY (T-402): the path of PayPal's `adjudicate` link, which stands in for PayPal's own decision.
+ * It is never an allowed seller action and is only used by the sandbox settle step, behind DEMO_MODE.
+ */
+export function sandboxAdjudicatePath(details: unknown): string | null {
+  if (!isObject(details) || typeof details.dispute_id !== 'string' || !DISPUTE_ID.test(details.dispute_id)) return null;
+  const id = details.dispute_id;
+  const mine = (Array.isArray(details.links) ? details.links.filter(isObject) : []).filter((l) => l.rel === 'adjudicate');
+  if (mine.length === 0) return null;
+  const paths = mine.map((l) => trustedPath(l, id, 'adjudicate'));
+  return paths[0] != null && paths.every((x) => x === paths[0]) ? paths[0] : null;
+}
+
 export function allowedActions(details: unknown): AllowedActions {
   if (!isObject(details) || typeof details.dispute_id !== 'string' || !DISPUTE_ID.test(details.dispute_id))
     return EMPTY();
@@ -95,6 +108,8 @@ export interface FreshAllowedActions {
   /** Hash of the payload these actions came from, to see that the dispute has not changed (T-210). */
   rawHash: string;
   allowed: AllowedActions;
+  /** Sandbox only: the adjudicate link, if PayPal shows one. Not a seller action. */
+  sandboxAdjudicatePath: string | null;
 }
 
 /**
@@ -106,5 +121,12 @@ export async function getAllowedActions(deps: AllowedActionsDeps, disputeId: str
   const res = await deps.paypal.get<unknown>(`/v1/customer/disputes/${encodeURIComponent(disputeId)}`);
   const d = parseDispute(res.body);
   if (d.paypalDisputeId !== disputeId) throw new DisputeParseError('PayPal returned a different dispute');
-  return { disputeId, status: d.status, stage: d.stage, rawHash: d.rawHash, allowed: allowedActions(res.body) };
+  return {
+    disputeId,
+    status: d.status,
+    stage: d.stage,
+    rawHash: d.rawHash,
+    allowed: allowedActions(res.body),
+    sandboxAdjudicatePath: sandboxAdjudicatePath(res.body),
+  };
 }

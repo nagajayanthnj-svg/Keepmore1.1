@@ -10,6 +10,7 @@ import { verifyApproval } from './approval';
 import { buildDisputeBody, type BodyContext } from './bodies';
 import { DisputeParseError } from './parse';
 import { isStale } from './poller';
+import { SETTLE_ACTION } from './sandbox-settle';
 import { syncDispute } from './sync';
 
 export interface ActionDeps {
@@ -104,12 +105,84 @@ export async function submitApprovedAction(deps: ActionDeps, approvalId: string)
     return { ok: false, code: 'INVALID_BODY' };
   }
 
+  return writeAndConfirm(deps, {
+    approvalId,
+    action: verified.action,
+    path: link.path,
+    body,
+    idempotencyKey: verified.idempotencyKey,
+    payloadHash: approval.payloadHash,
+    freshRawHash: fresh.rawHash,
+    disputeId: c.paypalDisputeId,
+    now,
+  });
+}
+
+export type SettleSubmitFailure = SubmitFailure | 'DEMO_MODE_OFF' | 'NOT_A_SETTLE_APPROVAL' | 'NOT_OFFERED';
+
+/**
+ * SANDBOX ONLY (T-402): sends an approved "Sandbox-simulated adjudication". Same checks as a seller write: an unused
+ * approval for this exact payload and dispute state, a case read in the last five minutes, and the adjudicate link
+ * on a fresh GET. Refused unless DEMO_MODE is on. The outcome is recorded by the sync that follows (T-403).
+ */
+export async function submitSandboxSettle(
+  deps: ActionDeps & { demoMode: boolean },
+  approvalId: string,
+): Promise<SubmitResult | { ok: false; code: SettleSubmitFailure }> {
+  if (!deps.demoMode) return { ok: false, code: 'DEMO_MODE_OFF' };
+  const now = (deps.clock ?? systemClock)();
+  const approval = await deps.db.caseAction.findUnique({ where: { id: approvalId } });
+  if (!approval) return { ok: false, code: 'NO_APPROVAL' };
+  if (approval.action !== SETTLE_ACTION) return { ok: false, code: 'NOT_A_SETTLE_APPROVAL' };
+  const c = await deps.db.disputeCase.findUnique({ where: { id: approval.caseId } });
+  if (!c) return { ok: false, code: 'CASE_NOT_FOUND' };
+  if (approval.submittedAt) return { ok: false, code: 'ALREADY_SUBMITTED' };
+  if (isStale(c.lastSyncedAt, now)) return { ok: false, code: 'STALE' };
+  let fresh;
+  try {
+    fresh = await getAllowedActions(deps, c.paypalDisputeId);
+  } catch (e) {
+    if (e instanceof DisputeParseError) return { ok: false, code: 'UNUSABLE_DISPUTE' };
+    if (e instanceof PayPalError) return { ok: false, code: 'PAYPAL_UNAVAILABLE', retryable: true };
+    throw e;
+  }
+  const verified = await verifyApproval(deps.db, approvalId, { currentRawHash: fresh.rawHash });
+  if (!verified.ok) return { ok: false, code: verified.code === 'NOT_FOUND' ? 'NO_APPROVAL' : verified.code };
+  if (!fresh.sandboxAdjudicatePath) return { ok: false, code: 'NOT_OFFERED' };
+  return writeAndConfirm(deps, {
+    approvalId,
+    action: SETTLE_ACTION,
+    path: fresh.sandboxAdjudicatePath,
+    body: { adjudication_outcome: (verified.payload as { adjudicationOutcome: string }).adjudicationOutcome },
+    idempotencyKey: verified.idempotencyKey,
+    payloadHash: approval.payloadHash,
+    freshRawHash: fresh.rawHash,
+    disputeId: c.paypalDisputeId,
+    now,
+  });
+}
+
+interface WriteArgs {
+  approvalId: string;
+  action: string;
+  path: string;
+  body: unknown;
+  idempotencyKey: string;
+  payloadHash: string;
+  freshRawHash: string;
+  disputeId: string;
+  now: Date;
+}
+
+/** The write itself, shared by the seller path and the sandbox settle step: post once, store, audit, re-read, sync. */
+async function writeAndConfirm(deps: ActionDeps, w: WriteArgs): Promise<SubmitResult> {
+  const { approvalId, now } = w;
   // The write. The approval's key is the PayPal-Request-Id, so a retry of an unfinished call cannot do it twice.
   let status: number;
   let responseJson: string;
   try {
-    const res = await deps.paypal.post(link.path, body, {
-      requestId: verified.idempotencyKey,
+    const res = await deps.paypal.post(w.path, w.body, {
+      requestId: w.idempotencyKey,
     });
     status = res.status;
     responseJson = JSON.stringify(res.body ?? null).slice(0, MAX_STORED);
@@ -121,7 +194,7 @@ export async function submitApprovedAction(deps: ActionDeps, approvalId: string)
         data: { submittedAt: now, httpStatus: e.status, responseJson: errorRecord(e) },
       });
       await audit(deps.db, approvalId, 'REJECTED', {
-        action: verified.action,
+        action: w.action,
         httpStatus: e.status,
         code: e.code ?? null,
         debugId: e.debugId ?? null,
@@ -136,7 +209,7 @@ export async function submitApprovedAction(deps: ActionDeps, approvalId: string)
     }
     // 5xx, 429 or no answer at all: it may or may not have happened. Same key on the retry.
     await audit(deps.db, approvalId, 'WRITE_UNCERTAIN', {
-      action: verified.action,
+      action: w.action,
       httpStatus: e instanceof PayPalError ? e.status : null,
     });
     return {
@@ -153,17 +226,17 @@ export async function submitApprovedAction(deps: ActionDeps, approvalId: string)
     data: { submittedAt: now, httpStatus: status, responseJson },
   });
   await audit(deps.db, approvalId, 'SUBMITTED', {
-    action: verified.action,
+    action: w.action,
     httpStatus: status,
-    payloadHash: approval.payloadHash,
+    payloadHash: w.payloadHash,
   });
 
   // Re-read until the change shows, then sync it into our case.
   let outcome: 'APPLIED' | 'PENDING' = 'APPLIED';
   try {
     await rereadUntil(
-      () => getAllowedActions(deps, c.paypalDisputeId),
-      (v) => v.rawHash !== fresh.rawHash,
+      () => getAllowedActions(deps, w.disputeId),
+      (v) => v.rawHash !== w.freshRawHash,
       {
         ...(deps.reread ?? DEFAULT_REREAD),
         ...(deps.sleep && { sleep: deps.sleep }),
@@ -175,7 +248,7 @@ export async function submitApprovedAction(deps: ActionDeps, approvalId: string)
   }
   let synced = true;
   try {
-    await syncDispute(deps, c.paypalDisputeId);
+    await syncDispute(deps, w.disputeId);
   } catch {
     synced = false;
   }
