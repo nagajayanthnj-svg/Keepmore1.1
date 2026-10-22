@@ -67,11 +67,13 @@ function most<T extends string>(values: T[], fallback: T): T {
   return [...n].sort((a, b) => b[1] - a[1])[0]?.[0] ?? fallback;
 }
 
-export async function loadStudioData(db: Db): Promise<StudioData> {
+/** `demoOnly`: only the seeded demo shop, for the AI assistant (only synthetic demo data may reach the model). */
+export async function loadStudioData(db: Db, opts: { demoOnly?: boolean } = {}): Promise<StudioData> {
+  const demoOrders = opts.demoOnly ? { paypalOrderId: { startsWith: 'DEMO-' } } : {};
   const [entries, orders, cases] = await Promise.all([
-    db.ledgerEntry.findMany({ orderBy: { occurredAt: 'asc' } }),
-    db.order.findMany({ select: { id: true, paypalOrderId: true, country: true, grossMinor: true, currency: true, createdAt: true } }),
-    db.disputeCase.findMany(),
+    db.ledgerEntry.findMany({ where: opts.demoOnly ? { order: demoOrders } : {}, orderBy: { occurredAt: 'asc' } }),
+    db.order.findMany({ where: demoOrders, select: { id: true, paypalOrderId: true, country: true, grossMinor: true, currency: true, createdAt: true } }),
+    db.disputeCase.findMany({ where: opts.demoOnly ? { paypalDisputeId: { startsWith: 'PP-DEMO-' } } : {} }),
   ]);
   const disputedOrders = new Set(cases.map((c) => c.orderId).filter((x): x is string => x !== null));
   const ledger = entries.map((e): StudioLedgerRow => {

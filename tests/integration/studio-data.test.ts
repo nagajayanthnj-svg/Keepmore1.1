@@ -53,6 +53,22 @@ describe('loadStudioData (T-405): the rows AG Studio gets', () => {
     expect(d.mainCurrency.GROSS).toBe('USD');
     expect(d.mainCurrency.FX).toBe('INR');
   });
+  it('demo-only mode (for the AI assistant) leaves out every real order, ledger line and dispute', async () => {
+    const real = await db.order.create({
+      data: { paypalOrderId: '5O190127TN364715T', captureId: '3C679366HH908993F', itemsJson: '[]', country: 'US', grossMinor: 100, currency: 'USD', buyerHash: 'b'.repeat(64) },
+    });
+    await db.ledgerEntry.create({
+      data: { orderId: real.id, type: 'GROSS', amountMinor: 100, currency: 'USD', sourceType: 'PAYPAL_VERIFIED', calcVersion: 't', occurredAt: new Date() },
+    });
+    const all = await loadStudioData(db);
+    const demo = await loadStudioData(db, { demoOnly: true });
+    expect(all.orders.some((o) => o.orderRef === '5O190127TN364715T')).toBe(true);
+    expect(demo.orders.every((o) => o.orderRef.startsWith('DEMO-'))).toBe(true);
+    expect(demo.ledger.some((l) => l.orderId === real.id)).toBe(false);
+    expect(demo.disputes.every((d) => d.disputeId.startsWith('PP-DEMO-'))).toBe(true);
+    expect(JSON.stringify(demo)).not.toContain('5O190127TN364715T');
+  });
+
   it('an empty database gives empty sources, not an error', async () => {
     const { db: empty, close: c2 } = await createTestDb();
     const d = await loadStudioData(empty);
