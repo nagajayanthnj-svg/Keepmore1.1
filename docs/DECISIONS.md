@@ -881,3 +881,10 @@ Three calls to `POST /api/orders/3K7336723L338842X/ship`, carrier "India Post":
 - **Not covered, on purpose:** reasons other than "item not received", currencies other than USD, carriers other than India Post, file evidence, more than two buyer messages (see `eval/README.md`).
 - **Owner's steps:** confirm PRD section 5, label all 36 in `eval/labels/` (template provided, provisional until T-303 fixes the claim types), commit the labels in their own commit before any eval run, and record the date and the hash of the label files here.
 - **Note for T-310:** the plan text says both "30-case frozen suite" and "36 cases, 12 held-out"; this suite follows the second.
+
+
+## T-309: labels frozen (22 Oct 2026)
+- **36 labels** (`eval/labels/EV-01.json` to `EV-36.json`, plus the template) were written by the owner with a local Claude Code draft and committed as `48bc4cc` "T-309: evaluation labels (frozen)" on branch `labels/t309`, before any eval run. Claude checked, without changing them: 36 files, ids match the cases, every cited record id exists in its own case.
+- **Tree hash of `eval/labels`: `08a3bce9c1eebe23f10facc2e67669160acb5eaa`** (verified against `origin/labels/t309`). Any later label change must be a new commit and be recorded here, with the reason.
+- **Owner decisions Q1 to Q19** are written into PRD section 5. Main points: never recommend ESCALATE at INQUIRY; Unknown-trust carrier events never support a claim; seller-entered delivery counts, worded as the seller's record; R11 never fires; `approvalRequired` is true when any acceptable action writes to PayPal.
+- **For T-304:** add the Unknown-trust rule (UNVERIFIED) and "DELIVERED_TO_NEIGHBOUR never supports DELIVERED". **For T-310:** the label shape has `forbiddenClaims[{claim, why}]` and `supportedClaims[{claim, recordIds}]`; confirm it against the schema from T-303.
