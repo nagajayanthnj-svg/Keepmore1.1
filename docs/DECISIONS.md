@@ -1088,3 +1088,8 @@ Build order and target dates: T-308 23 Oct; routes 24 Oct; T-401 25–27 Oct; T-
 - **Test fixture:** Playwright uses `AI_PROVIDER=fixture` + `KEEPMORE_E2E=1` (never in production); the e2e test clicks a prompt starter and sees the fixture's answer come back through `/api/studio-ai`.
 - **Money in Studio, fixed:** per-field formatters were ignored in edit mode (tiles showed "3,542,200…" minor units). Money is now registered as two custom Studio formats, `usdMinor` and `inrMinor`, merged with the built-ins through `createFormats`. They format through `fromMinor` with the currency in every mode, and allow only sum, min and max (no average, so no fractional money).
 - Seen when Studio is swapped between normal and assistant mode: "Cannot read properties of undefined (reading 'getCacheBlockState')" in the browser console, from Studio's grid being torn down. The screen keeps working.
+## Fix: outcome lines use the ledger's sign rule
+- The ledger rule (T-108) is: **amounts are positive and the type gives the direction**. T-403 (PR #77) broke it by writing REFUND and DISPUTE_FEE as negative numbers (`outcome-v1`). Found while planning T-406.
+- New outcome lines (`outcome-v2`) are positive. A dispute already recorded under `outcome-v1` counts as recorded; each of its negative lines gets, once, a reversing line (`correctsEntryId` pointing at it, `outcome-v2-reversal`) and a corrected positive line, so totals come out right without editing the append-only ledger. Positive v1 lines (RETAINED) are left alone. Tested, including repeated syncs.
+- The outcome screen marks a reversing line "(correction of an earlier line)".
+- This only matters if a resolved, order-linked dispute was synced on the owner's PC between merging #77 and this fix.

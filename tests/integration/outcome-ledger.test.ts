@@ -56,9 +56,10 @@ describe('outcome entries on sync (T-403)', () => {
     const o = await order('0HE26749YS519313U', 12000);
     await syncDispute(deps, 'PP-R-IUT-10193562');
     const e = await entries(o.id);
+    // Positive amounts; the type gives the direction (DECISIONS, T-108).
     expect(e.map((x) => [x.type, x.amountMinor, x.sourceType, x.sourceRef])).toEqual([
-      ['DISPUTE_FEE', -588, 'PAYPAL_VERIFIED', 'PP-R-IUT-10193562'],
-      ['REFUND', -12000, 'PAYPAL_VERIFIED', 'PP-R-IUT-10193562'],
+      ['DISPUTE_FEE', 588, 'PAYPAL_VERIFIED', 'PP-R-IUT-10193562'],
+      ['REFUND', 12000, 'PAYPAL_VERIFIED', 'PP-R-IUT-10193562'],
     ]);
     expect(e.every((x) => x.occurredAt.toISOString() === '2026-10-19T18:54:49.200Z')).toBe(true);
   });
@@ -97,6 +98,34 @@ describe('outcome entries on sync (T-403)', () => {
   it('a dispute with no linked order adds nothing (the ledger is per order)', async () => {
     await syncDispute(deps, 'PP-R-IUT-10193562');
     expect(await db.ledgerEntry.count()).toBe(0);
+  });
+
+  it('lines written with the old negative sign (outcome-v1) are reversed and rewritten once, so totals come out right', async () => {
+    const o = await order('0HE26749YS519313U', 12000);
+    const old = (type: string, amountMinor: number) =>
+      db.ledgerEntry.create({
+        data: { orderId: o.id, type, amountMinor, currency: 'USD', sourceType: 'PAYPAL_VERIFIED', sourceRef: 'PP-R-IUT-10193562', calcVersion: 'outcome-v1', occurredAt: new Date('2026-10-19T18:54:49.200Z') },
+      });
+    const r1 = await old('REFUND', -12000);
+    await old('DISPUTE_FEE', -588);
+    await syncDispute(deps, 'PP-R-IUT-10193562');
+    await syncDispute(deps, 'PP-R-IUT-10193562');
+    const all = await entries(o.id);
+    const sum = (t: string) => all.filter((x) => x.type === t).reduce((s, x) => s + x.amountMinor, 0);
+    expect(sum('REFUND')).toBe(12000);
+    expect(sum('DISPUTE_FEE')).toBe(588);
+    expect(all).toHaveLength(6); // 2 old, 2 reversals, 2 corrected
+    expect(all.find((x) => x.correctsEntryId === r1.id)).toMatchObject({ amountMinor: 12000, calcVersion: 'outcome-v2-reversal' });
+  });
+
+  it('an old positive RETAINED line counts as recorded and is left alone, sync after sync', async () => {
+    const o = await order('3FG688039F4865201', 5000);
+    await db.ledgerEntry.create({
+      data: { orderId: o.id, type: 'RETAINED', amountMinor: 5000, currency: 'USD', sourceType: 'PAYPAL_VERIFIED', sourceRef: 'PP-R-RAV-10193566', calcVersion: 'outcome-v1', occurredAt: new Date('2026-10-19T18:47:13Z') },
+    });
+    await syncDispute(deps, 'PP-R-RAV-10193566');
+    await syncDispute(deps, 'PP-R-RAV-10193566');
+    expect(await entries(o.id)).toHaveLength(1);
   });
 
   it('a won dispute whose capture already has a refund in the ledger is not RETAINED', async () => {
