@@ -16,6 +16,8 @@ export interface Gated {
   approvalRequired: boolean;
   agreesWithRules: boolean;
   draft: Analysis['draft'];
+  /** True when the AI draft was replaced because it cited claims the records do not support. */
+  draftHeldBack: boolean;
   summary: string;
 }
 
@@ -26,9 +28,14 @@ export function gateSuggestion(input: {
   draftBlocked?: boolean;
 }): Gated {
   const { ai, rules, allowed } = input;
-  const offered = (a: Action) => NO_WRITE.includes(a) || (a !== 'ESCALATE' && (allowed as readonly string[]).includes(a));
+  // Evidence is one-shot: it is only worth sending when a requested type can be backed by a record.
+  const nothingToSubmit = !rules.checklist.some((c) => c.supportable);
+  const offered = (a: Action) =>
+    NO_WRITE.includes(a) ||
+    (a !== 'ESCALATE' && !(a === 'PROVIDE_EVIDENCE' && nothingToSubmit) && (allowed as readonly string[]).includes(a));
   const agreesWithRules = !ai || ai.recommendedAction === rules.recommendedAction;
-  const finish = (action: Action, source: Gated['source'], reason: string | null, a: Analysis): Gated => ({
+  const finish = (action: Action, source: Gated['source'], reason: string | null, a: Analysis, draftHeldBack = false): Gated => ({
+    draftHeldBack,
     action,
     source,
     reason,
@@ -44,7 +51,7 @@ export function gateSuggestion(input: {
       return finish(ai.recommendedAction, 'AI', 'The AI draft was held back because it cited claims the records do not support.', {
         ...ai,
         draft: safe,
-      });
+      }, true);
     }
     return finish(ai.recommendedAction, 'AI', null, ai);
   }
@@ -52,7 +59,9 @@ export function gateSuggestion(input: {
   const why = ai
     ? ai.recommendedAction === 'ESCALATE'
       ? 'The AI suggested escalating. Escalating cannot be undone, so it is never recommended; you can still choose it yourself. Showing the rules recommendation.'
-      : `The AI suggested ${ai.recommendedAction}, which PayPal does not offer now. Showing the rules recommendation.`
+      : ai.recommendedAction === 'PROVIDE_EVIDENCE' && nothingToSubmit
+        ? 'The AI suggested sending evidence, but no requested evidence can be backed by your records and evidence can be sent only once. Showing the rules recommendation.'
+        : `The AI suggested ${ai.recommendedAction}, which PayPal does not offer now. Showing the rules recommendation.`
     : null;
 
   if (offered(rules.recommendedAction)) return finish(rules.recommendedAction, 'RULES', why, rules.analysis);
