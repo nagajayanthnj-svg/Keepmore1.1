@@ -1,0 +1,87 @@
+{
+  "id": "EV-16",
+  "split": "dev",
+  "asOf": "2026-10-20T06:00:00.000Z",
+  "caseFile": {
+    "version": 1,
+    "caseId": "EVAL-16-CASE",
+    "disputeId": "PP-EVAL-0016",
+    "dispute": {
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "stage": "CHARGEBACK",
+      "status": "WAITING_FOR_SELLER_RESPONSE",
+      "amount": {
+        "minor": 31000,
+        "currency": "USD"
+      },
+      "sellerDeadline": "2026-10-25T06:00:00.000Z",
+      "requestedEvidence": [
+        "PROOF_OF_FULFILLMENT"
+      ],
+      "outcome": null
+    },
+    "allowedActions": {
+      "actions": [
+        "ACCEPT_CLAIM",
+        "PROVIDE_EVIDENCE"
+      ],
+      "acceptClaimTypes": [
+        "REFUND"
+      ],
+      "source": "STORED_COPY"
+    },
+    "orderLinked": true,
+    "evidence": [
+      {
+        "id": "REC-0112043E71",
+        "type": "ORDER",
+        "source": "KEEPMORE",
+        "occurredAt": "2026-09-18T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "country": "CA",
+          "grossMinor": 31000,
+          "currency": "USD",
+          "items": [
+            {
+              "sku": "JUG5",
+              "qty": 1,
+              "unitMinor": 31000
+            }
+          ]
+        }
+      },
+      {
+        "id": "REC-15C48081C9",
+        "type": "CAPTURE",
+        "source": "PAYPAL",
+        "occurredAt": "2026-09-18T06:05:00.000Z",
+        "trustState": "Verified by PayPal",
+        "fields": {
+          "captureId": "5EV160000001K",
+          "grossMinor": 31000,
+          "currency": "USD",
+          "sellerProtection": "ELIGIBLE"
+        }
+      }
+    ],
+    "policy": {
+      "refundThresholdMinor": 2000,
+      "highValueBandMinor": 20000,
+      "minCarrierSample": 20,
+      "returnlessCapPerYear": 1,
+      "currency": "USD",
+      "returnPolicyText": "Returns accepted within 14 days of delivery. The buyer pays return postage."
+    },
+    "buyerMessages": [
+      {
+        "id": "REC-34217E1982",
+        "at": "2026-10-17T06:00:00.000Z",
+        "text": "My parcel has not arrived yet. Can you tell me where it is?",
+        "quoted": true,
+        "trustState": "Verified by PayPal"
+      }
+    ],
+    "hash": "b942e22be4ae291c38d056f8f500b08f478192b98333bc715ead58a1553c51e0"
+  }
+}

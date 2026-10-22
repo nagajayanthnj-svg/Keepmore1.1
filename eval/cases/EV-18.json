@@ -1,0 +1,114 @@
+{
+  "id": "EV-18",
+  "split": "heldout",
+  "asOf": "2026-10-20T06:00:00.000Z",
+  "caseFile": {
+    "version": 1,
+    "caseId": "EVAL-18-CASE",
+    "disputeId": "PP-EVAL-0018",
+    "dispute": {
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "stage": "CHARGEBACK",
+      "status": "WAITING_FOR_SELLER_RESPONSE",
+      "amount": {
+        "minor": 1800,
+        "currency": "USD"
+      },
+      "sellerDeadline": "2026-10-24T06:00:00.000Z",
+      "requestedEvidence": [
+        "PROOF_OF_FULFILLMENT",
+        "PROOF_OF_DELIVERY_SIGNATURE"
+      ],
+      "outcome": null
+    },
+    "allowedActions": {
+      "actions": [
+        "ACCEPT_CLAIM",
+        "PROVIDE_EVIDENCE"
+      ],
+      "acceptClaimTypes": [
+        "REFUND"
+      ],
+      "source": "STORED_COPY"
+    },
+    "orderLinked": true,
+    "evidence": [
+      {
+        "id": "REC-DB99521C79",
+        "type": "ORDER",
+        "source": "KEEPMORE",
+        "occurredAt": "2026-09-22T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "country": "US",
+          "grossMinor": 1800,
+          "currency": "USD",
+          "items": [
+            {
+              "sku": "MUG1",
+              "qty": 1,
+              "unitMinor": 1800
+            }
+          ]
+        }
+      },
+      {
+        "id": "REC-DD14EA6538",
+        "type": "CAPTURE",
+        "source": "PAYPAL",
+        "occurredAt": "2026-09-22T06:05:00.000Z",
+        "trustState": "Verified by PayPal",
+        "fields": {
+          "captureId": "5EV180000001K",
+          "grossMinor": 1800,
+          "currency": "USD",
+          "sellerProtection": "ELIGIBLE"
+        }
+      },
+      {
+        "id": "REC-359784EA72",
+        "type": "SHIPMENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-23T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "trackingNo": "EE100142542IN",
+          "pushStatus": "PUSHED"
+        }
+      },
+      {
+        "id": "REC-E355F1633E",
+        "type": "TRACKING_EVENT",
+        "source": "CARRIER",
+        "occurredAt": "2026-09-25T06:00:00.000Z",
+        "trustState": "Unknown",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "status": "IN_TRANSIT"
+        }
+      },
+      {
+        "id": "REC-D5F67C1B73",
+        "type": "TRACKING_EVENT",
+        "source": "CARRIER",
+        "occurredAt": "2026-10-02T06:00:00.000Z",
+        "trustState": "Unknown",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "status": "DELIVERED"
+        }
+      }
+    ],
+    "policy": {
+      "refundThresholdMinor": 2000,
+      "highValueBandMinor": 20000,
+      "minCarrierSample": 20,
+      "returnlessCapPerYear": 1,
+      "currency": "USD",
+      "returnPolicyText": "Returns accepted within 14 days of delivery. The buyer pays return postage."
+    },
+    "buyerMessages": [],
+    "hash": "f0da28f68eb941fa24f0565b99abe90356369cf5f5bec0ca433eee2961ec76f9"
+  }
+}

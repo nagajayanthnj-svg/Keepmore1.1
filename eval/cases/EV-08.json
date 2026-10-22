@@ -1,0 +1,86 @@
+{
+  "id": "EV-08",
+  "split": "dev",
+  "asOf": "2026-10-20T06:00:00.000Z",
+  "caseFile": {
+    "version": 1,
+    "caseId": "EVAL-08-CASE",
+    "disputeId": "PP-EVAL-0008",
+    "dispute": {
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "stage": "INQUIRY",
+      "status": "WAITING_FOR_SELLER_RESPONSE",
+      "amount": {
+        "minor": 6500,
+        "currency": "USD"
+      },
+      "sellerDeadline": null,
+      "requestedEvidence": [],
+      "outcome": null
+    },
+    "allowedActions": {
+      "actions": [
+        "SEND_MESSAGE"
+      ],
+      "acceptClaimTypes": [],
+      "source": "STORED_COPY"
+    },
+    "orderLinked": true,
+    "evidence": [
+      {
+        "id": "REC-A4D861B484",
+        "type": "ORDER",
+        "source": "KEEPMORE",
+        "occurredAt": "2026-09-20T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "country": "DE",
+          "grossMinor": 6500,
+          "currency": "USD",
+          "items": [
+            {
+              "sku": "PLATE3",
+              "qty": 1,
+              "unitMinor": 6500
+            }
+          ]
+        }
+      },
+      {
+        "id": "REC-60A9823C30",
+        "type": "CAPTURE",
+        "source": "PAYPAL",
+        "occurredAt": "2026-09-20T06:05:00.000Z",
+        "trustState": "Verified by PayPal",
+        "fields": {
+          "captureId": "5EV080000001K",
+          "grossMinor": 6500,
+          "currency": "USD",
+          "sellerProtection": "ELIGIBLE"
+        }
+      },
+      {
+        "id": "REC-3F95B5B250",
+        "type": "SHIPMENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-21T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "trackingNo": "EE100063352IN",
+          "pushStatus": "PUSHED"
+        }
+      }
+    ],
+    "policy": {
+      "refundThresholdMinor": 2000,
+      "highValueBandMinor": 20000,
+      "minCarrierSample": 20,
+      "returnlessCapPerYear": 1,
+      "currency": "USD",
+      "returnPolicyText": "Returns accepted within 14 days of delivery. The buyer pays return postage."
+    },
+    "buyerMessages": [],
+    "hash": "cbdc997263acf2843b301bdb041bccc0dbf2954da49d19c528f4baa387d2b3d8"
+  }
+}

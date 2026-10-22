@@ -1,0 +1,95 @@
+{
+  "id": "EV-25",
+  "split": "dev",
+  "asOf": "2026-10-20T06:00:00.000Z",
+  "caseFile": {
+    "version": 1,
+    "caseId": "EVAL-25-CASE",
+    "disputeId": "PP-EVAL-0025",
+    "dispute": {
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "stage": "INQUIRY",
+      "status": "UNDER_REVIEW",
+      "amount": {
+        "minor": 5000,
+        "currency": "USD"
+      },
+      "sellerDeadline": null,
+      "requestedEvidence": [],
+      "outcome": null
+    },
+    "allowedActions": {
+      "actions": [],
+      "acceptClaimTypes": [],
+      "source": "STORED_COPY"
+    },
+    "orderLinked": true,
+    "evidence": [
+      {
+        "id": "REC-01BD6761DD",
+        "type": "ORDER",
+        "source": "KEEPMORE",
+        "occurredAt": "2026-09-21T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "country": "GB",
+          "grossMinor": 5000,
+          "currency": "USD",
+          "items": [
+            {
+              "sku": "BOWL2",
+              "qty": 1,
+              "unitMinor": 5000
+            }
+          ]
+        }
+      },
+      {
+        "id": "REC-4781AE4124",
+        "type": "CAPTURE",
+        "source": "PAYPAL",
+        "occurredAt": "2026-09-21T06:05:00.000Z",
+        "trustState": "Verified by PayPal",
+        "fields": {
+          "captureId": "5EV250000001K",
+          "grossMinor": 5000,
+          "currency": "USD",
+          "sellerProtection": "ELIGIBLE"
+        }
+      },
+      {
+        "id": "REC-49A84729D3",
+        "type": "SHIPMENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-22T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "trackingNo": "EE100197975IN",
+          "pushStatus": "PUSHED"
+        }
+      },
+      {
+        "id": "REC-8C52C5B3AE",
+        "type": "TRACKING_EVENT",
+        "source": "SELLER",
+        "occurredAt": "2026-09-25T06:00:00.000Z",
+        "trustState": "Seller entered",
+        "fields": {
+          "carrier": "INDIA_POST",
+          "status": "UNKNOWN"
+        }
+      }
+    ],
+    "policy": {
+      "refundThresholdMinor": 2000,
+      "highValueBandMinor": 20000,
+      "minCarrierSample": 20,
+      "returnlessCapPerYear": 1,
+      "currency": "USD",
+      "returnPolicyText": "Returns accepted within 14 days of delivery. The buyer pays return postage."
+    },
+    "buyerMessages": [],
+    "hash": "c4439df6bf87379e27bec2b55429213c1ed5904698d1faaff71c8affdb7f4b1f"
+  }
+}

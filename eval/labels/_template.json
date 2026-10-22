@@ -1,0 +1,11 @@
+{
+  "id": "EV-00",
+  "_note": "PROVISIONAL: copy to EV-NN.json for each case and fill in. The claim types will be fixed by T-303; until then name what is being claimed in plain words and cite a record id from the case.",
+  "recommendedAction": "one of: ACCEPT_CLAIM, PROVIDE_EVIDENCE, PROVIDE_SUPPORTING_INFO, SEND_MESSAGE, ESCALATE, WAIT, NO_ACTION",
+  "alsoAcceptable": [],
+  "mustNotRecommend": [],
+  "approvalRequired": true,
+  "supportedClaims": [{ "claim": "plain words", "recordIds": ["REC-0000000000"] }],
+  "forbiddenClaims": [{ "claim": "plain words", "why": "what in the records contradicts it or fails to support it" }],
+  "notes": ""
+}

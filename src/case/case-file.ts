@@ -154,8 +154,11 @@ export async function buildCaseFile(db: Db, caseId: string): Promise<Readonly<Ca
         trustState: r.trustState,
       })),
   };
-  const hash = createHash('sha256')
-    .update(JSON.stringify(canonical(body)))
-    .digest('hex');
+  return sealCaseFile(body);
+}
+
+/** Adds the hash and freezes. Also used for the evaluation cases (T-309), so they are sealed exactly as real ones are. */
+export function sealCaseFile(body: Omit<CaseFile, 'hash'>): Readonly<CaseFile> {
+  const hash = createHash('sha256').update(JSON.stringify(canonical(body))).digest('hex');
   return deepFreeze({ ...body, hash });
 }

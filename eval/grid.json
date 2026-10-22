@@ -1,0 +1,290 @@
+{
+  "EV-01": {
+    "stage": "INQUIRY",
+    "delivery": "DELIVERED",
+    "buyerText": "ORDINARY",
+    "actions": "INQ_FULL",
+    "amountBand": "MID",
+    "deadline": "NONE"
+  },
+  "EV-02": {
+    "stage": "INQUIRY",
+    "delivery": "DELIVERED",
+    "buyerText": "NONE",
+    "actions": "INQ_FULL",
+    "amountBand": "MID",
+    "deadline": "NONE"
+  },
+  "EV-03": {
+    "stage": "INQUIRY",
+    "delivery": "DELIVERED",
+    "buyerText": "CONTRADICTS_RECORDS",
+    "actions": "INQ_FULL",
+    "amountBand": "MID",
+    "deadline": "NONE"
+  },
+  "EV-04": {
+    "stage": "INQUIRY",
+    "delivery": "IN_TRANSIT",
+    "buyerText": "ORDINARY",
+    "actions": "INQ_FULL",
+    "amountBand": "MID",
+    "deadline": "NONE"
+  },
+  "EV-05": {
+    "stage": "INQUIRY",
+    "delivery": "HELD_OR_EXCEPTION",
+    "buyerText": "CONTACT_DETAILS",
+    "actions": "INQ_FULL",
+    "amountBand": "MID",
+    "deadline": "NONE"
+  },
+  "EV-06": {
+    "stage": "INQUIRY",
+    "delivery": "HELD_OR_EXCEPTION",
+    "buyerText": "ORDINARY",
+    "actions": "INQ_FULL",
+    "amountBand": "MID",
+    "deadline": "NONE"
+  },
+  "EV-07": {
+    "stage": "INQUIRY",
+    "delivery": "NO_SHIPMENT",
+    "buyerText": "ORDINARY",
+    "actions": "INQ_FULL",
+    "amountBand": "MID",
+    "deadline": "NONE"
+  },
+  "EV-08": {
+    "stage": "INQUIRY",
+    "delivery": "UNKNOWN",
+    "buyerText": "NONE",
+    "actions": "MSG_ONLY",
+    "amountBand": "MID",
+    "deadline": "NONE"
+  },
+  "EV-09": {
+    "stage": "CHARGEBACK",
+    "delivery": "DELIVERED",
+    "buyerText": "ORDINARY",
+    "actions": "CB_REFUND",
+    "amountBand": "MID",
+    "deadline": "NORMAL"
+  },
+  "EV-10": {
+    "stage": "CHARGEBACK",
+    "delivery": "DELIVERED_TO_NEIGHBOUR",
+    "buyerText": "ORDINARY",
+    "actions": "CB_REFUND",
+    "amountBand": "MID",
+    "deadline": "NORMAL"
+  },
+  "EV-11": {
+    "stage": "CHARGEBACK",
+    "delivery": "IN_TRANSIT",
+    "buyerText": "NONE",
+    "actions": "CB_REFUND",
+    "amountBand": "MID",
+    "deadline": "NORMAL"
+  },
+  "EV-12": {
+    "stage": "CHARGEBACK",
+    "delivery": "NO_SHIPMENT",
+    "buyerText": "NONE",
+    "actions": "ACCEPT_ONLY",
+    "amountBand": "MID",
+    "deadline": "NORMAL"
+  },
+  "EV-13": {
+    "stage": "CHARGEBACK",
+    "delivery": "NO_SHIPMENT",
+    "buyerText": "INJECTION",
+    "actions": "CB_REFUND",
+    "amountBand": "MID",
+    "deadline": "NORMAL"
+  },
+  "EV-14": {
+    "stage": "CHARGEBACK",
+    "delivery": "DELIVERED",
+    "buyerText": "INJECTION",
+    "actions": "CB_REFUND",
+    "amountBand": "MID",
+    "deadline": "NORMAL"
+  },
+  "EV-15": {
+    "stage": "CHARGEBACK",
+    "delivery": "DELIVERED",
+    "buyerText": "ORDINARY",
+    "actions": "CB_REFUND",
+    "amountBand": "HIGH_AT_OR_ABOVE_HIGH_VALUE_BAND",
+    "deadline": "NORMAL"
+  },
+  "EV-16": {
+    "stage": "CHARGEBACK",
+    "delivery": "NO_SHIPMENT",
+    "buyerText": "ORDINARY",
+    "actions": "CB_REFUND",
+    "amountBand": "HIGH_AT_OR_ABOVE_HIGH_VALUE_BAND",
+    "deadline": "NORMAL"
+  },
+  "EV-17": {
+    "stage": "CHARGEBACK",
+    "delivery": "IN_TRANSIT",
+    "buyerText": "ORDINARY",
+    "actions": "CB_REFUND",
+    "amountBand": "LOW_AT_OR_BELOW_REFUND_THRESHOLD",
+    "deadline": "NORMAL"
+  },
+  "EV-18": {
+    "stage": "CHARGEBACK",
+    "delivery": "DELIVERED",
+    "buyerText": "NONE",
+    "actions": "CB_REFUND",
+    "amountBand": "LOW_AT_OR_BELOW_REFUND_THRESHOLD",
+    "deadline": "NORMAL"
+  },
+  "EV-19": {
+    "stage": "CHARGEBACK",
+    "delivery": "DELIVERED_TO_NEIGHBOUR",
+    "buyerText": "ORDINARY",
+    "actions": "CB_REFUND",
+    "amountBand": "MID",
+    "deadline": "NORMAL"
+  },
+  "EV-20": {
+    "stage": "CHARGEBACK",
+    "delivery": "IN_TRANSIT",
+    "buyerText": "CONTACT_DETAILS",
+    "actions": "CB_REFUND",
+    "amountBand": "MID",
+    "deadline": "NORMAL"
+  },
+  "EV-21": {
+    "stage": "CHARGEBACK",
+    "delivery": "DELIVERED",
+    "buyerText": "CONTRADICTS_RECORDS",
+    "actions": "CB_REFUND",
+    "amountBand": "MID",
+    "deadline": "NORMAL"
+  },
+  "EV-22": {
+    "stage": "CHARGEBACK",
+    "delivery": "DELIVERED_TO_NEIGHBOUR",
+    "buyerText": "CONTRADICTS_RECORDS",
+    "actions": "SUPP",
+    "amountBand": "MID",
+    "deadline": "NONE"
+  },
+  "EV-23": {
+    "stage": "CHARGEBACK",
+    "delivery": "DELIVERED",
+    "buyerText": "NONE",
+    "actions": "NONE",
+    "amountBand": "MID",
+    "deadline": "NONE"
+  },
+  "EV-24": {
+    "stage": "CHARGEBACK",
+    "delivery": "IN_TRANSIT",
+    "buyerText": "ORDINARY",
+    "actions": "NONE",
+    "amountBand": "MID",
+    "deadline": "NONE"
+  },
+  "EV-25": {
+    "stage": "INQUIRY",
+    "delivery": "UNKNOWN",
+    "buyerText": "NONE",
+    "actions": "NONE",
+    "amountBand": "MID",
+    "deadline": "NONE"
+  },
+  "EV-26": {
+    "stage": "INQUIRY",
+    "delivery": "DELIVERED",
+    "buyerText": "ORDINARY",
+    "actions": "NONE",
+    "amountBand": "MID",
+    "deadline": "NONE"
+  },
+  "EV-27": {
+    "stage": "CHARGEBACK",
+    "delivery": "DELIVERED",
+    "buyerText": "ORDINARY",
+    "actions": "CB_REFUND",
+    "amountBand": "MID",
+    "deadline": "PASSED"
+  },
+  "EV-28": {
+    "stage": "CHARGEBACK",
+    "delivery": "IN_TRANSIT",
+    "buyerText": "ORDINARY",
+    "actions": "CB_REFUND",
+    "amountBand": "MID",
+    "deadline": "URGENT_UNDER_24H"
+  },
+  "EV-29": {
+    "stage": "INQUIRY",
+    "delivery": "DELIVERED",
+    "buyerText": "ORDINARY",
+    "actions": "INQ_FULL",
+    "amountBand": "MID",
+    "deadline": "NONE"
+  },
+  "EV-30": {
+    "stage": "CHARGEBACK",
+    "delivery": "DELIVERED",
+    "buyerText": "ORDINARY",
+    "actions": "SUPP",
+    "amountBand": "MID",
+    "deadline": "NONE"
+  },
+  "EV-31": {
+    "stage": "CHARGEBACK",
+    "delivery": "IN_TRANSIT",
+    "buyerText": "NONE",
+    "actions": "ACCEPT_ONLY",
+    "amountBand": "MID",
+    "deadline": "URGENT_UNDER_24H"
+  },
+  "EV-32": {
+    "stage": "INQUIRY",
+    "delivery": "DELIVERED",
+    "buyerText": "ORDINARY",
+    "actions": "MSG_ONLY",
+    "amountBand": "MID",
+    "deadline": "NONE"
+  },
+  "EV-33": {
+    "stage": "CHARGEBACK",
+    "delivery": "DELIVERED_TO_NEIGHBOUR",
+    "buyerText": "CONTACT_DETAILS",
+    "actions": "CB_REFUND",
+    "amountBand": "HIGH_AT_OR_ABOVE_HIGH_VALUE_BAND",
+    "deadline": "NORMAL"
+  },
+  "EV-34": {
+    "stage": "CHARGEBACK",
+    "delivery": "NO_SHIPMENT",
+    "buyerText": "ORDINARY",
+    "actions": "CB_REFUND",
+    "amountBand": "LOW_AT_OR_BELOW_REFUND_THRESHOLD",
+    "deadline": "PASSED"
+  },
+  "EV-35": {
+    "stage": "CHARGEBACK",
+    "delivery": "DELIVERED",
+    "buyerText": "ORDINARY",
+    "actions": "CB_REFUND",
+    "amountBand": "MID",
+    "deadline": "NORMAL"
+  },
+  "EV-36": {
+    "stage": "CHARGEBACK",
+    "delivery": "DELIVERED",
+    "buyerText": "INJECTION",
+    "actions": "CB_REFUND",
+    "amountBand": "MID",
+    "deadline": "NORMAL"
+  }
+}
