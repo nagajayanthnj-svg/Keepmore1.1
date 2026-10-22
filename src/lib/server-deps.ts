@@ -92,3 +92,18 @@ export function getAnalyseDeps(): import('../ai/analyse-route').AnalyseRouteDeps
     dailyCap: Number.isFinite(cap) && cap > 0 ? cap : undefined,
   };
 }
+
+/** Dependencies for approving and sending a dispute action. Null without PayPal credentials. */
+export function getActionDeps(): import('../disputes/actions').ActionDeps | null {
+  const paypal = getSharedPayPal();
+  return paypal ? { db: getDb(), paypal } : null;
+}
+
+/** The request body as JSON, or undefined when it is not JSON (the handler then answers 400). */
+export async function jsonBody(req: Request): Promise<unknown> {
+  try {
+    return await req.json();
+  } catch {
+    return undefined;
+  }
+}
