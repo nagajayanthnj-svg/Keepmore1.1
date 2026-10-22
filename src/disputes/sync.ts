@@ -5,6 +5,7 @@ import { systemClock, type Clock } from '../lib/clock';
 import type { PayPalClient } from '../paypal/client';
 import { buyerHash } from '../orders/buyer-hash';
 import { allowedActions } from './allowed-actions';
+import { recordOutcome } from './outcome';
 import { DISPUTE_ID, DisputeParseError, parseDispute } from './parse';
 
 export interface SyncDeps {
@@ -67,6 +68,7 @@ export async function syncDispute(deps: SyncDeps, disputeId: string): Promise<Sy
           buyerHash: hash,
         },
       });
+      await recordOutcome(deps.db, disputeId, res.body);
       return { disputeId, created: true, changed: true, rawHash: d.rawHash };
     } catch (e) {
       // A concurrent sync made the row first: carry on as an update.
@@ -84,5 +86,6 @@ export async function syncDispute(deps: SyncDeps, disputeId: string): Promise<Sy
     where: { paypalDisputeId: disputeId },
     data: { ...(changed ? { ...fields, allowedActionsJson } : { lastSyncedAt, allowedActionsJson }), ...links },
   });
+  await recordOutcome(deps.db, disputeId, res.body);
   return { disputeId, created: false, changed, rawHash: d.rawHash };
 }
