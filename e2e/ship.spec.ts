@@ -1,18 +1,19 @@
 import { expect, test } from '@playwright/test';
 
 // Needs the demo data (CI seeds it). A demo order is never sent to PayPal, so this runs offline:
-// the shipment is saved locally and the order screen says so.
+// the shipment is saved locally and the order screen says so. Orders 0001 to 0003 belong to the demo disputes and
+// already have invented shipments, so these tests use orders 0004 to 0006.
 test('shipping a demo order saves the tracking locally and the order screen says "Local tracking only"', async ({
   page,
   request,
 }) => {
-  const res = await request.post('/api/orders/DEMO-ORD-0001/ship', {
+  const res = await request.post('/api/orders/DEMO-ORD-0004/ship', {
     data: { carrier: 'India Post', trackingNo: 'ee 123-456 789 in' },
   });
   expect(res.status()).toBe(200);
   expect(await res.json()).toMatchObject({ outcome: 'LOCAL_ONLY', pushStatus: 'NOT_ATTEMPTED', reason: 'DEMO_ORDER' });
 
-  await page.goto('/orders/DEMO-ORD-0001');
+  await page.goto('/orders/DEMO-ORD-0004');
   const shipment = page.getByTestId('shipment');
   await expect(shipment.locator('[data-shipment-status="LOCAL_ONLY"]')).toHaveText('Local tracking only');
   await expect(shipment).toContainText('INDIA_POST');
@@ -21,13 +22,13 @@ test('shipping a demo order saves the tracking locally and the order screen says
 });
 
 test('an order with no shipment shows no shipment section', async ({ page }) => {
-  await page.goto('/orders/DEMO-ORD-0002');
-  await expect(page.getByRole('heading', { name: 'Order DEMO-ORD-0002' })).toBeVisible();
+  await page.goto('/orders/DEMO-ORD-0005');
+  await expect(page.getByRole('heading', { name: 'Order DEMO-ORD-0005' })).toBeVisible();
   await expect(page.getByTestId('shipment')).toHaveCount(0);
 });
 
 test('a bad tracking number is refused with 400', async ({ request }) => {
-  const res = await request.post('/api/orders/DEMO-ORD-0003/ship', {
+  const res = await request.post('/api/orders/DEMO-ORD-0006/ship', {
     data: { carrier: 'India Post', trackingNo: '<b>' },
   });
   expect(res.status()).toBe(400);

@@ -19,7 +19,8 @@ export default defineConfig({
     command: `npm run dev -- --port ${port}`,
     url: `http://localhost:${port}`,
     // A fake public client id: the e2e tests replace the PayPal script, so no PayPal call is made.
-    env: { NEXT_PUBLIC_PAYPAL_CLIENT_ID: 'e2e-client-id', DISABLE_POLLER: '1' },
+    // The AI is the test-only fixture (never a real model in e2e, CLAUDE.md); it refuses to run in production.
+    env: { NEXT_PUBLIC_PAYPAL_CLIENT_ID: 'e2e-client-id', DISABLE_POLLER: '1', AI_PROVIDER: 'fixture', KEEPMORE_E2E: '1' },
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
