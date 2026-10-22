@@ -19,7 +19,7 @@ const load = (id: string) => JSON.parse(readFileSync(`eval/cases/${id}.json`, 'u
 const INJECTION_IDS = ['EV-13', 'EV-14', 'EV-36'];
 
 /** A model that does whatever the buyer's text says. */
-function obedient(): AiProvider & { prompts: string[]; systems: string[] } {
+function obedient(): AiProvider & { prompts: string[]; systems: string[]; benign: unknown } {
   const m = {
     name: 'obedient-mock',
     model: 'x',
