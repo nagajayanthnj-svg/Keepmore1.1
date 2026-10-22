@@ -4,7 +4,8 @@
 import { z } from 'zod';
 import { PayPalError } from '../paypal/client';
 import { DEMO_DISPUTE_PREFIX } from '../demo/disputes';
-import { submitApprovedAction, type ActionDeps, type SubmitFailure } from './actions';
+import { submitApprovedAction, submitSandboxSettle, type ActionDeps, type SubmitFailure } from './actions';
+import { SETTLE_LABEL, approveSandboxSettle, type SettleDeps } from './sandbox-settle';
 import { approveAction, type ApprovalDeps, type ApprovalFailure } from './approval';
 import { DISPUTE_ID, DisputeParseError } from './parse';
 
@@ -83,6 +84,57 @@ export async function handleSubmit(deps: ActionDeps | null, approvalId: string):
       { error: r.code, retryable: r.retryable ?? false, paypalCode: r.paypalCode, debugId: r.debugId },
       { status: SUBMIT_STATUS[r.code] },
     );
+  } catch (e) {
+    const res = unreachable(e);
+    if (res) return res;
+    throw e;
+  }
+}
+
+// SANDBOX ONLY (T-402): 404 unless DEMO_MODE is on, so the routes do not exist for a seller in normal use.
+const SettleBody = z.object({ outcome: z.string().max(40), expectedRawHash: z.string().regex(/^[0-9a-f]{64}$/) });
+const notFound = () => Response.json({ error: 'NOT_FOUND' }, { status: 404 });
+const SETTLE_STATUS: Record<string, number> = {
+  CASE_NOT_FOUND: 404,
+  DEMO_CASE: 409,
+  STALE: 409,
+  CASE_CHANGED: 409,
+  NOT_OFFERED: 409,
+  INVALID_PAYLOAD: 422,
+};
+
+export async function handleSettleApprove(deps: SettleDeps | null, disputeId: string, body: unknown): Promise<Response> {
+  if (!deps?.demoMode) return notFound();
+  if (!DISPUTE_ID.test(disputeId)) return Response.json({ error: 'BAD_DISPUTE_ID' }, { status: 400 });
+  const parsed = SettleBody.safeParse(body);
+  if (!parsed.success) return Response.json({ error: 'BAD_REQUEST' }, { status: 400 });
+  const c = await deps.db.disputeCase.findUnique({ where: { paypalDisputeId: disputeId } });
+  if (!c) return notFound();
+  try {
+    const r = await approveSandboxSettle(deps, { caseId: c.id, ...parsed.data, approvedBy: APPROVER });
+    if (!r.ok) return Response.json({ error: r.code, label: SETTLE_LABEL }, { status: SETTLE_STATUS[r.code] ?? 404 });
+    return Response.json({ approvalId: r.approval.id, payloadHash: r.approval.payloadHash, label: SETTLE_LABEL }, { status: 201 });
+  } catch (e) {
+    const res = unreachable(e);
+    if (res) return res;
+    throw e;
+  }
+}
+
+export async function handleSettleSubmit(deps: (ActionDeps & { demoMode: boolean }) | null, approvalId: string): Promise<Response> {
+  if (!deps?.demoMode) return notFound();
+  if (!APPROVAL_ID.test(approvalId)) return Response.json({ error: 'BAD_APPROVAL_ID' }, { status: 400 });
+  try {
+    const r = await submitSandboxSettle(deps, approvalId);
+    if (r.ok) return Response.json({ outcome: r.outcome, synced: r.synced, label: SETTLE_LABEL });
+    const status =
+      r.code === 'NOT_A_SETTLE_APPROVAL' || r.code === 'NOT_OFFERED'
+        ? 409
+        : r.code === 'DEMO_MODE_OFF'
+          ? 404
+          : (SUBMIT_STATUS[r.code as SubmitFailure] ?? 500);
+    const extra = 'retryable' in r ? { retryable: r.retryable ?? false, paypalCode: r.paypalCode, debugId: r.debugId } : {};
+    return Response.json({ error: r.code, label: SETTLE_LABEL, ...extra }, { status });
   } catch (e) {
     const res = unreachable(e);
     if (res) return res;

@@ -23,6 +23,8 @@ export interface AnalyseRouteDeps {
   now?: () => Date;
   dailyCap?: number;
   timeoutMs?: number;
+  /** DEMO_MODE: lets the screen offer the sandbox settle step (T-402). */
+  demoMode?: boolean;
 }
 
 export type AllowedSource = 'PAYPAL' | 'SIMULATED' | 'UNAVAILABLE';
@@ -37,6 +39,8 @@ export type AnalyseEvent =
       claims: ClaimCheck[];
       hallucinatedCitations: string[];
       allowed: { source: AllowedSource; actions: ActionCode[] };
+      /** Sandbox only, DEMO_MODE on: whether PayPal shows the adjudicate link now. Null otherwise. */
+      sandboxSettle: 'OFFERED' | 'NOT_YET' | null;
     }
   | { type: 'error'; error: 'INTERNAL' };
 
@@ -57,12 +61,14 @@ export async function handleAnalyse(deps: AnalyseRouteDeps, disputeId: string): 
         controller.enqueue(line({ type: 'rules', rules: runRules(cf, asOf) }));
 
         let allowed: { source: AllowedSource; actions: ActionCode[] };
+        let sandboxSettle: 'OFFERED' | 'NOT_YET' | null = null;
         if (demo) allowed = { source: 'SIMULATED', actions: [...cf.allowedActions.actions] };
         else if (!deps.paypal) allowed = { source: 'UNAVAILABLE', actions: [] };
         else {
           try {
             const fresh = await getAllowedActions({ db: deps.db, paypal: deps.paypal }, disputeId);
             allowed = { source: 'PAYPAL', actions: fresh.allowed.actions.map((a) => a.action) };
+            if (deps.demoMode) sandboxSettle = fresh.sandboxAdjudicatePath ? 'OFFERED' : 'NOT_YET';
           } catch {
             allowed = { source: 'UNAVAILABLE', actions: [] };
           }
@@ -86,6 +92,7 @@ export async function handleAnalyse(deps: AnalyseRouteDeps, disputeId: string): 
             claims: v.results,
             hallucinatedCitations: v.hallucinatedCitations,
             allowed,
+            sandboxSettle,
           }),
         );
       } catch (e) {

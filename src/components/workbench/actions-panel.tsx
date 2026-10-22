@@ -10,6 +10,7 @@ import type { RulesResult } from '../../rules/rules';
 import { fromMinor } from '../../normalise/money';
 import { TruthStateBadge } from '../truth-state-badge';
 import { ACTION_LABEL } from './labels';
+import { SandboxSettle } from './sandbox-settle';
 import {
   approveOutcome,
   canonicalText,
@@ -211,6 +212,9 @@ export function ActionsPanel({ view, rules, result }: { view: WorkbenchView; rul
             </button>
           </div>
         </div>
+      )}
+      {result.sandboxSettle && (
+        <SandboxSettle state={result.sandboxSettle} disputeId={view.disputeId} rawHash={view.rawHash} />
       )}
       {message && (
         <p role="status" data-testid="action-message" data-tone={message.tone} className={`rounded border-2 p-2 ${TONE[message.tone]}`}>

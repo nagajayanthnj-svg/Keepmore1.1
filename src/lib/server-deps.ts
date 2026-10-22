@@ -90,6 +90,7 @@ export function getAnalyseDeps(): import('../ai/analyse-route').AnalyseRouteDeps
     paypal: getSharedPayPal(),
     provider: providerFromEnv(),
     dailyCap: Number.isFinite(cap) && cap > 0 ? cap : undefined,
+    demoMode: demoMode(),
   };
 }
 
@@ -106,4 +107,13 @@ export async function jsonBody(req: Request): Promise<unknown> {
   } catch {
     return undefined;
   }
+}
+
+/** DEMO_MODE=true turns on the demo-only steps (demo reset, sandbox settle). Off by default. */
+export const demoMode = () => process.env.DEMO_MODE === 'true';
+
+/** Dependencies for the sandbox settle step (T-402). Null without PayPal credentials. */
+export function getSettleDeps() {
+  const deps = getActionDeps();
+  return deps ? { ...deps, demoMode: demoMode() } : null;
 }

@@ -115,6 +115,15 @@ describe('T-308 analyse route', () => {
     for (const u of p.users) expect(u).not.toMatch(/"text": "(?!\[withheld)/);
   });
 
+  it('says whether the sandbox settle step is offered, only when DEMO_MODE is on (T-402)', async () => {
+    await syncDispute({ db, paypal }, REAL);
+    const off = (await events(await handleAnalyse({ db, paypal, provider: null, now: () => NOW }, REAL))).at(-1)!;
+    const on = (await events(await handleAnalyse({ db, paypal, provider: null, now: () => NOW, demoMode: true }, REAL))).at(-1)!;
+    if (off.type !== 'result' || on.type !== 'result') throw new Error();
+    expect(off.sandboxSettle).toBeNull();
+    expect(on.sandboxSettle).toBe('NOT_YET'); // this dispute shows no adjudicate link
+  });
+
   it('when PayPal cannot be reached, nothing is executable but the advice still shows', async () => {
     await syncDispute({ db, paypal }, REAL);
     fail = true;

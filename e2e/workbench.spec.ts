@@ -103,3 +103,14 @@ test('the message starts from the checked draft; an edit is labelled Seller ente
   await expect(page.getByTestId('edited-note').locator('[data-truth-state="Seller entered"]')).toBeVisible();
   await expect(page.getByTestId('payload')).toContainText('we are checking with India Post');
 });
+
+test('the sandbox settle step does not exist when DEMO_MODE is off (T-402)', async ({ page, request }) => {
+  await page.goto('/disputes/PP-DEMO-0001');
+  await waitForActions(page);
+  await expect(page.getByTestId('sandbox-settle')).toHaveCount(0);
+  const res = await request.post('/api/disputes/PP-R-AAA-10000000/sandbox-settle', {
+    data: { outcome: 'SELLER_FAVOR', expectedRawHash: 'a'.repeat(64) },
+  });
+  expect(res.status()).toBe(404);
+  expect((await request.post(`/api/approvals/${'c'.repeat(25)}/sandbox-settle`)).status()).toBe(404);
+});
