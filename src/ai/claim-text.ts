@@ -1,18 +1,21 @@
 // A typed claim in plain words for the truth map (T-401). Money goes through fromMinor (CLAUDE.md).
 import { fromMinor } from '../normalise/money';
+import type { TruthState } from '../lib/truth-state';
 import type { Claim } from './schema';
 
 const words = (code: string) => code.replace(/_/g, ' ').toLowerCase();
 const carrier = (code: string) => code.split('_').map((w) => w.charAt(0) + w.slice(1).toLowerCase()).join(' ');
 
-export function claimText(c: Claim): string {
+/** `trust`: the label of the first cited record. A seller-entered delivery is named as the seller's (Q2). */
+export function claimText(c: Claim, trust?: TruthState): string {
+  const whose = trust === 'Seller entered' ? "The seller's tracking record" : 'Tracking record';
   switch (c.type) {
     case 'SHIPPED':
       return `Shipped on ${c.date} with ${carrier(c.carrier)}, tracking number ${c.trackingNo}`;
     case 'DELIVERED':
-      return `Tracking record shows delivered on ${c.date}`;
+      return `${whose} shows delivered on ${c.date}`;
     case 'DELIVERED_TO_NEIGHBOUR':
-      return `Tracking record shows delivered to a neighbour on ${c.date}`;
+      return `${whose} shows delivered to a neighbour on ${c.date}`;
     case 'TRACKING_STATUS':
       return `Tracking status ${words(c.status)} on ${c.date}`;
     case 'ORDER_AMOUNT':
