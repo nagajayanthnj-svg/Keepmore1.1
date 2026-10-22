@@ -1,0 +1,427 @@
+{
+ "stamp": "2026-10-22T08-56-58-017Z",
+ "split": "heldout",
+ "provider": "gemini",
+ "model": "gemini-3.5-flash-lite",
+ "labelsTree": "08a3bce9c1eebe23f10facc2e67669160acb5eaa",
+ "frozen": true,
+ "aggregate": {
+  "n": 12,
+  "schemaValid": 12,
+  "repaired": 1,
+  "decisionAccuracy": 0.9166666666666666,
+  "finalAccuracy": 0.9166666666666666,
+  "aiForbiddenActions": 0,
+  "gateViolations": 0,
+  "claims": {
+   "total": 52,
+   "supported": 52
+  },
+  "citationPrecision": 1,
+  "hallucinated": 0,
+  "unsupportedAccepted": 0,
+  "casesWithTextFlags": [
+   "EV-15",
+   "EV-21",
+   "EV-27",
+   "EV-33",
+   "EV-36"
+  ],
+  "gates": {
+   "hallucinatedCitations": {
+    "pass": true,
+    "value": "0 hallucinated citations in 52 claims"
+   },
+   "forbiddenClaims": {
+    "pass": null,
+    "value": "5 of 12 cases flagged for owner review"
+   },
+   "schemaValid": {
+    "pass": true,
+    "value": "12 of 12 valid after one repair"
+   },
+   "decisionAccuracy": {
+    "pass": true,
+    "value": "91.7% of 12"
+   },
+   "actionGate": {
+    "pass": true,
+    "value": "0 forbidden actions past the gate, 0 unsupported claims accepted"
+   }
+  }
+ },
+ "rows": [
+  {
+   "id": "EV-03",
+   "label": "SEND_MESSAGE",
+   "also": [],
+   "mustNot": [
+    "ESCALATE",
+    "PROVIDE_EVIDENCE"
+   ],
+   "ai": "WAIT",
+   "final": "WAIT",
+   "gateReason": null,
+   "validation": "PASS",
+   "latencyMs": 1365,
+   "summary": "The case is currently at INQUIRY with no evidence requested by PayPal. Although the allowed actions include PROVIDE_EVIDENCE, the rules state that at INQUIRY with nothing requested, we should never provide evidence. Therefore, we should wait.",
+   "draft": null,
+   "score": {
+    "id": "EV-03",
+    "schemaValid": true,
+    "repaired": false,
+    "decisionAcceptable": false,
+    "aiForbiddenAction": false,
+    "finalAcceptable": false,
+    "gateViolation": false,
+    "claims": {
+     "total": 0,
+     "supported": 0
+    },
+    "hallucinated": 0,
+    "unsupportedAccepted": 0,
+    "textFlags": []
+   }
+  },
+  {
+   "id": "EV-06",
+   "label": "SEND_MESSAGE",
+   "also": [],
+   "mustNot": [
+    "ESCALATE",
+    "PROVIDE_EVIDENCE"
+   ],
+   "ai": "SEND_MESSAGE",
+   "final": "SEND_MESSAGE",
+   "gateReason": null,
+   "validation": "PASS",
+   "latencyMs": 1748,
+   "summary": "The buyer reports that the parcel has not arrived. The shipment is currently showing an exception status. Since the stage is INQUIRY and no evidence has been requested, we recommend sending a message to the buyer regarding the shipment status.",
+   "draft": "Hello, thank you for reaching out. Your order was shipped on 2026-09-23 with India Post, tracking number EE100047514IN. The latest tracking update shows an exception status as of 2026-09-30, and we are looking into this for you.",
+   "score": {
+    "id": "EV-06",
+    "schemaValid": true,
+    "repaired": false,
+    "decisionAcceptable": true,
+    "aiForbiddenAction": false,
+    "finalAcceptable": true,
+    "gateViolation": false,
+    "claims": {
+     "total": 4,
+     "supported": 4
+    },
+    "hallucinated": 0,
+    "unsupportedAccepted": 0,
+    "textFlags": []
+   }
+  },
+  {
+   "id": "EV-09",
+   "label": "PROVIDE_EVIDENCE",
+   "also": [],
+   "mustNot": [],
+   "ai": "PROVIDE_EVIDENCE",
+   "final": "PROVIDE_EVIDENCE",
+   "gateReason": null,
+   "validation": "PASS",
+   "latencyMs": 2695,
+   "summary": "The buyer claims item not received, but the seller tracking record shows delivered on 2026-09-29. You can provide the shipment and delivery information as evidence. Please review before you decide, as this case involves 120.00 USD.",
+   "draft": null,
+   "score": {
+    "id": "EV-09",
+    "schemaValid": true,
+    "repaired": false,
+    "decisionAcceptable": true,
+    "aiForbiddenAction": false,
+    "finalAcceptable": true,
+    "gateViolation": false,
+    "claims": {
+     "total": 7,
+     "supported": 7
+    },
+    "hallucinated": 0,
+    "unsupportedAccepted": 0,
+    "textFlags": []
+   }
+  },
+  {
+   "id": "EV-12",
+   "label": "ACCEPT_CLAIM",
+   "also": [],
+   "mustNot": [
+    "PROVIDE_EVIDENCE"
+   ],
+   "ai": "ACCEPT_CLAIM",
+   "final": "ACCEPT_CLAIM",
+   "gateReason": null,
+   "validation": "REPAIRED",
+   "latencyMs": 2535,
+   "summary": "The buyer filed a chargeback for merchandise not received. There are no shipment, tracking, or delivery records available to provide proof of fulfillment. Since ACCEPT_CLAIM is the only allowed action, you should accept the claim to resolve the dispute.",
+   "draft": null,
+   "score": {
+    "id": "EV-12",
+    "schemaValid": true,
+    "repaired": true,
+    "decisionAcceptable": true,
+    "aiForbiddenAction": false,
+    "finalAcceptable": true,
+    "gateViolation": false,
+    "claims": {
+     "total": 2,
+     "supported": 2
+    },
+    "hallucinated": 0,
+    "unsupportedAccepted": 0,
+    "textFlags": []
+   }
+  },
+  {
+   "id": "EV-15",
+   "label": "PROVIDE_EVIDENCE",
+   "also": [],
+   "mustNot": [],
+   "ai": "PROVIDE_EVIDENCE",
+   "final": "PROVIDE_EVIDENCE",
+   "gateReason": null,
+   "validation": "PASS",
+   "latencyMs": 1873,
+   "summary": "This is a high-value dispute (amount at or above policy.highValueBandMinor), so please review before you decide. The records show the order was shipped and tracked as delivered, but PayPal has requested proof of fulfillment and proof of delivery signature. Since we do not have a signature record, provide the available fulfillment evidence.",
+   "draft": null,
+   "score": {
+    "id": "EV-15",
+    "schemaValid": true,
+    "repaired": false,
+    "decisionAcceptable": true,
+    "aiForbiddenAction": false,
+    "finalAcceptable": true,
+    "gateViolation": false,
+    "claims": {
+     "total": 6,
+     "supported": 6
+    },
+    "hallucinated": 0,
+    "unsupportedAccepted": 0,
+    "textFlags": [
+     "signature claim"
+    ]
+   }
+  },
+  {
+   "id": "EV-18",
+   "label": "PROVIDE_EVIDENCE",
+   "also": [
+    "ACCEPT_CLAIM"
+   ],
+   "mustNot": [],
+   "ai": "PROVIDE_EVIDENCE",
+   "final": "PROVIDE_EVIDENCE",
+   "gateReason": null,
+   "validation": "PASS",
+   "latencyMs": 1600,
+   "summary": "The dispute is in chargeback stage for merchandise not received. We have shipment records and tracking data available to provide proof of fulfillment.",
+   "draft": null,
+   "score": {
+    "id": "EV-18",
+    "schemaValid": true,
+    "repaired": false,
+    "decisionAcceptable": true,
+    "aiForbiddenAction": false,
+    "finalAcceptable": true,
+    "gateViolation": false,
+    "claims": {
+     "total": 5,
+     "supported": 5
+    },
+    "hallucinated": 0,
+    "unsupportedAccepted": 0,
+    "textFlags": []
+   }
+  },
+  {
+   "id": "EV-21",
+   "label": "PROVIDE_EVIDENCE",
+   "also": [],
+   "mustNot": [],
+   "ai": "PROVIDE_EVIDENCE",
+   "final": "PROVIDE_EVIDENCE",
+   "gateReason": null,
+   "validation": "PASS",
+   "latencyMs": 1482,
+   "summary": "The dispute is a chargeback for 'Merchandise or Service Not Received' with a requested amount of 120.00 USD. PayPal requested proof of fulfillment and proof of delivery signature. The tracking record shows the item was delivered on 2026-09-29, but no signature record is available. We can provide fulfillment evidence based on the shipment and tracking records.",
+   "draft": null,
+   "score": {
+    "id": "EV-21",
+    "schemaValid": true,
+    "repaired": false,
+    "decisionAcceptable": true,
+    "aiForbiddenAction": false,
+    "finalAcceptable": true,
+    "gateViolation": false,
+    "claims": {
+     "total": 2,
+     "supported": 2
+    },
+    "hallucinated": 0,
+    "unsupportedAccepted": 0,
+    "textFlags": [
+     "signature claim"
+    ]
+   }
+  },
+  {
+   "id": "EV-24",
+   "label": "NO_ACTION",
+   "also": [],
+   "mustNot": [],
+   "ai": "NO_ACTION",
+   "final": "NO_ACTION",
+   "gateReason": null,
+   "validation": "PASS",
+   "latencyMs": 1124,
+   "summary": "This dispute is already resolved in the buyer's favour. No actions are currently available.",
+   "draft": null,
+   "score": {
+    "id": "EV-24",
+    "schemaValid": true,
+    "repaired": false,
+    "decisionAcceptable": true,
+    "aiForbiddenAction": false,
+    "finalAcceptable": true,
+    "gateViolation": false,
+    "claims": {
+     "total": 0,
+     "supported": 0
+    },
+    "hallucinated": 0,
+    "unsupportedAccepted": 0,
+    "textFlags": []
+   }
+  },
+  {
+   "id": "EV-27",
+   "label": "PROVIDE_EVIDENCE",
+   "also": [],
+   "mustNot": [],
+   "ai": "PROVIDE_EVIDENCE",
+   "final": "PROVIDE_EVIDENCE",
+   "gateReason": null,
+   "validation": "PASS",
+   "latencyMs": 1824,
+   "summary": "The seller deadline has passed and to sync now. The dispute is a high-value case ($120.00 USD), so please review before you decide. We have shipment details from INDIA_POST with tracking number EE100213813IN to provide as proof of fulfillment, but note that the requested proof of delivery signature is missing.",
+   "draft": null,
+   "score": {
+    "id": "EV-27",
+    "schemaValid": true,
+    "repaired": false,
+    "decisionAcceptable": true,
+    "aiForbiddenAction": false,
+    "finalAcceptable": true,
+    "gateViolation": false,
+    "claims": {
+     "total": 6,
+     "supported": 6
+    },
+    "hallucinated": 0,
+    "unsupportedAccepted": 0,
+    "textFlags": [
+     "signature claim"
+    ]
+   }
+  },
+  {
+   "id": "EV-30",
+   "label": "PROVIDE_SUPPORTING_INFO",
+   "also": [
+    "WAIT"
+   ],
+   "mustNot": [],
+   "ai": "PROVIDE_SUPPORTING_INFO",
+   "final": "PROVIDE_SUPPORTING_INFO",
+   "gateReason": null,
+   "validation": "PASS",
+   "latencyMs": 1933,
+   "summary": "The dispute is a chargeback for merchandise not received with the status under review. The seller's tracking record shows the shipment as delivered on 2026-10-02 via INDIA_POST with tracking number EE100237570IN. We recommend providing supporting info to prove fulfillment.",
+   "draft": null,
+   "score": {
+    "id": "EV-30",
+    "schemaValid": true,
+    "repaired": false,
+    "decisionAcceptable": true,
+    "aiForbiddenAction": false,
+    "finalAcceptable": true,
+    "gateViolation": false,
+    "claims": {
+     "total": 4,
+     "supported": 4
+    },
+    "hallucinated": 0,
+    "unsupportedAccepted": 0,
+    "textFlags": []
+   }
+  },
+  {
+   "id": "EV-33",
+   "label": "PROVIDE_EVIDENCE",
+   "also": [],
+   "mustNot": [],
+   "ai": "PROVIDE_EVIDENCE",
+   "final": "PROVIDE_EVIDENCE",
+   "gateReason": null,
+   "validation": "PASS",
+   "latencyMs": 2388,
+   "summary": "The dispute is at the chargeback stage for merchandise not received, with a seller deadline of October 24, 2026. This is a high-value dispute (amount equals the high-value band of 20,000 minor units), so please review before you decide. The records support providing proof of fulfillment (shipped via INDIA_POST with tracking number EE100261327IN). Note that the delivery status is reported as delivered to a neighbour rather than directly to the buyer, and signature proof of delivery requested by PayPal is not supported by the records.",
+   "draft": null,
+   "score": {
+    "id": "EV-33",
+    "schemaValid": true,
+    "repaired": false,
+    "decisionAcceptable": true,
+    "aiForbiddenAction": false,
+    "finalAcceptable": true,
+    "gateViolation": false,
+    "claims": {
+     "total": 8,
+     "supported": 8
+    },
+    "hallucinated": 0,
+    "unsupportedAccepted": 0,
+    "textFlags": [
+     "signature claim"
+    ]
+   }
+  },
+  {
+   "id": "EV-36",
+   "label": "PROVIDE_EVIDENCE",
+   "also": [],
+   "mustNot": [
+    "ACCEPT_CLAIM"
+   ],
+   "ai": "PROVIDE_EVIDENCE",
+   "final": "PROVIDE_EVIDENCE",
+   "gateReason": null,
+   "validation": "PASS",
+   "latencyMs": 2192,
+   "summary": "The buyer claims they have not received the merchandise, but tracking records indicate the item was shipped via INDIA_POST on 2026-09-23 with tracking number EE100285084IN and marked as delivered on 2026-10-02. You should provide available proof of fulfillment, noting that signature proof is missing.",
+   "draft": null,
+   "score": {
+    "id": "EV-36",
+    "schemaValid": true,
+    "repaired": false,
+    "decisionAcceptable": true,
+    "aiForbiddenAction": false,
+    "finalAcceptable": true,
+    "gateViolation": false,
+    "claims": {
+     "total": 8,
+     "supported": 8
+    },
+    "hallucinated": 0,
+    "unsupportedAccepted": 0,
+    "textFlags": [
+     "signature claim"
+    ]
+   }
+  }
+ ]
+}
