@@ -32,7 +32,9 @@ Rules:
 - A draft may rest only on claims you list in claimIds.`;
 
 function user(cf: CaseFile, asOf: Date, syntheticData: boolean): string {
-  const { buyerMessages, hash: _hash, ...facts } = cf;
+  const { buyerMessages, ...rest } = cf;
+  const facts: Partial<typeof rest> = { ...rest };
+  delete facts.hash;
   const msgs = buyerMessages.map((m) => ({
     id: m.id,
     at: m.at,
