@@ -46,6 +46,16 @@ const make = () => {
 };
 
 describe('token cache', () => {
+  it('warmUp fetches the token once, so the first real call needs no token request', async () => {
+    server.use(tokenHandler(), echo);
+    const c = make();
+    await c.warmUp();
+    expect(tokenCalls).toHaveLength(1);
+    await c.get('/v1/ping');
+    expect(tokenCalls).toHaveLength(1);
+    expect(apiCalls[0]!.headers.get('authorization')).toBe('Bearer tok-1');
+  });
+
   it('requests a token with Basic auth and client_credentials, then sends it as Bearer', async () => {
     server.use(tokenHandler(), echo);
     const c = make();

@@ -164,6 +164,10 @@ export function createPayPalClient(opts: PayPalClientOptions) {
 
   return {
     request,
+    /** Gets the access token now, so the first real call does not pay for it (the webhook answer is time-limited). */
+    warmUp: async (): Promise<void> => {
+      await getToken(false);
+    },
     get: <T = unknown>(path: string) => request<T>('GET', path),
     post: <T = unknown>(path: string, body?: unknown, options?: { requestId?: string }) =>
       request<T>('POST', path, body, options),
