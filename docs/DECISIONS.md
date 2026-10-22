@@ -919,3 +919,15 @@ Three calls to `POST /api/orders/3K7336723L338842X/ship`, carrier "India Post":
 - The gate decides what to show only. The action service (`src/disputes/actions.ts`) still re-reads the links at approval; nothing here calls PayPal.
 - **Not wired to a screen or route yet** (T-401). Whoever wires it must pass the fresh allowed actions and set `syntheticData` from the case's data source.
 - **Live smoke script** `scripts/live-ai-smoke.ts` (new; existing scripts untouched): one real call each on the invented cases EV-01 and EV-14, prints mode, validation, latency, AI action against rules action, gated action, claim results and hallucinated citations. It never prints the key and sends no real dispute. It has been run only without a key in this sandbox: the sandbox cannot read the owner's `.env` and cannot reach the provider. **The first live result is still to come from the owner's PC.**
+
+## Live smoke result (22 Oct) and the evidence guard
+- `scripts/live-ai-smoke.ts` ran on the owner's PC: Gemini 3.5 Flash-Lite answered both invented cases in about 2 s, valid JSON on the first try, every claim SUPPORTED, no hallucinated citation. **The Gemini request shape is now verified live.**
+- **Finding:** on EV-01 (INQUIRY, nothing requested) the model recommended PROVIDE_EVIDENCE although the prompt said never to. That is on the label's must-not list. One case, one run; the model also gave a thin summary. Not a prompt tuning exercise yet.
+- **Fix in the gate, not the prompt:** `PROVIDE_EVIDENCE` is executable only when the rules' checklist has at least one supportable requested type (evidence is one-shot). This also covers EV-12, 13, 16 and 34. Tests written first (fail, then pass). The gate fixes what the seller sees; the eval still scores the model's raw answer, so the miss stays visible.
+
+## T-310: evaluation runner
+- `npm run eval` (dev split, 24 cases) and `npm run eval -- --heldout` (12 cases, **once**: a lock file `eval/runs/heldout.lock` refuses a second run). Scoring is pure and tested on two fixture cases (`src/eval/score.ts`).
+- **Scored on the model's own answer** (a fallback to rules is a miss and schema-invalid). Reported with denominators: decision accuracy (model alone and after the gate), forbidden actions (raw and past the gate), citation precision (SUPPORTED claims over claims made), hallucinated citations, repaired answers.
+- **Forbidden claims cannot be fully automatic.** There is no second model as judge (plan). The runner screens text for the phrases you ruled out (signature, confirmed by PayPal or the carrier, delivery confirmed, "still time", "case is lost", refunded/released/debited, safe place) and lists the flagged cases. **The owner reads each flagged text** before that gate can pass; until then it shows REVIEW.
+- The report prints the labels tree hash and says whether it matches the frozen `08a3bce9…`.
+- Outputs: raw answers and scores in `eval/runs/`, the report in `eval/report.md` (held-out: `eval/report-heldout.md`). Only invented cases are sent.

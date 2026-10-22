@@ -82,3 +82,23 @@ describe('T-306 executable action = AI suggestion ∩ allowed actions', () => {
     expect(gateSuggestion({ ai: null, rules: r, allowed: ALL }).draft).toBeNull();
   });
 });
+
+describe('T-306 PROVIDE_EVIDENCE needs something the records can support (seen live on EV-01)', () => {
+  it('blocks PROVIDE_EVIDENCE at an inquiry with nothing requested, even though PayPal offers it', () => {
+    const { rules } = setup('EV-01');
+    const g = gateSuggestion({ ai: ai(rules.analysis, { recommendedAction: 'PROVIDE_EVIDENCE' }), rules, allowed: ALL });
+    expect(g.action).toBe('SEND_MESSAGE');
+    expect(g.source).toBe('RULES');
+    expect(g.reason).toMatch(/no requested evidence/i);
+  });
+  it('blocks it when none of the requested types can be supported', () => {
+    const { rules } = setup('EV-13');
+    const g = gateSuggestion({ ai: ai(rules.analysis, { recommendedAction: 'PROVIDE_EVIDENCE' }), rules, allowed: ALL });
+    expect(g.action).not.toBe('PROVIDE_EVIDENCE');
+  });
+  it('allows it when a requested type is supportable', () => {
+    const { rules } = setup('EV-09');
+    const g = gateSuggestion({ ai: ai(rules.analysis, { recommendedAction: 'PROVIDE_EVIDENCE' }), rules, allowed: ALL });
+    expect(g).toMatchObject({ action: 'PROVIDE_EVIDENCE', source: 'AI' });
+  });
+});
