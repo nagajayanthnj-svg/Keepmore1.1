@@ -1093,3 +1093,15 @@ Build order and target dates: T-308 23 Oct; routes 24 Oct; T-401 25–27 Oct; T-
 - New outcome lines (`outcome-v2`) are positive. A dispute already recorded under `outcome-v1` counts as recorded; each of its negative lines gets, once, a reversing line (`correctsEntryId` pointing at it, `outcome-v2-reversal`) and a corrected positive line, so totals come out right without editing the append-only ledger. Positive v1 lines (RETAINED) are left alone. Tested, including repeated syncs.
 - The outcome screen marks a reversing line "(correction of an earlier line)".
 - This only matters if a resolved, order-linked dispute was synced on the owner's PC between merging #77 and this fix.
+
+## T-406: order financial truth timeline
+- `/orders/[id]` (PayPal order id, or our own id as the inbox links use) shows **a timeline of everything that happened to the order and its money**, oldest first: order placed, gross, PayPal fee, exchange-rate cost, shipment, tracking events, disputes (with links to the workbench) and dispute outcome lines (with links to the outcome screen). `src/orders/timeline.ts`; nothing from the buyer is shown.
+- **Each line shows one truth-state label, a time (or "Time not recorded"), how the number was made, and a reference** (Playwright checks every line):
+  - real capture lines: "Read from PayPal's capture: seller_receivable_breakdown.paypal_fee; never recalculated", reference the capture id;
+  - demo fee: "4.6% of the gross + 0.36, rounded" with a check that the stored number matches;
+  - **FX: the working with its inputs**, e.g. "(56.00 − 2.94) USD × 84.479 INR/USD (rate of 2026-09-14) × 3% spread = 134.47 INR". The 3% is shown only when recomputing with `estimateFx` gives the stored amount; otherwise it says the spread was not recorded (the ledger does not store it);
+  - **a real order with no FX line shows an Unknown line** ("no exchange rate is recorded… nothing is guessed") instead of leaving it out. Today no code writes FX for real sandbox orders (`fxEstimateEntry` is only used by the demo seed); that is a gap to close if real orders should show FX cost;
+  - disputes use the time we last read them from PayPal (`DisputeCase` has no opened-at time), and say so.
+- **Leakage is listed line by line** (one row per kind, label and currency: PayPal fees in USD, FX cost in INR, dispute fees) **and never added into one total**, because the parts differ in currency or label.
+- **Open for the owner:** the plan's "done when" says "Order #1042 reads ₹757 listed leakage with labels". That worked example comes from the master PRD, which is not in the repo, and no order #1042 or ₹757 exists in our data, so I did not reproduce it. A single ₹ figure would also need the USD fee converted to INR and added to an estimated FX cost, which mixes labels. Send the example's inputs (gross, fee, rate, spread, and whether the total should be one ₹ number) and I will add it as a test.
+- Shipment label: invented demo shipments (tracking numbers starting DEMO) are Simulated demo; anything the seller typed is Seller entered, also on a demo order.
