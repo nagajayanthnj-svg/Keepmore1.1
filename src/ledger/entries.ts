@@ -2,15 +2,23 @@
 // a fee PayPal returned is never recalculated. Both amounts are positive: the entry type gives the direction.
 import { z } from 'zod';
 import type { Db } from '../lib/db';
+import { hasErrorBrand } from '../lib/error-brand';
 import { toMinor } from '../normalise/money';
 import { appendLedgerEntry, type LedgerEntryInput } from './store';
 
+const CAPTURE_BREAKDOWN_BRAND = Symbol.for('keepmore.error.CaptureBreakdownError');
+
 export class CaptureBreakdownError extends Error {
+  readonly [CAPTURE_BREAKDOWN_BRAND] = true;
   constructor(message: string) {
     super(message);
     this.name = 'CaptureBreakdownError';
   }
 }
+
+/** A CaptureBreakdownError from this module or another copy of it. Use this, not `instanceof`. */
+export const isCaptureBreakdownError = (e: unknown): e is CaptureBreakdownError =>
+  e instanceof CaptureBreakdownError || hasErrorBrand(e, 'CaptureBreakdownError');
 
 const money = z.object({
   currency_code: z.string().regex(/^[A-Z]{3}$/),

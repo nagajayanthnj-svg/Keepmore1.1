@@ -1,6 +1,6 @@
 // The sync button (T-205): one fresh read of one dispute, now. Reads only; never writes to PayPal.
-import { PayPalError } from '../paypal/client';
-import { DISPUTE_ID, DisputeParseError } from './parse';
+import { isPayPalError } from '../paypal/client';
+import { DISPUTE_ID, isDisputeParseError } from './parse';
 import { syncDispute, type SyncDeps } from './sync';
 
 export async function handleManualSync(deps: SyncDeps | null, disputeId: string): Promise<Response> {
@@ -11,8 +11,8 @@ export async function handleManualSync(deps: SyncDeps | null, disputeId: string)
     const r = await syncDispute(deps, disputeId);
     return Response.json({ disputeId: r.disputeId, created: r.created, changed: r.changed });
   } catch (e) {
-    if (e instanceof DisputeParseError) return Response.json({ error: 'UNUSABLE_DISPUTE' }, { status: 502 });
-    if (e instanceof PayPalError) return Response.json({ error: 'PAYPAL_UNAVAILABLE' }, { status: 502 });
+    if (isDisputeParseError(e)) return Response.json({ error: 'UNUSABLE_DISPUTE' }, { status: 502 });
+    if (isPayPalError(e)) return Response.json({ error: 'PAYPAL_UNAVAILABLE' }, { status: 502 });
     throw e;
   }
 }

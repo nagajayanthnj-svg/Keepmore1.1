@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { createPayPalClient } from '../../src/paypal/client';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { createPayPalClient, PayPalError } from '../../src/paypal/client';
 import { verifyWebhookSignature, WEBHOOK_VERIFY_TIMEOUT_MS } from '../../src/paypal/webhook-verify';
 
 const BASE = 'https://paypal.test';
@@ -96,4 +96,56 @@ describe('verifyWebhookSignature', () => {
     answer(fx.verification.body, 200, 2000);
     await expect(verifyWebhookSignature(client(), WEBHOOK_ID, headers, raw)).resolves.toBe(true);
   }, 10_000);
+});
+
+// Synthetic 400 body (not a real PayPal response): the shape PayPal uses for a schema error with a field.
+const SYNTHETIC_400 = {
+  name: 'INVALID_REQUEST',
+  message: 'Request is not well-formed, syntactically incorrect, or violates schema.',
+  debug_id: 'SYNTHETIC-DEBUG-1',
+  details: [{ field: 'webhook_id', location: 'body', issue: 'INVALID_STRING_LENGTH' }],
+};
+
+describe('a 400 from the verify call', () => {
+  it('keeps the field name and the issue code on the PayPalError', async () => {
+    answer(SYNTHETIC_400, 400);
+    const err = (await verifyWebhookSignature(client(), WEBHOOK_ID, headers, raw).catch((e: unknown) => e)) as PayPalError;
+    expect(err).toBeInstanceOf(PayPalError);
+    expect(err.status).toBe(400);
+    expect(err.code).toBe('INVALID_REQUEST');
+    expect(err.issues).toEqual(['INVALID_STRING_LENGTH']);
+    expect(err.fields).toEqual(['webhook_id']);
+    expect(err.debugId).toBe('SYNTHETIC-DEBUG-1');
+  });
+
+  it('logs which header names are present and the webhook id length and shape, never a value', async () => {
+    answer(SYNTHETIC_400, 400);
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const odd = 'WEBHOOK-ID-1\r'; // a stray carriage return: wrong shape
+    await verifyWebhookSignature(client(), odd, headers, raw).catch(() => {});
+    const line = spy.mock.calls.map((c) => c.join(' ')).join('\n');
+    spy.mockRestore();
+    for (const name of [
+      'paypal-auth-algo',
+      'paypal-cert-url',
+      'paypal-transmission-id',
+      'paypal-transmission-sig',
+      'paypal-transmission-time',
+    ]) {
+      expect(line).toContain(name);
+    }
+    expect(line).toContain(`webhookIdLength=${odd.length}`);
+    expect(line).toContain('webhookIdShapeOk=false');
+    expect(line).not.toContain('WEBHOOK-ID-1');
+    for (const v of Object.values(fx.headers) as string[]) expect(line).not.toContain(v);
+  });
+
+  it('logs nothing extra when PayPal answers normally', async () => {
+    answer(fx.verification.body);
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await verifyWebhookSignature(client(), WEBHOOK_ID, headers, raw);
+    const n = spy.mock.calls.length;
+    spy.mockRestore();
+    expect(n).toBe(0);
+  });
 });
