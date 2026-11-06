@@ -3,6 +3,7 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { systemClock, type Clock } from '../lib/clock';
+import { hasErrorBrand } from '../lib/error-brand';
 
 /** The token is treated as expired this long before PayPal says so. */
 const TOKEN_SAFETY_MS = 60_000;
@@ -16,7 +17,12 @@ const errorBodySchema = z.object({
   details: z.array(z.object({ issue: z.string().optional(), field: z.string().optional() })).optional(),
 });
 
+const PAYPAL_ERROR_BRAND = Symbol.for('keepmore.error.PayPalError');
+const CHANGE_NOT_SEEN_BRAND = Symbol.for('keepmore.error.PayPalChangeNotSeenError');
+
 export class PayPalError extends Error {
+  /** Global brand: survives a second copy of this module, where `instanceof` fails. */
+  readonly [PAYPAL_ERROR_BRAND] = true;
   readonly status: number;
   /** PayPal's error `name`, e.g. INVALID_REQUEST. Undefined when the body was not PayPal JSON. */
   readonly code: string | undefined;
@@ -49,6 +55,7 @@ export class PayPalError extends Error {
 }
 
 export class PayPalChangeNotSeenError extends Error {
+  readonly [CHANGE_NOT_SEEN_BRAND] = true;
   constructor(attempts: number) {
     super(`The change did not show in PayPal after ${attempts} reads`);
     this.name = 'PayPalChangeNotSeenError';
@@ -56,6 +63,22 @@ export class PayPalChangeNotSeenError extends Error {
 }
 
 const RAW_JSON_BRAND = Symbol.for('keepmore.rawjson');
+
+/** A PayPalError from this module or from another copy of it (brand plus shape). Use this, not `instanceof`. */
+export function isPayPalError(e: unknown): e is PayPalError {
+  if (e instanceof PayPalError) return true;
+  const x = e as Partial<PayPalError> | null;
+  return (
+    hasErrorBrand(e, 'PayPalError') &&
+    typeof x?.status === 'number' &&
+    Array.isArray(x.issues) &&
+    Array.isArray(x.fields)
+  );
+}
+
+export function isPayPalChangeNotSeenError(e: unknown): e is PayPalChangeNotSeenError {
+  return e instanceof PayPalChangeNotSeenError || hasErrorBrand(e, 'PayPalChangeNotSeenError');
+}
 
 /**
  * A body that is already JSON text and must reach PayPal byte for byte. Webhook verification needs this:

@@ -4,11 +4,17 @@
 // The request body is built by `deps.build` (T-211); this file decides whether a write may happen, not what it says.
 import type { Db } from '../lib/db';
 import { systemClock, type Clock } from '../lib/clock';
-import { PayPalChangeNotSeenError, PayPalError, rereadUntil, type PayPalClient } from '../paypal/client';
+import {
+  isPayPalChangeNotSeenError,
+  isPayPalError,
+  rereadUntil,
+  type PayPalClient,
+  type PayPalError,
+} from '../paypal/client';
 import { getAllowedActions, hasAction, type ActionCode } from './allowed-actions';
 import { verifyApproval } from './approval';
 import { buildDisputeBody, type BodyContext } from './bodies';
-import { DisputeParseError } from './parse';
+import { isDisputeParseError } from './parse';
 import { isStale } from './poller';
 import { SETTLE_ACTION } from './sandbox-settle';
 import { syncDispute } from './sync';
@@ -79,8 +85,8 @@ export async function submitApprovedAction(deps: ActionDeps, approvalId: string)
   try {
     fresh = await getAllowedActions(deps, c.paypalDisputeId);
   } catch (e) {
-    if (e instanceof DisputeParseError) return { ok: false, code: 'UNUSABLE_DISPUTE' };
-    if (e instanceof PayPalError) return { ok: false, code: 'PAYPAL_UNAVAILABLE', retryable: true };
+    if (isDisputeParseError(e)) return { ok: false, code: 'UNUSABLE_DISPUTE' };
+    if (isPayPalError(e)) return { ok: false, code: 'PAYPAL_UNAVAILABLE', retryable: true };
     throw e;
   }
 
@@ -142,8 +148,8 @@ export async function submitSandboxSettle(
   try {
     fresh = await getAllowedActions(deps, c.paypalDisputeId);
   } catch (e) {
-    if (e instanceof DisputeParseError) return { ok: false, code: 'UNUSABLE_DISPUTE' };
-    if (e instanceof PayPalError) return { ok: false, code: 'PAYPAL_UNAVAILABLE', retryable: true };
+    if (isDisputeParseError(e)) return { ok: false, code: 'UNUSABLE_DISPUTE' };
+    if (isPayPalError(e)) return { ok: false, code: 'PAYPAL_UNAVAILABLE', retryable: true };
     throw e;
   }
   const verified = await verifyApproval(deps.db, approvalId, { currentRawHash: fresh.rawHash });
@@ -187,7 +193,7 @@ async function writeAndConfirm(deps: ActionDeps, w: WriteArgs): Promise<SubmitRe
     status = res.status;
     responseJson = JSON.stringify(res.body ?? null).slice(0, MAX_STORED);
   } catch (e) {
-    if (e instanceof PayPalError && e.status < 500 && e.status !== 429) {
+    if (isPayPalError(e) && e.status < 500 && e.status !== 429) {
       // A definite refusal: final for this approval. The seller reviews and approves again if they want.
       await deps.db.caseAction.update({
         where: { id: approvalId },
@@ -210,13 +216,13 @@ async function writeAndConfirm(deps: ActionDeps, w: WriteArgs): Promise<SubmitRe
     // 5xx, 429 or no answer at all: it may or may not have happened. Same key on the retry.
     await audit(deps.db, approvalId, 'WRITE_UNCERTAIN', {
       action: w.action,
-      httpStatus: e instanceof PayPalError ? e.status : null,
+      httpStatus: isPayPalError(e) ? e.status : null,
     });
     return {
       ok: false,
       code: 'PAYPAL_UNAVAILABLE',
       retryable: true,
-      ...(e instanceof PayPalError && { httpStatus: e.status }),
+      ...(isPayPalError(e) && { httpStatus: e.status }),
     };
   }
 
@@ -243,7 +249,7 @@ async function writeAndConfirm(deps: ActionDeps, w: WriteArgs): Promise<SubmitRe
       },
     );
   } catch (e) {
-    if (!(e instanceof PayPalChangeNotSeenError || e instanceof PayPalError || e instanceof DisputeParseError)) throw e;
+    if (!(isPayPalChangeNotSeenError(e) || isPayPalError(e) || isDisputeParseError(e))) throw e;
     outcome = 'PENDING';
   }
   let synced = true;

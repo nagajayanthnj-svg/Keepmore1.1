@@ -6,7 +6,7 @@ import type { Db } from '../lib/db';
 import { systemClock, type Clock } from '../lib/clock';
 import { normaliseCarrier, normaliseTracking, type Carrier } from '../normalise/tracking';
 import { PAYPAL_ORDER_ID } from '../orders/schema';
-import { PayPalError, type PayPalClient } from '../paypal/client';
+import { isPayPalError, type PayPalClient } from '../paypal/client';
 
 export interface ShipDeps {
   db: Db;
@@ -44,7 +44,7 @@ interface TrackerResponse {
 
 const clip = (s: string) => s.slice(0, 500);
 const describeError = (e: unknown) =>
-  e instanceof PayPalError
+  isPayPalError(e)
     ? clip(`${e.status} ${e.code ?? '-'} issues=[${e.issues.join(',')}] debug=${e.debugId ?? '-'}: ${e.message}`)
     : clip(`NETWORK: ${e instanceof Error ? e.message : 'request failed'}`);
 

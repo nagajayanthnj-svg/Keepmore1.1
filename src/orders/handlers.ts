@@ -1,10 +1,10 @@
 // Storefront checkout (T-111). The browser sends SKUs and quantities; the server prices the cart,
 // creates the PayPal order, and on capture writes the order, the buyer hash and the ledger entries.
 import { CATALOGUE } from '../demo/catalogue';
-import { captureFromOrder, entriesFromCapture, recordCapture, CaptureBreakdownError } from '../ledger/entries';
+import { captureFromOrder, entriesFromCapture, recordCapture, isCaptureBreakdownError } from '../ledger/entries';
 import type { Db } from '../lib/db';
 import { fromMinor } from '../normalise/money';
-import { PayPalError, type PayPalClient } from '../paypal/client';
+import { isPayPalError, type PayPalClient, type PayPalError } from '../paypal/client';
 import { buyerHash } from './buyer-hash';
 import { cartSchema, PAYPAL_ORDER_ID } from './schema';
 
@@ -72,7 +72,7 @@ export async function handleCreate(req: Request, deps: CheckoutDeps): Promise<Re
     });
     return json({ id: res.body.id }, 201);
   } catch (e) {
-    if (e instanceof PayPalError) return paypalFailure(e);
+    if (isPayPalError(e)) return paypalFailure(e);
     throw e;
   }
 }
@@ -103,7 +103,7 @@ export async function handleCapture(paypalOrderId: string, deps: CheckoutDeps): 
       })
     ).body;
   } catch (e) {
-    if (e instanceof PayPalError) return paypalFailure(e);
+    if (isPayPalError(e)) return paypalFailure(e);
     throw e;
   }
 
@@ -134,7 +134,7 @@ export async function handleCapture(paypalOrderId: string, deps: CheckoutDeps): 
     });
     return json(summary(capture.id as string), 200);
   } catch (e) {
-    if (e instanceof CaptureBreakdownError) return json({ error: 'CAPTURE_UNUSABLE' }, 502);
+    if (isCaptureBreakdownError(e)) return json({ error: 'CAPTURE_UNUSABLE' }, 502);
     throw e;
   }
 }

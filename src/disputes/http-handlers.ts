@@ -2,12 +2,12 @@
 // Approving writes nothing to PayPal. Sending goes through the action service, the only place a dispute write
 // happens (CLAUDE.md). Both re-check everything against a fresh GET; these handlers only translate to HTTP.
 import { z } from 'zod';
-import { PayPalError } from '../paypal/client';
+import { isPayPalError } from '../paypal/client';
 import { DEMO_DISPUTE_PREFIX } from '../demo/disputes';
 import { submitApprovedAction, submitSandboxSettle, type ActionDeps, type SubmitFailure } from './actions';
 import { SETTLE_LABEL, approveSandboxSettle, type SettleDeps } from './sandbox-settle';
 import { approveAction, type ApprovalDeps, type ApprovalFailure } from './approval';
-import { DISPUTE_ID, DisputeParseError } from './parse';
+import { DISPUTE_ID, isDisputeParseError } from './parse';
 
 const ApproveBody = z.object({
   action: z.enum(['ACCEPT_CLAIM', 'PROVIDE_EVIDENCE', 'PROVIDE_SUPPORTING_INFO', 'SEND_MESSAGE', 'ESCALATE']),
@@ -43,7 +43,7 @@ const SUBMIT_STATUS: Record<SubmitFailure, number> = {
 };
 
 const unreachable = (e: unknown) =>
-  e instanceof PayPalError || e instanceof DisputeParseError
+  isPayPalError(e) || isDisputeParseError(e)
     ? Response.json({ error: 'PAYPAL_UNAVAILABLE', retryable: true }, { status: 502 })
     : null;
 
