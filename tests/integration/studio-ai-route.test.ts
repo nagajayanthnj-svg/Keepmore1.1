@@ -67,6 +67,68 @@ describe('POST /api/studio-ai (T-405 AI assistant)', () => {
     expect(JSON.stringify(await res.json())).not.toContain('KEY123');
   });
 
+  describe('error capture: AgentRun.validation says why Gemini refused', () => {
+    const lastValidation = async () => (await db.agentRun.findFirstOrThrow({ where: { caseId: 'studio-ai' }, orderBy: { createdAt: 'desc' } })).validation;
+    const failWith = (status: number, body: string, headers: Record<string, string> = {}) =>
+      vi.stubGlobal('fetch', vi.fn(async () => new Response(body, { status, headers })));
+
+    it('stores the HTTP status and the error message from a JSON error body', async () => {
+      failWith(400, JSON.stringify({ error: { code: 400, status: 'INVALID_ARGUMENT', message: 'Unknown name "foo" at tools[0]' } }));
+      await handleStudioAi({ db, ai: gemini }, req('x'));
+      const v = await lastValidation();
+      expect(v).toContain('FAILED: HTTP 400');
+      expect(v).toContain('INVALID_ARGUMENT');
+      expect(v).toContain('Unknown name "foo" at tools[0]');
+    });
+
+    it('stores Retry-After (seconds) with a 429', async () => {
+      failWith(429, JSON.stringify({ error: { status: 'RESOURCE_EXHAUSTED', message: 'Quota exceeded for requests per minute' } }), { 'retry-after': '37' });
+      await handleStudioAi({ db, ai: gemini }, req('x'));
+      const v = await lastValidation();
+      expect(v).toContain('FAILED: HTTP 429');
+      expect(v).toContain('retry-after 37s');
+      expect(v).toContain('RESOURCE_EXHAUSTED');
+    });
+
+    it('never stores the API key, a request header value or a thought signature', async () => {
+      const sig = 'EmAKXgFpFH0TIG7vPwTFFRHI7ipDtDDggDpyzDmxx6cyAMxnJgjkud0zc4aoTDvaO4nJuWPVwltyJXOoPewuckM544ai6E4kwS/J1VTFI0oOz38fmscNRJQo1BMokrWT+1w=';
+      failWith(
+        400,
+        JSON.stringify({
+          error: { status: 'INVALID_ARGUMENT', message: `key KEY123 and x-goog-api-key: KEY123 and sig:${sig} and thoughtSignature ${sig} and AIzaSyA1234567890abcdefghijklmnopqrstuv` },
+        }),
+      );
+      await handleStudioAi({ db, ai: gemini }, req('x'));
+      const run = await db.agentRun.findFirstOrThrow({ where: { caseId: 'studio-ai' } });
+      for (const bad of ['KEY123', sig, 'EmAKXgFp', 'AIzaSy', 'x-goog-api-key']) {
+        expect(run.validation).not.toContain(bad);
+        expect(run.outputJson).not.toContain(bad);
+      }
+      expect(run.validation).toContain('INVALID_ARGUMENT');
+    });
+
+    it('caps the stored error message at 300 characters', async () => {
+      failWith(400, JSON.stringify({ error: { status: 'INVALID_ARGUMENT', message: 'word '.repeat(500) } }));
+      await handleStudioAi({ db, ai: gemini }, req('x'));
+      const v = await lastValidation();
+      expect(v.length).toBeLessThanOrEqual('FAILED: HTTP 400 | '.length + 300);
+      expect(v).toContain('word word');
+    });
+
+    it('stores only the status when the body is not JSON (no raw HTML or text)', async () => {
+      failWith(503, '<html>upstream secret page</html>');
+      await handleStudioAi({ db, ai: gemini }, req('x'));
+      expect(await lastValidation()).toBe('FAILED: HTTP 503');
+    });
+
+    it('does not change what the browser receives', async () => {
+      failWith(429, JSON.stringify({ error: { message: 'Quota exceeded' } }), { 'retry-after': '5' });
+      const res = await handleStudioAi({ db, ai: gemini }, req('x'));
+      expect(res.status).toBe(502);
+      expect(await res.json()).toMatchObject({ status: 'failed', output: [], error: { code: 'HTTP_429', message: 'The model could not answer.' } });
+    });
+  });
+
   it('400 for a body that is not a Studio request', async () => {
     expect((await handleStudioAi({ db, ai: gemini }, { nope: 1 })).status).toBe(400);
   });

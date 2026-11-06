@@ -36,6 +36,36 @@ async function realIds(db: Db): Promise<string[]> {
   return [...orders.flatMap((o) => [o.paypalOrderId, o.captureId ?? '']), ...cases.map((c) => c.paypalDisputeId)].filter(Boolean);
 }
 
+const DETAIL_MAX = 300;
+
+/** Strips anything secret-like from text that came back from the provider before it is stored. */
+function redact(text: string, apiKey: string): string {
+  const noKey = apiKey ? text.split(apiKey).join('[redacted]') : text;
+  return noKey
+    .replace(/x-goog-api-key\s*[:=]\s*\S+/gi, '[redacted]')
+    .replace(/bearer\s+\S+/gi, '[redacted]')
+    .replace(/sig:\S+/g, '[redacted]')
+    .replace(/AIza[0-9A-Za-z_-]{20,}/g, '[redacted]')
+    .replace(/[A-Za-z0-9+/_=-]{40,}/g, '[redacted]');
+}
+
+/** Why Gemini refused: the retry delay (if given) and the error status and message from a JSON error body. Never raw non-JSON text. */
+async function failureDetail(res: Response, apiKey: string): Promise<string> {
+  const parts: string[] = [];
+  const retry = res.headers.get('retry-after');
+  if (retry && /^\d{1,5}$/.test(retry.trim())) parts.push(`retry-after ${retry.trim()}s`);
+  try {
+    const e = ((await res.json()) as { error?: { status?: unknown; message?: unknown } }).error;
+    const status = typeof e?.status === 'string' ? e.status : '';
+    const message = typeof e?.message === 'string' ? e.message : '';
+    const detail = redact([status, message].filter(Boolean).join(': '), apiKey).replace(/\s+/g, ' ').trim().slice(0, DETAIL_MAX);
+    if (detail) parts.push(detail);
+  } catch {
+    // not JSON: store the status only
+  }
+  return parts.join(' | ');
+}
+
 const fixture = (): StudioResponse => ({
   id: 'resp_fixture',
   createdAt: Math.floor(Date.now() / 1000),
@@ -75,7 +105,8 @@ export async function handleStudioAi(deps: StudioAiDeps, raw: unknown): Promise<
         body: JSON.stringify(toGemini(parsed.data as unknown as StudioRequest)),
       });
       if (!res.ok) {
-        validation = `FAILED: HTTP ${res.status}`;
+        const why = await failureDetail(res, ai.apiKey);
+        validation = `FAILED: HTTP ${res.status}${why ? ` | ${why}` : ''}`;
         status = 502;
         answer = { id: 'resp_error', createdAt: Math.floor(Date.now() / 1000), status: 'failed', output: [], error: { code: `HTTP_${res.status}`, message: 'The model could not answer.' } };
       } else {
