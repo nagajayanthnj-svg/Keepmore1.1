@@ -4,10 +4,12 @@ import { setupServer } from 'msw/node';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { submitApprovedAction, type ActionDeps } from '../../src/disputes/actions';
 import { approveAction } from '../../src/disputes/approval';
+import { handleApprove, handleSubmit } from '../../src/disputes/http-handlers';
+import { handleManualSync } from '../../src/disputes/manual-sync';
 import { syncDispute } from '../../src/disputes/sync';
 import { fixedClock } from '../../src/lib/clock';
 import type { Db } from '../../src/lib/db';
-import { createPayPalClient } from '../../src/paypal/client';
+import { createPayPalClient, PayPalError, type PayPalClient } from '../../src/paypal/client';
 import { createTestDb } from '../helpers/test-db';
 
 const BASE = 'https://paypal.test';
@@ -258,6 +260,95 @@ describe('failures at PayPal', () => {
     expect(row.responseJson).not.toContain('Private words');
     expect(await submitApprovedAction(deps, id)).toMatchObject({ ok: false, code: 'ALREADY_SUBMITTED' });
     expect(posts).toHaveLength(1);
+  });
+});
+
+// A second copy of the error class, as a bundler can load it: a different class with the same shape and the same
+// global brand (Symbol.for), so `instanceof PayPalError` against the class imported here fails. SYNTHETIC wrapper over the real client.
+const PAYPAL_ERROR_BRAND = Symbol.for('keepmore.error.PayPalError');
+class OtherCopyPayPalError extends Error {
+  readonly [PAYPAL_ERROR_BRAND] = true;
+  readonly status: number;
+  readonly code: string | undefined;
+  readonly debugId: string | undefined;
+  readonly issues: readonly string[];
+  readonly fields: readonly string[];
+  constructor(e: PayPalError) {
+    super(e.message);
+    this.name = 'PayPalError';
+    this.status = e.status;
+    this.code = e.code;
+    this.debugId = e.debugId;
+    this.issues = e.issues;
+    this.fields = e.fields;
+  }
+}
+const otherCopy = (real: PayPalClient): PayPalClient => {
+  const wrap =
+    <A extends unknown[], R>(f: (...a: A) => Promise<R>) =>
+    async (...a: A): Promise<R> => {
+      try {
+        return await f(...a);
+      } catch (e) {
+        throw e instanceof PayPalError ? new OtherCopyPayPalError(e) : e;
+      }
+    };
+  return { ...real, request: wrap(real.request), get: wrap(real.get), post: wrap(real.post) } as PayPalClient;
+};
+const serverError = () =>
+  server.use(
+    http.get(`${BASE}/v1/customer/disputes/:id`, () =>
+      HttpResponse.json({ name: 'INTERNAL_SERVER_ERROR' }, { status: 500 }),
+    ),
+  );
+
+describe('PayPalError from another module copy (bundler duplicate)', () => {
+  it('a 4xx refusal of a write is REJECTED and final, not WRITE_UNCERTAIN', async () => {
+    const { id } = await approved();
+    deps = { ...deps, paypal: otherCopy(deps.paypal) };
+    postStatuses = [{ status: 400, body: REAL_ERROR }];
+    const r = await submitApprovedAction(deps, id);
+    expect(r).toMatchObject({ ok: false, code: 'PAYPAL_REJECTED', httpStatus: 400, paypalCode: REAL_ERROR.name });
+    const row = await db.caseAction.findUniqueOrThrow({ where: { id } });
+    expect(row.submittedAt).not.toBeNull(); // same as one copy: a refusal is final for this approval
+    const kinds = (await db.auditEvent.findMany({ where: { entityId: id } })).map((a) => a.kind);
+    expect(kinds).toContain('REJECTED');
+    expect(kinds).not.toContain('WRITE_UNCERTAIN');
+  });
+
+  it('a failed fresh GET at submit is PAYPAL_UNAVAILABLE (retryable), and the route answers 502', async () => {
+    const { id } = await approved();
+    deps = { ...deps, paypal: otherCopy(deps.paypal) };
+    serverError();
+    expect(await submitApprovedAction(deps, id)).toMatchObject({
+      ok: false,
+      code: 'PAYPAL_UNAVAILABLE',
+      retryable: true,
+    });
+    const res = await handleSubmit(deps, id);
+    expect(res.status).toBe(502);
+    expect(await res.json()).toMatchObject({ error: 'PAYPAL_UNAVAILABLE' });
+  });
+
+  it('the approve route maps it to 502 PAYPAL_UNAVAILABLE', async () => {
+    await syncDispute(deps, IUT);
+    const c = await db.disputeCase.findUniqueOrThrow({ where: { paypalDisputeId: IUT } });
+    deps = { ...deps, paypal: otherCopy(deps.paypal) };
+    serverError();
+    const res = await handleApprove(deps, IUT, {
+      action: 'ACCEPT_CLAIM',
+      payload: { note: 'x', acceptClaimType: 'REFUND' },
+      expectedRawHash: c.rawHash,
+    });
+    expect(res.status).toBe(502);
+    expect(await res.json()).toMatchObject({ error: 'PAYPAL_UNAVAILABLE' });
+  });
+
+  it('the sync button maps it to 502 PAYPAL_UNAVAILABLE', async () => {
+    serverError();
+    const res = await handleManualSync({ db, paypal: otherCopy(deps.paypal) }, IUT);
+    expect(res.status).toBe(502);
+    expect(await res.json()).toEqual({ error: 'PAYPAL_UNAVAILABLE' });
   });
 });
 

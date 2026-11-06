@@ -309,6 +309,40 @@ describe('RawJson', () => {
   });
 });
 
+const BRAND = Symbol.for('keepmore.rawjson');
+
+describe('RawJson from another module copy (bundler duplicate)', () => {
+  // SYNTHETIC: a different class with the same shape and the same global brand, as a second copy of client.ts would define.
+  class OtherCopyRawJson {
+    readonly [BRAND] = true;
+    constructor(readonly text: string) {}
+  }
+
+  it('sends the text byte for byte, not {"text": ...}', async () => {
+    server.use(tokenHandler(), echo);
+    const raw = '{ "a" :  1,\n "n": 1.10 }';
+    await make().post('/v1/ping', new OtherCopyRawJson(raw));
+    expect(await apiCalls[0]!.text()).toBe(raw);
+  });
+
+  it('does not treat a plain object that merely has a text field as RawJson', async () => {
+    server.use(tokenHandler(), echo);
+    await make().post('/v1/ping', { text: '{"x":1}' });
+    expect(await apiCalls[0]!.text()).toBe(JSON.stringify({ text: '{"x":1}' }));
+  });
+
+  it('still serialises plain objects, arrays and null as before', async () => {
+    server.use(tokenHandler(), echo);
+    const c = make();
+    await c.post('/v1/ping', { a: 1, b: [1, 2] });
+    await c.post('/v1/ping', [1, { c: 2 }]);
+    await c.post('/v1/ping', null);
+    expect(await apiCalls[0]!.text()).toBe('{"a":1,"b":[1,2]}');
+    expect(await apiCalls[1]!.text()).toBe('[1,{"c":2}]');
+    expect(await apiCalls[2]!.text()).toBe('null');
+  });
+});
+
 describe('multipart bodies (T-211)', () => {
   it('sends FormData with a multipart content type and boundary, not application/json', async () => {
     let seen: Request | undefined;

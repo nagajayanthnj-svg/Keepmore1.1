@@ -2,14 +2,22 @@
 // Pure functions: no network, no database. Anything we cannot trust is an error, never a guess.
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
+import { hasErrorBrand } from '../lib/error-brand';
 import { toMinor } from '../normalise/money';
 
+const DISPUTE_PARSE_BRAND = Symbol.for('keepmore.error.DisputeParseError');
+
 export class DisputeParseError extends Error {
+  readonly [DISPUTE_PARSE_BRAND] = true;
   constructor(message: string) {
     super(message);
     this.name = 'DisputeParseError';
   }
 }
+
+/** A DisputeParseError from this module or another copy of it. Use this, not `instanceof`. */
+export const isDisputeParseError = (e: unknown): e is DisputeParseError =>
+  e instanceof DisputeParseError || hasErrorBrand(e, 'DisputeParseError');
 
 export const DISPUTE_ID = /^PP-[A-Z0-9-]{3,40}$/;
 const CODE = /^[A-Z][A-Z0-9_]{0,59}$/;
