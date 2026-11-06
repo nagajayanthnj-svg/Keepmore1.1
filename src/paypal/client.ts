@@ -55,12 +55,27 @@ export class PayPalChangeNotSeenError extends Error {
   }
 }
 
+const RAW_JSON_BRAND = Symbol.for('keepmore.rawjson');
+
 /**
  * A body that is already JSON text and must reach PayPal byte for byte. Webhook verification needs this:
  * the signature covers the exact bytes PayPal sent, so the event must not be parsed and written out again.
  */
 export class RawJson {
+  /** Global brand: survives a second copy of this module in another bundle, where `instanceof` fails. */
+  readonly [RAW_JSON_BRAND] = true;
   constructor(readonly text: string) {}
+}
+
+/** A RawJson from this module or from another copy of it. Never matches a plain object that merely has a `text` field. */
+function isRawJson(body: unknown): body is RawJson {
+  if (body instanceof RawJson) return true;
+  return (
+    typeof body === 'object' &&
+    body !== null &&
+    (body as Record<symbol, unknown>)[RAW_JSON_BRAND] === true &&
+    typeof (body as { text?: unknown }).text === 'string'
+  );
 }
 
 export interface PayPalResponse<T = unknown> {
@@ -136,7 +151,7 @@ export function createPayPalClient(opts: PayPalClientOptions) {
     const payload =
       body === undefined
         ? undefined
-        : body instanceof RawJson
+        : isRawJson(body)
           ? body.text
           : body instanceof FormData
             ? body
