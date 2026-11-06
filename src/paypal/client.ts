@@ -13,7 +13,7 @@ const errorBodySchema = z.object({
   name: z.string().optional(),
   message: z.string().optional(),
   debug_id: z.string().optional(),
-  details: z.array(z.object({ issue: z.string().optional() })).optional(),
+  details: z.array(z.object({ issue: z.string().optional(), field: z.string().optional() })).optional(),
 });
 
 export class PayPalError extends Error {
@@ -23,14 +23,24 @@ export class PayPalError extends Error {
   readonly debugId: string | undefined;
   /** Every `details[].issue`, in order. These tell apart errors that share a status and a name. */
   readonly issues: readonly string[];
+  /** Every `details[].field` name, in order: which request field PayPal objects to. Names only, never values. */
+  readonly fields: readonly string[];
 
-  constructor(init: { status: number; message: string; code?: string; debugId?: string; issues?: string[] }) {
+  constructor(init: {
+    status: number;
+    message: string;
+    code?: string;
+    debugId?: string;
+    issues?: string[];
+    fields?: string[];
+  }) {
     super(init.message);
     this.name = 'PayPalError';
     this.status = init.status;
     this.code = init.code;
     this.debugId = init.debugId;
     this.issues = init.issues ?? [];
+    this.fields = init.fields ?? [];
   }
 
   hasIssue(issue: string): boolean {
@@ -157,6 +167,7 @@ export function createPayPalClient(opts: PayPalClientOptions) {
         code: e.name,
         debugId: e.debug_id ?? debugId,
         issues: (e.details ?? []).flatMap((d) => (d.issue ? [d.issue] : [])),
+        fields: (e.details ?? []).flatMap((d) => (d.field ? [d.field] : [])),
       });
     }
     return { status: res.status, body: parsed as T, debugId };

@@ -42,9 +42,20 @@ export async function verifyWebhookSignature(
   const head = JSON.stringify({ ...fields, webhook_id: webhookId });
   // The event is spliced in as raw text: the signature covers these exact bytes.
   const body = new RawJson(`${head.slice(0, -1)},"webhook_event":${rawBody}}`);
-  const res = await withTimeout(
-    paypal.post<{ verification_status?: string }>('/v1/notifications/verify-webhook-signature', body),
-    timeoutMs,
-  );
+  let res;
+  try {
+    res = await withTimeout(
+      paypal.post<{ verification_status?: string }>('/v1/notifications/verify-webhook-signature', body),
+      timeoutMs,
+    );
+  } catch (e) {
+    // Diagnostics only, and only when PayPal could not be asked: header NAMES present and the shape of the
+    // webhook id (length, characters). Never a value. The error itself is rethrown unchanged.
+    const present = HEADERS.map(([, header]) => header).filter((h) => headers.get(h));
+    console.error(
+      `webhook verify inputs: headersPresent=[${present.join(',')}] webhookIdLength=${webhookId.length} webhookIdShapeOk=${/^[A-Z0-9]+$/.test(webhookId)}`,
+    );
+    throw e;
+  }
   return res.body?.verification_status === 'SUCCESS';
 }

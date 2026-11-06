@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Db } from '../../src/lib/db';
+import { PayPalError } from '../../src/paypal/client';
 import { handleWebhook, type WebhookDeps } from '../../src/webhooks/receiver';
 import { createTestDb } from '../helpers/test-db';
 
@@ -219,5 +220,35 @@ describe('failures', () => {
     };
     await handleWebhook(request(resolved, pretty), deps);
     expect(got).toBe(pretty);
+  });
+});
+
+describe('the log when PayPal rejects the verify request', () => {
+  it('names the PayPal error, issue codes, field names, debug id and event type, and no header or body values', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    verdict = async () => {
+      // Synthetic error (not a real PayPal response): the shape of a 400 with one field issue.
+      throw new PayPalError({
+        status: 400,
+        message: 'Request is not well-formed, syntactically incorrect, or violates schema.',
+        code: 'INVALID_REQUEST',
+        debugId: 'SYNTHETIC-DEBUG-1',
+        issues: ['INVALID_STRING_LENGTH'],
+        fields: ['webhook_id'],
+      });
+    };
+    const res = await send(resolved);
+    expect(res.status).toBe(503); // behaviour unchanged
+    const line = spy.mock.calls.map((c) => c.join(' ')).join('\n');
+    spy.mockRestore();
+    expect(line).toContain(`webhook ${resolved.body.id}`);
+    expect(line).toContain('status=400');
+    expect(line).toContain('INVALID_REQUEST');
+    expect(line).toContain('INVALID_STRING_LENGTH');
+    expect(line).toContain('webhook_id');
+    expect(line).toContain('SYNTHETIC-DEBUG-1');
+    expect(line).toContain(resolved.body.event_type);
+    for (const v of Object.values(resolved.headers) as string[]) expect(line).not.toContain(v);
+    expect(line).not.toContain(resolved.body.resource.dispute_id);
   });
 });

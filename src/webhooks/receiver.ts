@@ -4,6 +4,7 @@
 import { DISPUTE_ID } from '../disputes/parse';
 import type { Db } from '../lib/db';
 import { systemClock, type Clock } from '../lib/clock';
+import { PayPalError } from '../paypal/client';
 
 export interface WebhookDeps {
   db: Db;
@@ -74,7 +75,14 @@ export async function handleWebhook(req: Request, deps: WebhookDeps): Promise<Re
     verified = await deps.verify(req.headers, raw);
   } catch (e) {
     // Not "invalid": PayPal could not be asked. Store nothing and let PayPal deliver it again.
-    console.error(`webhook ${id}: could not verify: ${e instanceof Error ? e.message : 'unknown error'}`);
+    // Names, codes and ids only: never a header or body value.
+    const why =
+      e instanceof PayPalError
+        ? `status=${e.status} name=${e.code ?? '-'} issues=[${e.issues.join(',')}] fields=[${e.fields.join(',')}] debug=${e.debugId ?? '-'}: ${e.message}`
+        : e instanceof Error
+          ? e.message
+          : 'unknown error';
+    console.error(`webhook ${id} (${type}): could not verify: ${why}`);
     return json({ error: 'VERIFY_UNAVAILABLE' }, 503);
   }
 
