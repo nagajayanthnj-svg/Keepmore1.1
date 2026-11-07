@@ -6,9 +6,9 @@ import { TruthStateBadge } from '../truth-state-badge';
 import { approveOutcome, canonicalText, sendOutcome, type Outcome } from './payload';
 
 const TONE: Record<Outcome['tone'], string> = {
-  ok: 'border-emerald-700 bg-emerald-50 text-emerald-900',
-  warn: 'border-amber-700 bg-amber-50 text-amber-900',
-  error: 'border-red-700 bg-red-50 text-red-900',
+  ok: 'km-callout-ok',
+  warn: 'km-callout-warn',
+  error: 'km-callout-danger',
 };
 
 const post = async (url: string, body?: unknown) => {
@@ -53,7 +53,7 @@ export function SandboxSettle({ state, disputeId, rawHash }: { state: 'OFFERED' 
   };
 
   return (
-    <div className="space-y-2 rounded border-2 border-dotted border-orange-700 bg-orange-50 p-3" data-testid="sandbox-settle">
+    <div className="space-y-3 rounded-lg border-2 border-dotted border-orange-600 bg-orange-50 p-4" data-testid="sandbox-settle">
       <h3 className="font-semibold">
         Sandbox-simulated adjudication <TruthStateBadge state="Simulated demo" />
       </h3>
@@ -81,7 +81,7 @@ export function SandboxSettle({ state, disputeId, rawHash }: { state: 'OFFERED' 
                   setOutcome(code);
                   setMessage(null);
                 }}
-                className={`rounded border px-3 py-1.5 ${outcome === code ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-500 bg-white'}`}
+                className={`rounded-lg border px-3 py-1.5 font-medium ${outcome === code ? 'border-brand-600 bg-brand-600 text-white' : 'border-line bg-white hover:border-brand-600'}`}
               >
                 {label}
               </button>
@@ -89,12 +89,12 @@ export function SandboxSettle({ state, disputeId, rawHash }: { state: 'OFFERED' 
           </div>
           {outcome && (
             <>
-              <pre className="rounded bg-neutral-900 p-2 text-xs text-neutral-50">{canonicalText({ adjudicationOutcome: outcome })}</pre>
+              <pre className="rounded-lg bg-navy-950 p-3 text-xs text-brand-100">{canonicalText({ adjudicationOutcome: outcome })}</pre>
               <div className="flex flex-wrap gap-2">
-                <button type="button" disabled={busy || !!approval || done} onClick={approve} className="rounded bg-neutral-900 px-3 py-1.5 text-white disabled:opacity-40">
+                <button type="button" disabled={busy || !!approval || done} onClick={approve} className="km-btn-primary">
                   Approve this payload
                 </button>
-                <button type="button" disabled={busy || !approval || done} onClick={send} className="rounded border-2 border-neutral-900 px-3 py-1.5 disabled:opacity-40">
+                <button type="button" disabled={busy || !approval || done} onClick={send} className="km-btn-secondary">
                   Send to PayPal sandbox
                 </button>
               </div>
@@ -103,7 +103,7 @@ export function SandboxSettle({ state, disputeId, rawHash }: { state: 'OFFERED' 
         </>
       )}
       {message && (
-        <p role="status" className={`rounded border-2 p-2 ${TONE[message.tone]}`}>
+        <p role="status" className={TONE[message.tone]}>
           {message.text}
         </p>
       )}

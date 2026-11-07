@@ -1,1 +1,103 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/ibm-plex-sans';
+
+/*
+ * KeepMore design tokens: clean fintech (owner choice, 7 Nov).
+ * Navy shell, one blue for actions, cool grey canvas. Colour carries state (status, truth map), not decoration.
+ * Truth-state badges keep their own border styles, so colour is never the only signal.
+ */
+@theme {
+  --font-sans: 'IBM Plex Sans Variable', 'Segoe UI', system-ui, sans-serif;
+
+  --color-navy-950: #071a2f;
+  --color-navy-900: #0a2540;
+  --color-navy-800: #12365c;
+  --color-navy-300: #9fb3cc;
+
+  --color-brand-50: #eef3fb;
+  --color-brand-100: #dbe6f8;
+  --color-brand-600: #2452c9;
+  --color-brand-700: #1c43a8;
+
+  --color-canvas: #f4f6f9;
+  --color-ink: #172235;
+  --color-muted: #5a6880;
+  --color-line: #dde3eb;
+}
+
+@layer base {
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: 'tnum' 1;
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+  code,
+  pre {
+    font-variant-ligatures: none;
+  }
+}
+
+@layer components {
+  .km-title {
+    @apply text-[1.75rem] leading-tight font-semibold tracking-tight text-navy-900;
+  }
+  .km-lede {
+    @apply mt-2 max-w-[72ch] text-[0.95rem] leading-relaxed text-muted;
+  }
+  .km-h2 {
+    @apply text-lg font-semibold text-navy-900;
+  }
+  .km-help {
+    @apply text-sm text-muted;
+  }
+  .km-link {
+    @apply font-medium text-brand-700 underline decoration-brand-100 underline-offset-2 hover:decoration-brand-600;
+  }
+
+  /* Surfaces: a panel sits on the canvas; a raised panel is where the seller acts. */
+  .km-panel {
+    @apply rounded-xl border border-line bg-white p-5;
+  }
+  .km-panel-raised {
+    @apply rounded-xl border border-line bg-white p-5 shadow-[0_1px_2px_rgba(10,37,64,0.06),0_8px_24px_-12px_rgba(10,37,64,0.18)];
+  }
+
+  /* Buttons: one primary per place, the rest secondary. */
+  .km-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-45;
+  }
+  .km-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-45 bg-brand-600 text-white hover:bg-brand-700;
+  }
+  .km-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-45 border border-line bg-white text-ink hover:border-brand-600 hover:text-brand-700;
+  }
+
+  /* Callouts: tone plus a left rail, so the tone does not rest on colour alone. */
+  .km-callout {
+    @apply rounded-lg border border-l-4 p-3 text-sm;
+  }
+  .km-callout-info {
+    @apply rounded-lg border border-l-4 p-3 text-sm border-brand-100 border-l-brand-600 bg-brand-50 text-navy-900;
+  }
+  .km-callout-warn {
+    @apply rounded-lg border border-l-4 p-3 text-sm border-amber-200 border-l-amber-600 bg-amber-50 text-amber-950;
+  }
+  .km-callout-danger {
+    @apply rounded-lg border border-l-4 p-3 text-sm border-red-200 border-l-red-700 bg-red-50 text-red-950;
+  }
+  .km-callout-ok {
+    @apply rounded-lg border border-l-4 p-3 text-sm border-emerald-200 border-l-emerald-700 bg-emerald-50 text-emerald-950;
+  }
+
+  /* A plain fact about the case: reason, stage, amount. */
+  .km-chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-2.5 py-1 text-sm text-ink;
+  }
+}

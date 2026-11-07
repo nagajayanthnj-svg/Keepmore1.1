@@ -34,9 +34,9 @@ const TEXT_LABEL: Record<WritableAction, string> = {
 };
 
 const TONE: Record<Outcome['tone'], string> = {
-  ok: 'border-emerald-700 bg-emerald-50 text-emerald-900',
-  warn: 'border-amber-700 bg-amber-50 text-amber-900',
-  error: 'border-red-700 bg-red-50 text-red-900',
+  ok: 'km-callout-ok',
+  warn: 'km-callout-warn',
+  error: 'km-callout-danger',
 };
 
 const post = async (url: string, body?: unknown) => {
@@ -119,7 +119,7 @@ export function ActionsPanel({ view, rules, result }: { view: WorkbenchView; rul
 
   return (
     <>
-      <p className="text-neutral-600" data-testid="allowed-source" data-source={source}>
+      <p className="text-muted" data-testid="allowed-source" data-source={source}>
         {source === 'PAYPAL'
           ? 'What PayPal offers right now.'
           : source === 'SIMULATED'
@@ -135,28 +135,28 @@ export function ActionsPanel({ view, rules, result }: { view: WorkbenchView; rul
             data-testid={`action-${a}`}
             aria-pressed={action === a}
             onClick={() => choose(a as WritableAction)}
-            className={`rounded border px-3 py-1.5 text-left font-medium ${
-              action === a ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-400 bg-white hover:bg-neutral-50'
+            className={`rounded-lg border px-3.5 py-2 text-left font-medium transition-colors ${
+              action === a ? 'border-brand-600 bg-brand-600 text-white' : 'border-line bg-white text-ink hover:border-brand-600 hover:text-brand-700'
             } ${a === 'ESCALATE' || a === 'ACCEPT_CLAIM' ? 'border-dashed' : ''}`}
           >
             {ACTION_LABEL[a] ?? a}
-            {a === result.gated.action && <span className="ml-1 text-xs font-normal">(recommended)</span>}
+            {a === result.gated.action && <span className="ml-1.5 text-xs font-normal opacity-80">(recommended)</span>}
           </button>
         ))}
       </div>
       {view.stale && source === 'PAYPAL' && (
-        <p className="rounded border border-amber-700 bg-amber-50 p-2 text-amber-900">
+        <p className="km-callout-warn">
           Last read from PayPal over five minutes ago. Approving needs a fresh read.{' '}
-          <button type="button" className="underline" onClick={sync} disabled={busy}>
+          <button type="button" className="font-medium underline" onClick={sync} disabled={busy}>
             Sync now
           </button>
         </p>
       )}
 
       {action && (
-        <div className="space-y-3 border-t border-neutral-200 pt-3" data-testid="approval-panel">
+        <div className="space-y-4 border-t border-line pt-4" data-testid="approval-panel">
           {action === 'ESCALATE' && (
-            <div className="rounded border-2 border-red-700 bg-red-50 p-2 text-red-900">
+            <div className="km-callout-danger">
               <p>Escalating moves the case to PayPal&apos;s decision and cannot be undone. KeepMore never recommends it.</p>
               <label className="mt-1 flex items-center gap-2">
                 <input type="checkbox" checked={understood} onChange={(e) => setUnderstood(e.target.checked)} data-testid="escalate-understood" />
@@ -165,15 +165,15 @@ export function ActionsPanel({ view, rules, result }: { view: WorkbenchView; rul
             </div>
           )}
           {action === 'ACCEPT_CLAIM' && (
-            <p className="rounded border border-amber-700 bg-amber-50 p-2 text-amber-900">
+            <p className="km-callout-warn">
               Accepting refunds the buyer {fromMinor(view.amountMinor, view.currency)} {view.currency} in full. Nothing is chosen for you.
             </p>
           )}
           <label className="block">
-            <span className="font-medium">{TEXT_LABEL[action]}</span>
+            <span className="font-semibold text-navy-900">{TEXT_LABEL[action]}</span>
             <textarea
               data-testid="payload-text"
-              className="mt-1 block w-full rounded border border-neutral-400 p-2"
+              className="mt-1.5 block w-full rounded-lg border border-line bg-white p-3 focus:border-brand-600"
               rows={5}
               value={text}
               onChange={(e) => edit(e.target.value)}
@@ -181,13 +181,13 @@ export function ActionsPanel({ view, rules, result }: { view: WorkbenchView; rul
             />
           </label>
           {edited && (
-            <p className="text-xs text-neutral-700" data-testid="edited-note">
+            <p className="text-xs text-muted" data-testid="edited-note">
               <TruthStateBadge state="Seller entered" /> Edited by you. Your words are not checked against the records.
             </p>
           )}
           <div>
-            <h3 className="font-medium">Exact payload you approve</h3>
-            <pre data-testid="payload" className="mt-1 overflow-x-auto whitespace-pre-wrap break-words rounded bg-neutral-900 p-2 text-xs text-neutral-50">
+            <h3 className="font-semibold text-navy-900">Exact payload you approve</h3>
+            <pre data-testid="payload" className="mt-1 overflow-x-auto whitespace-pre-wrap break-words rounded-lg bg-navy-950 p-3 text-xs leading-relaxed text-brand-100">
               {canonicalText(payload)}
             </pre>
           </div>
@@ -197,7 +197,7 @@ export function ActionsPanel({ view, rules, result }: { view: WorkbenchView; rul
               data-testid="approve"
               disabled={!ready || busy || !!approval || sent}
               onClick={approve}
-              className="rounded bg-neutral-900 px-3 py-1.5 font-medium text-white disabled:opacity-40"
+              className="km-btn-primary"
             >
               Approve this payload
             </button>
@@ -206,7 +206,7 @@ export function ActionsPanel({ view, rules, result }: { view: WorkbenchView; rul
               data-testid="send"
               disabled={!approval || busy || sent}
               onClick={send}
-              className="rounded border-2 border-neutral-900 px-3 py-1.5 font-medium disabled:opacity-40"
+              className="km-btn-secondary"
             >
               Send to PayPal
             </button>
@@ -217,7 +217,7 @@ export function ActionsPanel({ view, rules, result }: { view: WorkbenchView; rul
         <SandboxSettle state={result.sandboxSettle} disputeId={view.disputeId} rawHash={view.rawHash} />
       )}
       {message && (
-        <p role="status" data-testid="action-message" data-tone={message.tone} className={`rounded border-2 p-2 ${TONE[message.tone]}`}>
+        <p role="status" data-testid="action-message" data-tone={message.tone} className={TONE[message.tone]}>
           {message.text}
         </p>
       )}

@@ -5,7 +5,7 @@ export function StaleBadge({ state }: { state: string }) {
   return (
     <span
       data-sync-state={fresh ? 'FRESH' : 'STALE'}
-      className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${
+      className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium leading-5 ${
         fresh
           ? 'border-2 border-solid border-emerald-700 bg-emerald-50 text-emerald-900'
           : 'border-2 border-dashed border-amber-700 bg-amber-50 text-amber-900'

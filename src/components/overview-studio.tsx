@@ -1,12 +1,31 @@
 'use client';
 // AG Studio on the Overview (T-405, option a). View mode by default; "Customise" switches to edit mode so the seller
 // can build their own charts from the same three sources. A customised layout is kept in this browser only.
-import { AgStudioAiModule, createAiHarness, createFormats, type AgAiHarnessSetupParams, type AgDataSourcesDefinition, type AgReportState, type AgStudioApi } from 'ag-studio';
+import { AgStudioAiModule, createAiHarness, createFormats, type AgAiHarnessSetupParams, type AgDataSourcesDefinition, type AgReportState, type AgStudioApi, studioTheme } from 'ag-studio';
 import { AgStudio, AgStudioProvider } from 'ag-studio-react';
 import { useRef, useState } from 'react';
 import { fromMinor } from '../normalise/money';
 import type { StudioData } from '../overview/studio-data';
 import { keepMoreAdapter } from './studio-ai-adapter';
+
+// Matches the app tokens in globals.css (clean fintech, 7 Nov): white tiles on the grey canvas, one blue accent.
+const theme = studioTheme.withParams({
+  fontFamily: 'inherit',
+  studioCanvasFontFamily: 'inherit',
+  chartFontFamily: 'inherit',
+  accentColor: '#2452c9',
+  chartAccentColor: '#2452c9',
+  textColor: '#172235',
+  subtleTextColor: '#5a6880',
+  borderColor: '#dde3eb',
+  studioCanvasBackgroundColor: '#f4f6f9',
+  studioWidgetBackgroundColor: '#ffffff',
+  studioWidgetBorder: { color: '#dde3eb' },
+  studioWidgetBorderRadius: 10,
+  studioWidgetTitleFontSize: 15,
+  studioWidgetTitleFontWeight: 600,
+  studioWidgetTitleTextColor: '#0a2540',
+});
 
 const SAVED = 'keepmore.overview.studio.v1';
 
@@ -170,18 +189,18 @@ export function OverviewStudio({
 
   return (
     <div data-testid="overview-studio">
-      <div className="mb-2 flex flex-wrap items-center gap-2 text-sm">
+      <div className="mb-4 flex flex-wrap items-center gap-2 text-sm">
         {!aiOn && (
-          <button type="button" onClick={toggle} data-testid="studio-mode" className="rounded border border-neutral-500 px-3 py-1.5">
+          <button type="button" onClick={toggle} data-testid="studio-mode" className="km-btn-secondary">
             {mode === 'view' ? 'Customise this dashboard' : 'Done customising'}
           </button>
         )}
         {!ai && aiOff && (
           <span className="flex flex-wrap items-center gap-2">
-            <button type="button" disabled data-testid="studio-ai" className="rounded border border-neutral-300 px-3 py-1.5 text-neutral-400">
+            <button type="button" disabled data-testid="studio-ai" className="km-btn-secondary">
               Ask the AI assistant (demo data only)
             </button>
-            <span className="text-neutral-600" data-testid="studio-ai-off">
+            <span className="text-muted" data-testid="studio-ai-off">
               {aiOff}
             </span>
           </span>
@@ -192,21 +211,21 @@ export function OverviewStudio({
             data-testid="studio-ai"
             aria-pressed={aiOn}
             onClick={() => setAiOn(!aiOn)}
-            className={`rounded border px-3 py-1.5 ${aiOn ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-500'}`}
+            className={aiOn ? 'km-btn-secondary' : 'km-btn-primary'}
           >
             {aiOn ? 'Close the AI assistant' : 'Ask the AI assistant (demo data only)'}
           </button>
         )}
         {custom && (
-          <button type="button" onClick={reset} className="rounded border border-neutral-300 px-3 py-1.5" data-testid="studio-reset">
+          <button type="button" onClick={reset} className="km-btn-secondary" data-testid="studio-reset">
             Back to the default layout
           </button>
         )}
-        <span className="text-neutral-600">
+        <span className="text-muted">
           {mode === 'edit' ? 'Drag fields onto the canvas to build your own charts. Kept in this browser only.' : 'Click a bar or a filter to narrow every chart.'}
         </span>
       </div>
-      <div role="tablist" aria-label="Dashboard pages" className={`mb-2 flex gap-1 text-sm ${aiOn ? 'hidden' : ''}`}>
+      <div role="tablist" aria-label="Dashboard pages" className={`mb-3 flex gap-1 border-b border-line text-sm ${aiOn ? 'hidden' : ''}`}>
         {(
           [
             ['money', 'Money'],
@@ -220,30 +239,31 @@ export function OverviewStudio({
             aria-selected={page === id}
             data-testid={`studio-page-${id}`}
             onClick={() => show(id)}
-            className={`rounded-t border-b-2 px-3 py-1.5 ${page === id ? 'border-neutral-900 font-semibold' : 'border-transparent text-neutral-600'}`}
+            className={`-mb-px border-b-2 px-4 py-2 ${page === id ? 'border-brand-600 font-semibold text-brand-700' : 'border-transparent text-muted hover:text-ink'}`}
           >
             {label}
           </button>
         ))}
       </div>
       {aiOn && (
-        <p className="mb-2 rounded border-2 border-dotted border-orange-700 bg-orange-50 p-2 text-sm text-orange-900" data-testid="studio-ai-note">
+        <p className="mb-3 rounded-lg border-2 border-dotted border-orange-600 bg-orange-50 p-3 text-sm text-orange-950" data-testid="studio-ai-note">
           The assistant sees the demo shop only (Simulated demo). Real sandbox orders are hidden while it is open, and the
           server refuses any request that contains one. Ask in plain words, for example “fees by country”. Charts it builds
           are not saved.
         </p>
       )}
       {failed && (
-        <p role="alert" className="mb-2 rounded border-2 border-red-700 bg-red-50 p-2 text-sm text-red-900">
+        <p role="alert" className="km-callout-danger mb-3">
           The dashboard could not load ({failed}). The table below has the same totals.
         </p>
       )}
-      <div style={{ height: aiOn ? 760 : 680 }} className="overflow-hidden rounded-lg border border-neutral-200">
+      <div style={{ height: aiOn ? 760 : 680 }} className="overflow-hidden rounded-xl border border-line bg-white shadow-[0_1px_2px_rgba(10,37,64,0.06)]">
         <AgStudioProvider licenseKey={process.env.NEXT_PUBLIC_AG_GRID_LICENSE_KEY || undefined} modules={[AgStudioAiModule]}>
           {aiOn && ai ? (
             <AgStudio
               key="ai"
               style={{ height: '100%', width: '100%' }}
+              theme={theme}
               mode="edit"
               initialState={{ ...ai.report, panels: { ...ai.report.panels, ai: { collapsed: false } } }}
               data={sources(ai.data)}
@@ -253,6 +273,7 @@ export function OverviewStudio({
             <AgStudio
               key="plain"
               style={{ height: '100%', width: '100%' }}
+              theme={theme}
               mode="view"
               initialState={initial}
               data={sources(data)}
