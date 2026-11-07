@@ -35,7 +35,7 @@ function linkRenderer(hrefField: string) {
     const href: unknown = p.data?.[hrefField];
     // A path on this site only: one leading "/" and no "//" or scheme.
     return typeof p.value === 'string' && typeof href === 'string' && /^\/(?!\/)[^\s]*$/.test(href)
-      ? createElement('a', { href, className: 'font-medium text-sky-800 underline' }, p.value)
+      ? createElement('a', { href, className: 'km-link' }, p.value)
       : (p.value ?? null);
   }
   return LinkCell;

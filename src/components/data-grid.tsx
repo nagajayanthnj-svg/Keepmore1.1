@@ -15,7 +15,20 @@ import { useMemo } from 'react';
 import { toColDefs, type GridColumn } from './grid-columns';
 
 const modules = [CellStyleModule, ClientSideRowModelModule, TextFilterModule, NumberFilterModule, ColumnAutoSizeModule];
-const theme = themeQuartz.withParams({ headerFontWeight: 600 });
+// Matches the app tokens in globals.css (clean fintech, 7 Nov).
+const theme = themeQuartz.withParams({
+  fontFamily: 'inherit',
+  fontSize: 14,
+  accentColor: '#2452c9',
+  foregroundColor: '#172235',
+  borderColor: '#dde3eb',
+  headerBackgroundColor: '#f7f9fc',
+  headerTextColor: '#5a6880',
+  headerFontWeight: 600,
+  rowHoverColor: '#eef3fb',
+  wrapperBorderRadius: 12,
+  rowVerticalPaddingScale: 1.15,
+});
 
 /** Plain data only: screens are server components. `id` must be unique per row. */
 export type GridRow = { id: string } & Record<string, string | number | null>;

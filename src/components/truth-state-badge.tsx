@@ -14,7 +14,7 @@ const LOOK: Record<TruthState, string> = {
 export function TruthStateBadge({ state }: { state: TruthState }) {
   const s = asTruthState(state);
   return (
-    <span data-truth-state={s} className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${LOOK[s]}`}>
+    <span data-truth-state={s} className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium leading-5 ${LOOK[s]}`}>
       {s}
     </span>
   );
