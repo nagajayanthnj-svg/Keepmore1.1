@@ -293,8 +293,11 @@ describe('the log on the real 400 path (client -> verifyWebhookSignature -> rece
 
   it('still prints them when the error comes from another copy of the PayPalError class (bundler duplicate)', async () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    // Same shape, different class identity: what `instanceof PayPalError` cannot match.
+    // Same shape and the same global brand, different class identity: what a second copy of client.ts defines
+    // and what `instanceof PayPalError` cannot match.
+    const PE = Symbol.for('keepmore.error.PayPalError');
     class PayPalError extends Error {
+      readonly [PE] = true;
       status = 400;
       code = 'INVALID_REQUEST';
       debugId = 'SYNTHETIC-DEBUG-3';
@@ -311,5 +314,25 @@ describe('the log on the real 400 path (client -> verifyWebhookSignature -> rece
     expect(line).toContain(
       'status=400 name=INVALID_REQUEST issues=[SYNTHETIC_ISSUE] fields=[/webhook_event] debug=SYNTHETIC-DEBUG-3',
     );
+  });
+
+  it('does not print PayPal details for a look-alike error without our brand', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const lookAlike = Object.assign(new Error('SYNTHETIC look-alike'), {
+      name: 'PayPalError',
+      status: 400,
+      code: 'INVALID_REQUEST',
+      debugId: 'SYNTHETIC-DEBUG-4',
+      issues: ['SYNTHETIC_ISSUE'],
+      fields: [],
+    });
+    verdict = async () => {
+      throw lookAlike;
+    };
+    await send(resolved);
+    const line = spy.mock.calls.map((c) => c.join(' ')).join('\n');
+    spy.mockRestore();
+    expect(line).toContain('could not verify: SYNTHETIC look-alike');
+    expect(line).not.toContain('SYNTHETIC-DEBUG-4');
   });
 });

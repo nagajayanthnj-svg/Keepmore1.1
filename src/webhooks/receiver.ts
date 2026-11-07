@@ -4,7 +4,7 @@
 import { DISPUTE_ID } from '../disputes/parse';
 import type { Db } from '../lib/db';
 import { systemClock, type Clock } from '../lib/clock';
-import type { PayPalError } from '../paypal/client';
+import { isPayPalError } from '../paypal/client';
 
 export interface WebhookDeps {
   db: Db;
@@ -22,21 +22,6 @@ const EVENT_TYPE = /^[A-Za-z0-9_.]{1,100}$/;
 
 const json = (body: unknown, status: number) => Response.json(body, { status });
 const clip = (s: string) => s.slice(0, 300);
-
-/**
- * Matches by shape, not `instanceof`: a bundler can load client.ts twice (route chunk and receiver chunk),
- * and then the class the client threw is not the class imported here. Diagnostics only.
- */
-function asPayPalError(e: unknown): PayPalError | undefined {
-  const x = e as Partial<PayPalError> | null;
-  return e instanceof Error &&
-    x?.name === 'PayPalError' &&
-    typeof x.status === 'number' &&
-    Array.isArray(x.issues) &&
-    Array.isArray(x.fields)
-    ? (e as PayPalError)
-    : undefined;
-}
 
 interface WebhookEvent {
   id?: unknown;
@@ -91,7 +76,7 @@ export async function handleWebhook(req: Request, deps: WebhookDeps): Promise<Re
   } catch (e) {
     // Not "invalid": PayPal could not be asked. Store nothing and let PayPal deliver it again.
     // Names, codes and ids only: never a header or body value.
-    const pe = asPayPalError(e);
+    const pe = isPayPalError(e) ? e : undefined;
     const why = pe
       ? `status=${pe.status} name=${pe.code ?? '-'} issues=[${pe.issues.join(',')}] fields=[${pe.fields.join(',')}] debug=${pe.debugId ?? '-'}: ${pe.message}`
       : e instanceof Error

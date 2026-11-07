@@ -1,6 +1,6 @@
 // Poller and stale detection (T-205). Webhooks are only a nudge (Phase 0 saw none for the link change
 // or the hold release), so polling is required. It only reads from PayPal and never writes to it.
-import { DISPUTE_ID, DisputeParseError } from './parse';
+import { DISPUTE_ID, DisputeParseError, isDisputeParseError } from './parse';
 import { syncDispute, type SyncDeps } from './sync';
 
 export const STALE_AFTER_MS = 5 * 60 * 1000;
@@ -34,8 +34,9 @@ export interface PollResult {
   errors: PollError[];
 }
 
-const errorCode = (e: unknown): string =>
-  e instanceof DisputeParseError ? 'UNUSABLE_DISPUTE' : e instanceof Error ? e.name : 'ERROR';
+/** The code a poll error is recorded under. Exported for tests. */
+export const pollErrorCode = (e: unknown): string =>
+  isDisputeParseError(e) ? 'UNUSABLE_DISPUTE' : e instanceof Error ? e.name : 'ERROR';
 
 /**
  * Lists PayPal's disputes and syncs the ones we do not hold, then refreshes every stored case that is
@@ -59,7 +60,7 @@ export async function pollOnce(deps: SyncDeps): Promise<PollResult> {
       if (typeof id === 'string' && DISPUTE_ID.test(id)) listed.add(id);
     }
   } catch (e) {
-    errors.push({ disputeId: '(list)', error: errorCode(e) });
+    errors.push({ disputeId: '(list)', error: pollErrorCode(e) });
   }
 
   const open = await deps.db.disputeCase.findMany({
@@ -80,7 +81,7 @@ export async function pollOnce(deps: SyncDeps): Promise<PollResult> {
       await syncDispute(deps, id);
       synced += 1;
     } catch (e) {
-      errors.push({ disputeId: id, error: errorCode(e) });
+      errors.push({ disputeId: id, error: pollErrorCode(e) });
     }
   }
   return { discovered: discovered.length, synced, errors };
